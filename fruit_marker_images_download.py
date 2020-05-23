@@ -7,14 +7,3 @@ with open('fruit_marker_images_location.html') as f:
     ls = re.findall('"https://mundraub.org.*?png"', f.read())
     print(len(ls))
     os.system('wget ' + ' '.join(ls))
-
-
-
-
-
-
-
-
-
-
-

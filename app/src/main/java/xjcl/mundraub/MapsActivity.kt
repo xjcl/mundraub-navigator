@@ -9,13 +9,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.BitmapDescriptorFactory.*
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.json
 import java.net.URL
 
 
@@ -65,7 +63,7 @@ val treeIdToName = hashMapOf(
     36 to R.drawable.thyme,
     37 to R.drawable.otherherb,
 
-    null to R.drawable.other
+    null to R.drawable.otherfruit
 )
 
 var markers = ArrayList<Marker>()
@@ -76,42 +74,71 @@ class AsyncFruitGetRequest(map : GoogleMap, url : String) : AsyncTask<Void, Void
     val mURL = url;
 
     override fun doInBackground(vararg params: Void?): String {
-        return URL(mURL).readText()
+        return try {
+            URL(mURL).readText()
+        } catch (ex : Exception) {
+            "null"
+        }
     }
 
     fun addLocationMarkers(jsonStr: String) {
-        if (jsonStr == "null") return
+        if (jsonStr == "null" || jsonStr == "") return
+
+        // --- parse newly downloaded markers ---
+        Log.e("testo", jsonStr)
         // API sometimes returns String instead of double/int for no reason... -> convert
         val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr, { it.value.substring(1, it.value.length - 1) })
         val root = Json.parse(Root.serializer(), jsonStrClean)
         Log.e("testo", root.toString())
 
+        // --- cull OOB markers ---
         val mapBounds = mMap.projection.visibleRegion.latLngBounds
-
-        // cull old markers
-        val markersNew = ArrayList<Marker>()
+        var markersNew = ArrayList<Marker>()
         for (mark in markers) {
-            if (mapBounds.contains(mark.position))
-                markersNew.add(mark)
-            else
-                mark.remove()
+            if (mapBounds.contains(mark.position)) markersNew.add(mark) else mark.remove()
         }
         markers = markersNew
 
-        // add newly downloaded markers
-        // mMap.clear()
+        // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
+        markersNew = ArrayList<Marker>()
+        outer@
+        for (mark in markers) {
+            // TODO: use set so this is O(n) not O(n^2)
+            var found = false
+            for (feature in root.features) {
+                val fruit = LatLng(feature.pos[0], feature.pos[1])
+                if (mark.position == fruit) {
+                    found = true
+                    break
+                }
+            }
+            if (found) markersNew.add(mark) else mark.remove()
+        }
+        markers = markersNew
+
+        // --- add newly downloaded markers not already in old set ---
+        outer@
         for (feature in root.features) {
             val fruit = LatLng(feature.pos[0], feature.pos[1])
 
-            val mark = mMap.addMarker(MarkerOptions().position(fruit).title("Marker in Fruit").icon(
-                fromResource( treeIdToName[feature.properties?.tid] ?: R.drawable.other ) ))
-            // fromBitmap(decodeFile( treeIdToName[feature.properties?.tid] + ".png" )) ))
-            markers.add(mark)
-            // TODO only add if not in list, else list grows forever -> O(n^2) unless we use a set
-            // TODO alt: only query previously offscreen region ? -> needs to keep a list of rects
-        }
-        println(markers.size)
+            // TODO: use set so this is O(n) not O(n^2)
+            for (mark in markers)
+                if (mark.position == fruit)
+                    continue@outer
 
+            val icon =
+                if (feature.properties == null)
+                    defaultMarker(70.0F)
+                else
+                    fromResource(treeIdToName[feature.properties?.tid] ?: R.drawable.otherfruit)
+
+            val mark = mMap.addMarker(
+                MarkerOptions().position(fruit).title("Zoom To Expand").icon(icon)
+            )
+            markers.add(mark)
+        }
+
+        println(markers.size)
     }
 
     override fun onPostExecute(jsonStr: String) {
@@ -153,19 +180,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     }
 }
 
-// TODO resize marker
-// TODO draw from top to bottom so correct marker selected? i.e. sort by y
 
-// TODO:
-//    - fruit types
-//    - don't delete markers in viewport (leads to inability to tap/open markers)
-//          - but do delete them if we zoom out
-//    - only add markers not in recent rects
+// TODO marker assets
+//    * make marker assets for clusters (1..8, 9+)?
+//    - use hi-dpi / hi-res markers
 
-//    - fruit markers from official site
-//    - cluster markers (make self?)
-//        - can center those?
+// TODO algorithm
+//    * use sets instead of lists
+//    - bounding box could be bigger than viewport
+//    - draw from top to bottom so correct marker selected? i.e. sort by y
 
-//    - bounding box around
-//    - move camera to most recent location
-//    - cache markers
+// TODO reopen app
+//    * start at most recent viewport
+//    * save markers
+
+// TODO UX
+//    * draw user per GPS like Gmaps
+//    - click on marker: display fruit name (how? second map? pair-in-pair type? pair-in-dataclass?)
+
+
+// TODO medium-term
+//    - click on marker: Marker callback with rich fruit info
+//        - season, API (descr, picture) ...
+
+// TODO long-term / never
+//    - groups, actions, cider makers, saplings, ...
