@@ -1,6 +1,5 @@
 package xjcl.mundraub
 
-import android.graphics.BitmapFactory.decodeFile
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -9,11 +8,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
-import com.google.android.gms.maps.model.BitmapDescriptorFactory.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory.defaultMarker
+import com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.json
 import java.net.URL
 
 
@@ -91,45 +92,27 @@ class AsyncFruitGetRequest(map : GoogleMap, url : String) : AsyncTask<Void, Void
         val root = Json.parse(Root.serializer(), jsonStrClean)
         Log.e("testo", root.toString())
 
-        // --- cull OOB markers ---
-        val mapBounds = mMap.projection.visibleRegion.latLngBounds
-        var markersNew = ArrayList<Marker>()
-        for (mark in markers) {
-            if (mapBounds.contains(mark.position)) markersNew.add(mark) else mark.remove()
-        }
-        markers = markersNew
-
         // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
-        markersNew = ArrayList<Marker>()
-        outer@
+        val markersNew = ArrayList<Marker>()
+        val featuresSet = HashSet<LatLng>( root.features.map { LatLng(it.pos[0], it.pos[1]) } )
         for (mark in markers) {
-            // TODO: use set so this is O(n) not O(n^2)
-            var found = false
-            for (feature in root.features) {
-                val fruit = LatLng(feature.pos[0], feature.pos[1])
-                if (mark.position == fruit) {
-                    found = true
-                    break
-                }
-            }
-            if (found) markersNew.add(mark) else mark.remove()
+            if (featuresSet.contains(mark.position)) markersNew.add(mark) else mark.remove()
         }
         markers = markersNew
 
         // --- add newly downloaded markers not already in old set ---
+        var markersSet = HashSet<LatLng>( markers.map { it.position } )
         outer@
         for (feature in root.features) {
             val fruit = LatLng(feature.pos[0], feature.pos[1])
 
-            // TODO: use set so this is O(n) not O(n^2)
-            for (mark in markers)
-                if (mark.position == fruit)
-                    continue@outer
+            if (markersSet.contains(fruit))
+                continue
 
             val icon =
-                if (feature.properties == null)
+                if (feature.properties == null) // cluster
                     defaultMarker(70.0F)
-                else
+                else // tree
                     fromResource(treeIdToName[feature.properties?.tid] ?: R.drawable.otherfruit)
 
             val mark = mMap.addMarker(
@@ -186,7 +169,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - use hi-dpi / hi-res markers
 
 // TODO algorithm
-//    * use sets instead of lists
 //    - bounding box could be bigger than viewport
 //    - draw from top to bottom so correct marker selected? i.e. sort by y
 
