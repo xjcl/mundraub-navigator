@@ -2,6 +2,7 @@ package xjcl.mundraub
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -19,7 +20,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.tasks.Task
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
@@ -76,7 +76,7 @@ val treeIdToName = hashMapOf(
 var markers = ArrayList<Marker>()
 
 
-class AsyncFruitGetRequest(activity: MapsActivity, map : GoogleMap, url : String) : AsyncTask<Void, Void, String>() {
+class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String) : AsyncTask<Void, Void, String>() {
     val mActivity = activity
     val mMap = map
     val mURL = url
@@ -140,37 +140,41 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     // --- update markers when user finished moving map ---
-    override fun onCameraIdle() {
+    fun updateMarkers() {
         val zoom = mMap.cameraPosition.zoom
-        val bbox_lo = mMap.projection.visibleRegion.nearLeft
-        val bbox_hi = mMap.projection.visibleRegion.farRight
+        val bboxLo = mMap.projection.visibleRegion.nearLeft
+        val bboxHi = mMap.projection.visibleRegion.farRight
 
         // https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
-        val url = "https://mundraub.org/cluster/plant?bbox=${bbox_lo.longitude},${bbox_lo.latitude},${bbox_hi.longitude},${bbox_hi.latitude}" +
+        val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
              "&zoom=${(zoom + .5).toInt()}&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 
         Log.e("testo", "GET $url")
 
-        AsyncFruitGetRequest(this, mMap, url).execute()
+        AsyncAreaGetRequest(this, mMap, url).execute()
     }
+
+    override fun onCameraIdle() = updateMarkers()
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String?>, grantResults: IntArray
     ) {
+        fusedLocationClient.lastLocation.addOnFailureListener(this) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            if (location == null) return@addOnSuccessListener
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
+        }
+
         if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_DENIED) return
 
         mMap.isMyLocationEnabled = true  // show blue circle on map
-
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-            if (location == null) return@addOnSuccessListener
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
-        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setOnCameraIdleListener(this)
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
 
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions,0)
@@ -184,12 +188,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        // https://stackoverflow.com/a/22058966/2111778  retains markers if user rotates phone etc. (useful offline)
+        mapFragment.retainInstance = true
+    }
+
+    override fun onBackPressed() {
+        moveTaskToBack(true)  // do not call onCreate after user accidentally hits Back (useful offline)
     }
 }
 
 
 // TODO marker assets
 //    * make marker assets for clusters (1..8, 9+)?
+//        - https://stackoverflow.com/a/32438092/2111778
 //    - use hi-dpi / hi-res markers
 
 // TODO algorithm
@@ -197,9 +208,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - draw from top to bottom so correct marker selected? i.e. sort by y
 
 // TODO stateful app
-//    * startup: save markers from last time
-//    * onRotate: loses markers if no internet
-//          https://developers.google.com/maps/documentation/android-sdk/current-place-tutorial
+//    * onRotate: download new markers
+//    * onInternetConnection: download new markers
+//    - startup: save markers from last time
 
 // TODO publishing
 //    - remove google_maps_key from git history and add note
