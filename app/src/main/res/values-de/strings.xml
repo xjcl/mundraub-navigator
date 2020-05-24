@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Mundraub Mobile</string>
+    <string name="title_activity_maps">Mundraub Mobile</string>
+
+    <string name="tid4" >Apfel</string>
+    <string name="tid5" >Birne</string>
+    <string name="tid6" >Kirsche</string>
+    <string name="tid7" >Mirabelle</string>
+    <string name="tid8" >Pflaume</string>
+    <string name="tid9" >Quitte</string>
+    <string name="tid10">Aprikose</string>
+    <string name="tid11">Maulbeere</string>
+    <string name="tid12">Andere Obstbäume</string>
+
+    <string name="tid14">Haselnuss</string>
+    <string name="tid15">Walnuss</string>
+    <string name="tid16">Esskastanie</string>
+    <string name="tid17">Andere Nüsse</string>
+
+    <string name="tid18">Brombeere</string>
+    <string name="tid19">Wilde Erdbeere</string>
+    <string name="tid20">Blaubeere</string>
+    <string name="tid21">Holunder</string>
+    <string name="tid22">Himbeere</string>
+    <string name="tid23">Johannisbeere</string>
+    <string name="tid24">Kornelkirsche</string>
+    <string name="tid25">Felsenbirne</string>
+    <string name="tid26">Sanddorn</string>
+    <string name="tid27">Hagebutte</string>
+    <string name="tid28">Schlehe</string>
+    <string name="tid29">Weißdorn</string>
+    <string name="tid30">Andere Obststräucher</string>
+
+    <string name="tid31">Bärlauch</string>
+    <string name="tid32">Wacholder</string>
+    <string name="tid33">Minze</string>
+    <string name="tid34">Rosmarin</string>
+    <string name="tid35">Waldmeister</string>
+    <string name="tid36">Thymina</string>
+    <string name="tid37">Andere Kräuter</string>
+
+    <string name="tidnull">Mehrere Marker (bitte zoomen)</string>
+</resources>

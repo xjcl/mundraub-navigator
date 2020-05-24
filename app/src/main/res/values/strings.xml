@@ -1,4 +1,43 @@
 <resources>
     <string name="app_name">Mundraub Mobile</string>
     <string name="title_activity_maps">Mundraub Mobile</string>
+
+    <string name="tid4" >Apple</string>
+    <string name="tid5" >Pear</string>
+    <string name="tid6" >Cherry</string>
+    <string name="tid7" >Mirabelle</string>
+    <string name="tid8" >Plum</string>
+    <string name="tid9" >Quince</string>
+    <string name="tid10">Apricot</string>
+    <string name="tid11">Mulberry</string>
+    <string name="tid12">Other fruit</string>
+
+    <string name="tid14">Hazelnut</string>
+    <string name="tid15">Walnut</string>
+    <string name="tid16">Chestnut</string>
+    <string name="tid17">Other nut</string>
+
+    <string name="tid18">Blackberry</string>
+    <string name="tid19">Wild Strawberry</string>
+    <string name="tid20">Blueberry</string>
+    <string name="tid21">Elderberry</string>
+    <string name="tid22">Raspberry</string>
+    <string name="tid23">Currant</string>
+    <string name="tid24">Cornel Cherry</string>
+    <string name="tid25">Shadbush</string>
+    <string name="tid26">Sea Buckthorn</string>
+    <string name="tid27">Rose Hip</string>
+    <string name="tid28">Blackthorn</string>
+    <string name="tid29">Hawthorn</string>
+    <string name="tid30">Other fruit shrub</string>
+
+    <string name="tid31">Ramson</string>
+    <string name="tid32">Juniper</string>
+    <string name="tid33">Mint</string>
+    <string name="tid34">Rosemary</string>
+    <string name="tid35">Woodruff</string>
+    <string name="tid36">Thyme</string>
+    <string name="tid37">Other herb</string>
+
+    <string name="tidnull">Cluster (Zoom To Expand)</string>
 </resources>
