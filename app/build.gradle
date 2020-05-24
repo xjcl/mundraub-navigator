@@ -37,6 +37,8 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" // or "kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0" // JVM dependency
+
+    implementation 'com.google.android.gms:play-services-location:17.0.0'  // access location
 }
 
 apply plugin: 'kotlin-android-extensions'

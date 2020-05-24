@@ -7,6 +7,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -16,6 +19,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.Task
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
@@ -133,6 +137,7 @@ class AsyncFruitGetRequest(activity: MapsActivity, map : GoogleMap, url : String
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     // --- update markers when user finished moving map ---
     override fun onCameraIdle() {
@@ -152,13 +157,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String?>, grantResults: IntArray
     ) {
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            mMap.isMyLocationEnabled = true
+        if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_DENIED) return
+
+        mMap.isMyLocationEnabled = true  // show blue circle on map
+
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            if (location == null) return@addOnSuccessListener
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setOnCameraIdleListener(this)
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
 
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions,0)
@@ -167,6 +179,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -183,17 +197,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - draw from top to bottom so correct marker selected? i.e. sort by y
 
 // TODO stateful app
-//    * startup: start at most recent viewport or GPS+zoom
 //    * startup: save markers from last time
-//    - onRotate: loses markers if no internet
+//    * onRotate: loses markers if no internet
 //          https://developers.google.com/maps/documentation/android-sdk/current-place-tutorial
-
-// TODO UX
-//    * draw user per GPS like Gmaps
-//    * click on marker: display fruit name (how? second map? pair-in-pair type? pair-in-dataclass?)
 
 // TODO publishing
 //    - remove google_maps_key from git history and add note
+//    - ask for permission for using the name Mundraub and the assets
 
 
 // TODO medium-term
