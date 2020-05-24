@@ -126,8 +126,6 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
             )
             markers.add(mark)
         }
-
-        println(markers.size)
     }
 
     override fun onPostExecute(jsonStr: String) = addLocationMarkers(jsonStr)
@@ -140,7 +138,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     // --- update markers when user finished moving map ---
-    fun updateMarkers() {
+    private fun updateMarkers() {
         val zoom = mMap.cameraPosition.zoom
         val bboxLo = mMap.projection.visibleRegion.nearLeft
         val bboxHi = mMap.projection.visibleRegion.farRight
@@ -155,6 +153,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     }
 
     override fun onCameraIdle() = updateMarkers()
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+
+        // dummy zoom to trigger onCameraIdle with *correct* orientation  https://stackoverflow.com/a/61993030/2111778
+        mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String?>, grantResults: IntArray
@@ -188,7 +193,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        // https://stackoverflow.com/a/22058966/2111778  retains markers if user rotates phone etc. (useful offline)
+        // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true
     }
 
@@ -208,7 +213,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - draw from top to bottom so correct marker selected? i.e. sort by y
 
 // TODO stateful app
-//    * onRotate: download new markers
 //    * onInternetConnection: download new markers
 //    - startup: save markers from last time
 
