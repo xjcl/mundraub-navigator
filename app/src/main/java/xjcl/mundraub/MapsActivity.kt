@@ -1,8 +1,10 @@
 package xjcl.mundraub
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.*
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
@@ -15,11 +17,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory.defaultMarker
-import com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
@@ -75,6 +73,31 @@ val treeIdToName = hashMapOf(
 
 var markers = ArrayList<Marker>()
 
+// Helper function as adding text to a bitmap needs more code than one might expect
+fun bitmapWithText(resource: Int, activity : Activity, text : String) : BitmapDescriptor {
+    val options = BitmapFactory.Options()
+    options.inMutable = true
+
+    val bitmap = BitmapFactory.decodeResource(activity.resources, resource, options)
+    val canvas = Canvas(bitmap)
+    val textBounds = Rect()
+
+    val paint = Paint()
+    paint.color = Color.BLACK
+    paint.textSize = 40F
+    paint.getTextBounds(text, 0, text.length, textBounds)
+
+    // draw black outline
+    for (delta in listOf(2 to 0, -2 to 0, 0 to 2, 0 to -2, 1 to 1, 1 to -1, -1 to 1, -1 to -1))
+        canvas.drawText(text, canvas.width/2F - textBounds.exactCenterX() + delta.first,
+            canvas.height/2F - textBounds.exactCenterY() + delta.second, paint)
+
+    paint.color = Color.WHITE
+    canvas.drawText(text, canvas.width/2F - textBounds.exactCenterX(), canvas.height/2F - textBounds.exactCenterY(), paint)
+
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
+}
+
 
 class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String) : AsyncTask<Void, Void, String>() {
     val mActivity = activity
@@ -84,15 +107,33 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
     override fun doInBackground(vararg params: Void?): String =
         try { URL(mURL).readText() } catch (ex : Exception) { "null" }
 
+    private fun addMarkerFromFeature(feature: Feature): Marker {
+        val latlng = LatLng(feature.pos[0], feature.pos[1])
+        val isCluster = feature.properties == null
+        val tid = feature.properties?.tid
+
+        val icon =
+            if (isCluster) // isCluster
+                //bitmapWithText(R.drawable.cluster, mActivity, "2+")
+                bitmapWithText(R.drawable.cluster, mActivity, feature.count.toString())
+            else // isTree
+                BitmapDescriptorFactory.fromResource(treeIdToName[tid] ?: R.drawable.otherfruit)
+
+        val titleId = mActivity.resources.getIdentifier("tid$tid", "string", mActivity.packageName)
+        val title = mActivity.getString(titleId)
+
+        return mMap.addMarker(MarkerOptions().
+            position(latlng).title(title).icon(icon).anchor(.5F, if (isCluster) .5F else 1F))
+    }
+
     private fun addLocationMarkers(jsonStr: String) {
+        Log.e("addLocationMarkers", jsonStr)
         if (jsonStr == "null" || jsonStr == "") return
 
         // --- parse newly downloaded markers ---
-        Log.e("testo", jsonStr)
-        // API sometimes returns String instead of double/int for no reason... -> convert
+        // API inconsistently either returns String or double/int... -> strip away "s
         val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr, { it.value.substring(1, it.value.length - 1) })
         val root = Json.parse(Root.serializer(), jsonStrClean)
-        Log.e("testo", root.toString())
 
         // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
         val markersNew = ArrayList<Marker>()
@@ -107,24 +148,11 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
 
         for (feature in root.features) {
             val latlng = LatLng(feature.pos[0], feature.pos[1])
-            val tid = feature.properties?.tid
 
             if (markersSet.contains(latlng))
                 continue
 
-            val icon =
-                if (feature.properties == null) // cluster
-                    defaultMarker(70.0F)
-                else // tree
-                    fromResource(treeIdToName[tid] ?: R.drawable.otherfruit)
-
-            val resId = mActivity.resources.getIdentifier("tid$tid", "string", mActivity.packageName)
-            val title = mActivity.getString(resId)
-
-            val mark = mMap.addMarker(
-                MarkerOptions().position(latlng).title(title).icon(icon)
-            )
-            markers.add(mark)
+            markers.add(addMarkerFromFeature(feature))
         }
     }
 
@@ -145,16 +173,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         // https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-             "&zoom=${(zoom + .5).toInt()}&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
+             "&zoom=${(zoom + .7F).toInt()}&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 
-        Log.e("testo", "GET $url")
+        Log.e("updateMarkers", "GET $url")
 
         AsyncAreaGetRequest(this, mMap, url).execute()
     }
 
     override fun onCameraIdle() = updateMarkers()
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
         // dummy zoom to trigger onCameraIdle with *correct* orientation  https://stackoverflow.com/a/61993030/2111778
@@ -164,6 +192,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String?>, grantResults: IntArray
     ) {
+        // onStartup: if GPS enabled, then zoom into user, else zoom into Germany
         fusedLocationClient.lastLocation.addOnFailureListener(this) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
         }
@@ -204,21 +233,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 // TODO marker assets
-//    * make marker assets for clusters (1..8, 9+)?
-//        - https://stackoverflow.com/a/32438092/2111778
+//    * font size 50, border size 3, and allow going over the edge
 //    - use hi-dpi / hi-res markers
 
-// TODO algorithm
-//    - bounding box could be bigger than viewport
-//    - draw from top to bottom so correct marker selected? i.e. sort by y
-
 // TODO stateful app
-//    * onInternetConnection: download new markers
-//    - startup: save markers from last time
+//    - onInternetConnection: download new markers
+//    - startup: load markers from last time
 
 // TODO publishing
-//    - remove google_maps_key from git history and add note
-//    - ask for permission for using the name Mundraub and the assets
+//    * ask for permission for using the name Mundraub and the assets
+//    * remove google_maps_key from git history and add note
 
 
 // TODO medium-term
@@ -228,3 +252,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // TODO long-term / never
 //    - groups, actions, cider makers, saplings, ...
+
+
+// TODO not really needed
+//    - bounding box might benefit from being bigger than the viewport
+//    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
