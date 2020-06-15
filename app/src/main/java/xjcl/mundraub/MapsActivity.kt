@@ -8,12 +8,17 @@ import android.graphics.*
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -21,6 +26,9 @@ import com.google.android.gms.maps.model.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 
 @Serializable
@@ -32,7 +40,52 @@ data class Feature(val pos: List<Double>, val properties: Properties? = null, va
 @Serializable
 data class Root(val features: List<Feature>)
 
-val treeIdToName = hashMapOf(
+// Key: treeId (type of tree/fruit),  Value: Pair<Int, Int> with first and last month of season
+val treeIdToSeason = hashMapOf(
+    // https://www.hagebau.de/beratung-obst-ernten/
+    // https://www.regional-saisonal.de/saisonkalender-obst
+    // https://mundraub.org/sites/default/files/inline-files/Mundraub_Erntekalender.pdf  not used because of partial months
+    // Pick conservative date-ranges to avoid people turning up at trees and being disappointed
+     4 to ( 8 to 10),
+     5 to ( 8 to 10),
+     6 to ( 6 to  8),
+     7 to ( 7 to  8),
+     8 to ( 7 to  9),
+     9 to ( 9 to 11),
+    10 to ( 7 to  8),
+    11 to ( 7 to  7),
+    12 to ( 0 to  0),
+
+    14 to ( 9 to 10),
+    15 to ( 9 to 10),
+    16 to (10 to 10),
+    17 to ( 0 to  0),
+
+    18 to ( 7 to  9),
+    19 to ( 0 to  0), // wild strawberry
+    20 to ( 7 to  9),
+    21 to ( 9 to 10), // ? sources contradict each other significantly
+    22 to ( 7 to  8),
+    23 to ( 6 to  8),
+    24 to ( 9 to  9),
+    25 to ( 7 to  7), // https://www.plantura.garden/gartentipps/zierpflanzen/felsenbirne-pflanzen-und-pflegen
+    26 to ( 8 to 10),
+    27 to ( 9 to 11),
+    28 to ( 9 to 12),
+    29 to ( 9 to 10), // https://www.kneipp.com/de_de/kneipp-magazin/sebastian-kneipp/lexikon-pflanzen-inhaltsstoffe/pflanzenlexikon/weissdorn/
+    30 to ( 0 to  0),
+
+    // https://www.miss.at/pflanzkalender-2018-wann-man-welches-gemuese-pflanzen-kann/?cn-reloaded=1
+    31 to ( 4 to  5),
+    32 to ( 8 to 10), // https://www.pflanzen-vielfalt.net/b%C3%A4ume-str%C3%A4ucher-a-z/wacholder-gemeiner/
+    33 to ( 7 to  9), // https://praxistipps.focus.de/minze-ernten-der-beste-zeitpunkt_107154
+    34 to ( 5 to 10),
+    35 to ( 3 to  6),
+    36 to ( 6 to  8),
+    37 to ( 0 to  0)
+)
+
+val treeIdToMarkerIcon = hashMapOf(
      4 to R.drawable.apple,
      5 to R.drawable.pear,
      6 to R.drawable.cherry,
@@ -83,12 +136,13 @@ fun bitmapWithText(resource: Int, activity : Activity, text : String) : BitmapDe
     val textBounds = Rect()
 
     val paint = Paint()
-    paint.color = Color.BLACK
-    paint.textSize = 40F
+    paint.color = Color.DKGRAY
+    paint.textSize = 45F
     paint.getTextBounds(text, 0, text.length, textBounds)
 
     // draw black outline
-    for (delta in listOf(2 to 0, -2 to 0, 0 to 2, 0 to -2, 1 to 1, 1 to -1, -1 to 1, -1 to -1))
+    //for (delta in listOf(2 to 0, -2 to 0, 0 to 2, 0 to -2, 1 to 1, 1 to -1, -1 to 1, -1 to -1))
+    for (delta in listOf(3 to 0, -3 to 0, 0 to 3, 0 to -3, 2 to 2, 2 to -2, -2 to 2, -2 to -2))
         canvas.drawText(text, canvas.width/2F - textBounds.exactCenterX() + delta.first,
             canvas.height/2F - textBounds.exactCenterY() + delta.second, paint)
 
@@ -114,16 +168,22 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
 
         val icon =
             if (isCluster) // isCluster
-                //bitmapWithText(R.drawable.cluster, mActivity, "2+")
                 bitmapWithText(R.drawable.cluster, mActivity, feature.count.toString())
             else // isTree
-                BitmapDescriptorFactory.fromResource(treeIdToName[tid] ?: R.drawable.otherfruit)
+                BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
+
+        val curMonth = Calendar.getInstance().get(Calendar.MONTH) + 1  // 0-based!!
+        val isSeasonal = {month : Int -> treeIdToSeason[tid]?.first ?: 0 <= month && month <= treeIdToSeason[tid]?.second ?: 0}
+        val months = (1..12).joinToString("") { (if (isSeasonal(it)) "x" else "_") + (if (curMonth == it) "|" else " ") }
 
         val titleId = mActivity.resources.getIdentifier("tid$tid", "string", mActivity.packageName)
         val title = mActivity.getString(titleId)
+        val snippet = if ("x" in months || "x|" in months) {
+            mActivity.getString(if (isSeasonal(curMonth)) R.string.inSeason else R.string.notInSeason) + "\n" + months
+        } else ""
 
         return mMap.addMarker(MarkerOptions().
-            position(latlng).title(title).icon(icon).anchor(.5F, if (isCluster) .5F else 1F))
+            position(latlng).title(title).snippet(snippet).icon(icon).anchor(.5F, if (isCluster) .5F else 1F))
     }
 
     private fun addLocationMarkers(jsonStr: String) {
@@ -173,7 +233,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         // https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-             "&zoom=${(zoom + .7F).toInt()}&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
+             "&zoom=${(zoom + .5F).toInt()}&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 
         Log.e("updateMarkers", "GET $url")
 
@@ -212,6 +272,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions,0)
+
+        // Allow multiline text on Markers  https://stackoverflow.com/a/31629308/2111778
+        mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
+            override fun getInfoWindow(arg0: Marker): View? = null
+
+            override fun getInfoContents(marker: Marker): View {
+                val title = TextView(this@MapsActivity)
+                title.setTextColor(Color.BLACK)
+                title.gravity = Gravity.CENTER
+                title.setTypeface(null, Typeface.BOLD)
+                title.text = marker.title
+
+                val snippet = TextView(this@MapsActivity)
+                snippet.setTextColor(Color.BLACK)
+                snippet.text = marker.snippet
+
+                val info = LinearLayout(this@MapsActivity)
+                info.orientation = LinearLayout.VERTICAL
+                info.addView(title)
+                if (marker.snippet == "") return info
+                info.addView(snippet)
+                return info
+            }
+        })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -249,6 +333,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - click on marker: info window with rich fruit info
 //        - season, API (descr, picture) ...
 //        - Marker callback ? should not be needed
+//    - replace AsyncTask with IntentService
+//        - AsyncTask will be removed in Android 11
+//        - https://stackoverflow.com/a/21284021/2111778
 
 // TODO long-term / never
 //    - groups, actions, cider makers, saplings, ...

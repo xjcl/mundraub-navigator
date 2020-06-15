@@ -40,4 +40,7 @@
     <string name="tid37">Andere Kräuter</string>
 
     <string name="tidnull">Mehrere Marker (bitte zoomen)</string>
+
+    <string name="inSeason">Fruchtreife!!</string>
+    <string name="notInSeason">Nicht fruchtreif</string>
 </resources>
