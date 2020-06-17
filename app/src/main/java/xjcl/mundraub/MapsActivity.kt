@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -41,48 +42,48 @@ data class Feature(val pos: List<Double>, val properties: Properties? = null, va
 data class Root(val features: List<Feature>)
 
 // Key: treeId (type of tree/fruit),  Value: Pair<Int, Int> with first and last month of season
+// *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
 val treeIdToSeason = hashMapOf(
     // https://www.hagebau.de/beratung-obst-ernten/
     // https://www.regional-saisonal.de/saisonkalender-obst
-    // https://mundraub.org/sites/default/files/inline-files/Mundraub_Erntekalender.pdf  not used because of partial months
-    // Pick conservative date-ranges to avoid people turning up at trees and being disappointed
-     4 to ( 8 to 10),
-     5 to ( 8 to 10),
-     6 to ( 6 to  8),
-     7 to ( 7 to  8),
-     8 to ( 7 to  9),
-     9 to ( 9 to 11),
-    10 to ( 7 to  8),
-    11 to ( 7 to  7),
-    12 to ( 0 to  0),
+    // https://mundraub.org/sites/default/files/inline-files/Mundraub_Erntekalender.pdf  <-- main source
+     4 to ( 8.0 to 11.0),
+     5 to ( 8.0 to 11.5),
+     6 to ( 6.0 to  9.5),
+     7 to ( 7.0 to  9.5),
+     8 to ( 7.0 to 10.5),
+     9 to ( 8.0 to 11.5),
+    10 to ( 7.0 to  9.0),
+    11 to ( 6.5 to  8.5),
+    12 to ( 0.0 to  0.0),
 
-    14 to ( 9 to 10),
-    15 to ( 9 to 10),
-    16 to (10 to 10),
-    17 to ( 0 to  0),
+    14 to ( 8.5 to 11.5),
+    15 to ( 9.0 to 11.5),
+    16 to ( 9.5 to 11.0),
+    17 to ( 0.0 to  0.0),
 
-    18 to ( 7 to  9),
-    19 to ( 0 to  0), // wild strawberry
-    20 to ( 7 to  9),
-    21 to ( 9 to 10), // ? sources contradict each other significantly
-    22 to ( 7 to  8),
-    23 to ( 6 to  8),
-    24 to ( 9 to  9),
-    25 to ( 7 to  7), // https://www.plantura.garden/gartentipps/zierpflanzen/felsenbirne-pflanzen-und-pflegen
-    26 to ( 8 to 10),
-    27 to ( 9 to 11),
-    28 to ( 9 to 12),
-    29 to ( 9 to 10), // https://www.kneipp.com/de_de/kneipp-magazin/sebastian-kneipp/lexikon-pflanzen-inhaltsstoffe/pflanzenlexikon/weissdorn/
-    30 to ( 0 to  0),
+    18 to ( 7.5 to 11.0), // changed this cos i'm 100% certain they grow around my bday
+    19 to ( 0.0 to  0.0), // wild strawberry
+    20 to ( 6.5 to 10.0),
+    21 to ( 5.5 to 10.0), // note that berries and blossoms are both edible but have different seasons (5.5-10 vs 9-11)
+    22 to ( 6.5 to  9.0),
+    23 to ( 6.0 to  9.0),
+    24 to ( 8.5 to 10.5),
+    25 to ( 7.0 to  8.0), // https://www.plantura.garden/gartentipps/zierpflanzen/felsenbirne-pflanzen-und-pflegen
+    26 to ( 8.0 to 11.0),
+    27 to ( 9.0 to 12.0),
+    28 to ( 9.0 to 13.0),
+    29 to ( 9.0 to 11.0), // https://www.kneipp.com/de_de/kneipp-magazin/sebastian-kneipp/lexikon-pflanzen-inhaltsstoffe/pflanzenlexikon/weissdorn/
+    30 to ( 0.0 to  0.0),
 
     // https://www.miss.at/pflanzkalender-2018-wann-man-welches-gemuese-pflanzen-kann/?cn-reloaded=1
-    31 to ( 4 to  5),
-    32 to ( 8 to 10), // https://www.pflanzen-vielfalt.net/b%C3%A4ume-str%C3%A4ucher-a-z/wacholder-gemeiner/
-    33 to ( 7 to  9), // https://praxistipps.focus.de/minze-ernten-der-beste-zeitpunkt_107154
-    34 to ( 5 to 10),
-    35 to ( 3 to  6),
-    36 to ( 6 to  8),
-    37 to ( 0 to  0)
+    31 to ( 3.5 to  6.0),
+    32 to ( 8.0 to 11.0), // https://www.pflanzen-vielfalt.net/b%C3%A4ume-str%C3%A4ucher-a-z/wacholder-gemeiner/
+    33 to ( 7.0 to 10.0), // https://praxistipps.focus.de/minze-ernten-der-beste-zeitpunkt_107154
+    34 to ( 5.0 to 11.0),
+    35 to ( 3.0 to  7.0),
+    36 to ( 6.0 to  9.0),
+    37 to ( 0.0 to  0.0)
 )
 
 val treeIdToMarkerIcon = hashMapOf(
@@ -127,7 +128,7 @@ val treeIdToMarkerIcon = hashMapOf(
 var markers = ArrayList<Marker>()
 
 // Helper function as adding text to a bitmap needs more code than one might expect
-fun bitmapWithText(resource: Int, activity : Activity, text : String) : BitmapDescriptor {
+fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Float, outline: Boolean = true, xpos: Float = .5F, color: Int = Color.WHITE) : Bitmap {
     val options = BitmapFactory.Options()
     options.inMutable = true
 
@@ -137,19 +138,18 @@ fun bitmapWithText(resource: Int, activity : Activity, text : String) : BitmapDe
 
     val paint = Paint()
     paint.color = Color.DKGRAY
-    paint.textSize = 45F
+    paint.textSize = textSize
     paint.getTextBounds(text, 0, text.length, textBounds)
 
-    // draw black outline
-    //for (delta in listOf(2 to 0, -2 to 0, 0 to 2, 0 to -2, 1 to 1, 1 to -1, -1 to 1, -1 to -1))
-    for (delta in listOf(3 to 0, -3 to 0, 0 to 3, 0 to -3, 2 to 2, 2 to -2, -2 to 2, -2 to -2))
-        canvas.drawText(text, canvas.width/2F - textBounds.exactCenterX() + delta.first,
-            canvas.height/2F - textBounds.exactCenterY() + delta.second, paint)
+    if (outline)
+        for (delta in listOf(3 to 0, -3 to 0, 0 to 3, 0 to -3, 2 to 2, 2 to -2, -2 to 2, -2 to -2))
+            canvas.drawText(text, canvas.width * xpos - textBounds.exactCenterX() + delta.first,
+                canvas.height/2F - textBounds.exactCenterY() + delta.second, paint)
 
-    paint.color = Color.WHITE
-    canvas.drawText(text, canvas.width/2F - textBounds.exactCenterX(), canvas.height/2F - textBounds.exactCenterY(), paint)
+    paint.color = color
+    canvas.drawText(text, canvas.width * xpos - textBounds.exactCenterX(), canvas.height/2F - textBounds.exactCenterY(), paint)
 
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
+    return bitmap
 }
 
 
@@ -168,19 +168,23 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
 
         val icon =
             if (isCluster) // isCluster
-                bitmapWithText(R.drawable.cluster, mActivity, feature.count.toString())
+                BitmapDescriptorFactory.fromBitmap( bitmapWithText(R.drawable._cluster, mActivity, feature.count.toString(), 45F) )
             else // isTree
                 BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
 
-        val curMonth = Calendar.getInstance().get(Calendar.MONTH) + 1  // 0-based!!
-        val isSeasonal = {month : Int -> treeIdToSeason[tid]?.first ?: 0 <= month && month <= treeIdToSeason[tid]?.second ?: 0}
-        val months = (1..12).joinToString("") { (if (isSeasonal(it)) "x" else "_") + (if (curMonth == it) "|" else " ") }
+        // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
+        val curMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toDouble() / 32
+        val isSeasonal = {month : Double -> treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0}
+        val months = (1..12).joinToString("") { when {
+             isSeasonal(it + .25) and  isSeasonal(it + .75) -> "x"
+             isSeasonal(it + .25) and !isSeasonal(it + .75) -> "l"
+            !isSeasonal(it + .25) and  isSeasonal(it + .75) -> "r"
+            else -> "_"
+        }}
 
         val titleId = mActivity.resources.getIdentifier("tid$tid", "string", mActivity.packageName)
         val title = mActivity.getString(titleId)
-        val snippet = if ("x" in months || "x|" in months) {
-            mActivity.getString(if (isSeasonal(curMonth)) R.string.inSeason else R.string.notInSeason) + "\n" + months
-        } else ""
+        val snippet = if ("x" in months) ( months + "\n" + curMonth + "\n" + isSeasonal(curMonth) ) else ""
 
         return mMap.addMarker(MarkerOptions().
             position(latlng).title(title).snippet(snippet).icon(icon).anchor(.5F, if (isCluster) .5F else 1F))
@@ -249,9 +253,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String?>, grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
         // onStartup: if GPS enabled, then zoom into user, else zoom into Germany
         fusedLocationClient.lastLocation.addOnFailureListener(this) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
@@ -273,7 +275,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions,0)
 
-        // Allow multiline text on Markers  https://stackoverflow.com/a/31629308/2111778
+        // Build a vertical layout to provide an info window for a marker
+        // https://stackoverflow.com/a/31629308/2111778
         mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
             override fun getInfoWindow(arg0: Marker): View? = null
 
@@ -284,15 +287,56 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 title.setTypeface(null, Typeface.BOLD)
                 title.text = marker.title
 
-                val snippet = TextView(this@MapsActivity)
-                snippet.setTextColor(Color.BLACK)
-                snippet.text = marker.snippet
-
                 val info = LinearLayout(this@MapsActivity)
                 info.orientation = LinearLayout.VERTICAL
                 info.addView(title)
-                if (marker.snippet == "") return info
+                if (marker.snippet.isBlank()) return info
+
+                val monthData = marker.snippet.split("\n")
+                val monthCodes = monthData[0]; val curMonth = monthData[1].toFloat(); val isSeasonal = monthData[2].toBoolean()
+
+                val snippet = TextView(this@MapsActivity)
+                snippet.setTextColor(Color.BLACK)
+                snippet.text = this@MapsActivity.getString(if (isSeasonal) R.string.inSeason else R.string.notInSeason)
+
+                val months = LinearLayout(this@MapsActivity)
+                months.orientation = LinearLayout.HORIZONTAL
+                for (i in 1..12) {
+                    val circle = ImageView(this@MapsActivity)
+                    val res = when (monthCodes[i-1]) {
+                        'x' -> R.drawable._dot_x
+                        'l' -> R.drawable._dot_l
+                        'r' -> R.drawable._dot_r
+                        else -> R.drawable._dot__
+                    }
+                    circle.setImageResource(res)
+                    if (curMonth.toInt() == i)
+                        circle.setImageBitmap( bitmapWithText(res, this@MapsActivity, "|", 50F,
+                            false, curMonth % 1, if (isSeasonal) Color.RED else Color.GRAY) )
+
+                    val letter = TextView(this@MapsActivity)
+                    letter.setTextColor(if (monthCodes[i-1] != '_') Color.RED else Color.GRAY)
+                    letter.gravity = Gravity.CENTER
+                    letter.setTypeface(null, Typeface.BOLD)
+                    letter.text = "JFMAMJJASOND"[i-1].toString()
+
+                    val day = TextView(this@MapsActivity)
+                    //day.setTextColor(Color.parseColor("#64ed5c"))
+                    day.setTextColor(if (isSeasonal) Color.RED else Color.GRAY)
+                    day.gravity = Gravity.CENTER
+                    day.setTypeface(null, Typeface.BOLD)
+                    day.text = if (curMonth.toInt() == i) Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString() else ""
+
+                    val month = LinearLayout(this@MapsActivity)
+                    month.orientation = LinearLayout.VERTICAL
+                    month.addView(day)
+                    month.addView(circle)
+                    month.addView(letter)
+                    months.addView(month)
+                }
+
                 info.addView(snippet)
+                info.addView(months)
                 return info
             }
         })
@@ -317,8 +361,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 // TODO marker assets
-//    * font size 50, border size 3, and allow going over the edge
 //    - use hi-dpi / hi-res markers
+//    * use fruit color for months
 
 // TODO stateful app
 //    - onInternetConnection: download new markers
@@ -326,7 +370,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // TODO publishing
 //    * ask for permission for using the name Mundraub and the assets
-//    * remove google_maps_key from git history and add note
 
 
 // TODO medium-term
