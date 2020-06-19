@@ -184,7 +184,9 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
 
         val titleId = mActivity.resources.getIdentifier("tid$tid", "string", mActivity.packageName)
         val title = mActivity.getString(titleId)
-        val snippet = if ("x" in months) ( months + "\n" + curMonth + "\n" + isSeasonal(curMonth) ) else ""
+
+        val fruitColor = BitmapFactory.decodeResource(mActivity.resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit).getPixel(10, 30)
+        val snippet = if ("x" in months) ( months + "\n" + curMonth + "\n" + isSeasonal(curMonth) + "\n" + fruitColor ) else ""
 
         return mMap.addMarker(MarkerOptions().
             position(latlng).title(title).snippet(snippet).icon(icon).anchor(.5F, if (isCluster) .5F else 1F))
@@ -292,8 +294,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 info.addView(title)
                 if (marker.snippet.isBlank()) return info
 
+                // I'm sending display data encoded in the snippet string as I found no clean way to do this
                 val monthData = marker.snippet.split("\n")
-                val monthCodes = monthData[0]; val curMonth = monthData[1].toFloat(); val isSeasonal = monthData[2].toBoolean()
+                val monthCodes = monthData[0]; val curMonth = monthData[1].toFloat()
+                val isSeasonal = monthData[2].toBoolean(); val fruitColor = monthData[3].toInt()
+                title.setTextColor(fruitColor)
 
                 val snippet = TextView(this@MapsActivity)
                 snippet.setTextColor(Color.BLACK)
@@ -312,17 +317,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                     circle.setImageResource(res)
                     if (curMonth.toInt() == i)
                         circle.setImageBitmap( bitmapWithText(res, this@MapsActivity, "|", 50F,
-                            false, curMonth % 1, if (isSeasonal) Color.RED else Color.GRAY) )
+                            false, curMonth % 1, if (isSeasonal) fruitColor else Color.GRAY) )
+                    if (monthCodes[i-1] != '_') circle.setColorFilter(fruitColor)
 
                     val letter = TextView(this@MapsActivity)
-                    letter.setTextColor(if (monthCodes[i-1] != '_') Color.RED else Color.GRAY)
+                    letter.setTextColor(if (monthCodes[i-1] != '_') fruitColor else Color.GRAY)
                     letter.gravity = Gravity.CENTER
-                    letter.setTypeface(null, Typeface.BOLD)
+                    if (monthCodes[i-1] != '_') letter.setTypeface(null, Typeface.BOLD)
                     letter.text = "JFMAMJJASOND"[i-1].toString()
 
                     val day = TextView(this@MapsActivity)
-                    //day.setTextColor(Color.parseColor("#64ed5c"))
-                    day.setTextColor(if (isSeasonal) Color.RED else Color.GRAY)
+                    day.setTextColor(if (isSeasonal) fruitColor else Color.GRAY)
                     day.gravity = Gravity.CENTER
                     day.setTypeface(null, Typeface.BOLD)
                     day.text = if (curMonth.toInt() == i) Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString() else ""
@@ -360,9 +365,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 }
 
 
+// TODO bugs
+//    - when tapping a marker, markers reload, so it sometimes disappears
+
+// TODO individual node data
+//    - https://mundraub.org/node/950
+
+// TODO latlng boundaries
+//    * incorrect or no update on non-north-oriented map
+//    * bigger boundaries useful
+
 // TODO marker assets
 //    - use hi-dpi / hi-res markers
-//    * use fruit color for months
 
 // TODO stateful app
 //    - onInternetConnection: download new markers
