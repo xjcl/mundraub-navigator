@@ -2,19 +2,20 @@
 <table>
 <tr>
 <td>
-<img src="demo.jpg" alt="Demo of the app" width="500px">
+<img src="demo2.jpg" alt="Demo of the app" width="500px">
 </td>
 <td rowspan="2"  valign="top">
 
 # Mundraub Mobile
 
-Mundraub Mobile is a Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
+Mundraub Mobile is an unofficial Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
 
 Features:
 - Seasonality information for each species
 - Keeps location markers when internet lost, even when backgrounded
 - Can track location and use Google Maps to navigate to markers
-- TODO features: Better UI for seasonality info, marker description texts
+- Supported languages: German and English
+- TODO features: Marker description texts, status and images
 - Not features: User accounts, adding/editing markers
 
 
