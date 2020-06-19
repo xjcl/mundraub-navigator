@@ -307,18 +307,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 val months = LinearLayout(this@MapsActivity)
                 months.orientation = LinearLayout.HORIZONTAL
                 for (i in 1..12) {
-                    val circle = ImageView(this@MapsActivity)
-                    val res = when (monthCodes[i-1]) {
-                        'x' -> R.drawable._dot_x
-                        'l' -> R.drawable._dot_l
-                        'r' -> R.drawable._dot_r
-                        else -> R.drawable._dot__
-                    }
-                    circle.setImageResource(res)
+                    val circle = LinearLayout(this@MapsActivity)
+                    circle.orientation = LinearLayout.HORIZONTAL
+
+                    val circleLeft = ImageView(this@MapsActivity)
+                    val circleRight = ImageView(this@MapsActivity)
+
+                    val resLeft = if ("xl".contains(monthCodes[i-1])) R.drawable._dot_l1 else R.drawable._dot_l0
+                    val resRight = if ("xr".contains(monthCodes[i-1])) R.drawable._dot_r1 else R.drawable._dot_r0
+                    circleLeft.setImageResource(resLeft)
+                    circleRight.setImageResource(resRight)
+                    if ("xl".contains(monthCodes[i-1])) circleLeft.setColorFilter(fruitColor)
+                    if ("xr".contains(monthCodes[i-1])) circleRight.setColorFilter(fruitColor)
+                    // add vertical line for current time in year
                     if (curMonth.toInt() == i)
-                        circle.setImageBitmap( bitmapWithText(res, this@MapsActivity, "|", 50F,
-                            false, curMonth % 1, if (isSeasonal) fruitColor else Color.GRAY) )
-                    if (monthCodes[i-1] != '_') circle.setColorFilter(fruitColor)
+                        (if (curMonth % 1 < .5) circleLeft else circleRight).setImageBitmap(
+                            bitmapWithText( (if (curMonth % 1 < .5) resLeft else resRight), this@MapsActivity,
+                                "|", 50F, false,  2 * (curMonth % .5F), if (isSeasonal) fruitColor else Color.GRAY) )
+
+                    circle.addView(circleLeft)
+                    circle.addView(circleRight)
 
                     val letter = TextView(this@MapsActivity)
                     letter.setTextColor(if (monthCodes[i-1] != '_') fruitColor else Color.GRAY)
