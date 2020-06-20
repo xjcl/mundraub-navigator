@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.text.HtmlCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -385,7 +386,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             if (htmlStr == "null") return@setOnInfoWindowClickListener
             val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">").substringBefore("</span>", "?")
             val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
-            marker.snippet += "\n[$number] $description"
+            val descriptionUnescaped = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
+            marker.snippet += "\n[$number] $descriptionUnescaped"
             marker.showInfoWindow()
         }
     }
