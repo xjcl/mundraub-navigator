@@ -306,7 +306,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
                 val description = TextView(this@MapsActivity)
                 // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
-                description.width = (12 * 13 * resources.displayMetrics.density).toInt()
+                description.width = (12 * 13 * resources.displayMetrics.density).toInt() + 5
                 description.text = descriptionStr
                 description.textSize = 12F
                 if (descriptionStr.isNotBlank()) info.addView(description)
