@@ -23,7 +23,13 @@ import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
@@ -186,7 +192,7 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
         val title = mActivity.getString(titleId)
 
         val fruitColor = BitmapFactory.decodeResource(mActivity.resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit).getPixel(10, 30)
-        val snippet = if ("x" in months) ( months + "\n" + curMonth + "\n" + isSeasonal(curMonth) + "\n" + fruitColor ) else ""
+        val snippet = if ("x" in months) ( months + "\n" + curMonth + "\n" + isSeasonal(curMonth) + "\n" + fruitColor + "\n" + feature.properties?.nid ) else ""
 
         return mMap.addMarker(MarkerOptions().
             position(latlng).title(title).snippet(snippet).icon(icon).anchor(.5F, if (isCluster) .5F else 1F))
@@ -283,22 +289,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             override fun getInfoWindow(arg0: Marker): View? = null
 
             override fun getInfoContents(marker: Marker): View {
+                val info = LinearLayout(this@MapsActivity)
+                info.orientation = LinearLayout.VERTICAL
+
                 val title = TextView(this@MapsActivity)
                 title.setTextColor(Color.BLACK)
                 title.gravity = Gravity.CENTER
                 title.setTypeface(null, Typeface.BOLD)
                 title.text = marker.title
 
-                val info = LinearLayout(this@MapsActivity)
-                info.orientation = LinearLayout.VERTICAL
-                info.addView(title)
-                if (marker.snippet.isBlank()) return info
+                // No detailed info for clusters
+                if (marker.snippet.isBlank()) {
+                    info.addView(title)
+                    return info
+                }
 
                 // I'm sending display data encoded in the snippet string as I found no clean way to do this
                 val monthData = marker.snippet.split("\n")
                 val monthCodes = monthData[0]; val curMonth = monthData[1].toFloat()
                 val isSeasonal = monthData[2].toBoolean(); val fruitColor = monthData[3].toInt()
+                val descriptionStr = if (monthData.size > 5) monthData[5] else ""
                 title.setTextColor(fruitColor)
+
+                val description = TextView(this@MapsActivity)
+                // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
+                description.width = (12 * 13 * resources.displayMetrics.density).toInt()
+                description.text = descriptionStr
+                description.textSize = 12F
 
                 val snippet = TextView(this@MapsActivity)
                 snippet.setTextColor(Color.BLACK)
@@ -348,11 +365,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                     months.addView(month)
                 }
 
+                if (descriptionStr.isNotBlank()) info.addView(description)
+                info.addView(title)
                 info.addView(snippet)
                 info.addView(months)
                 return info
             }
         })
+
+        mMap.setOnInfoWindowClickListener { marker ->
+            if (marker.snippet.count {it =='\n'} >= 5) return@setOnInfoWindowClickListener
+
+            val nid = marker.snippet.split("\n")[4].toInt()
+            val deferredStr = GlobalScope.async {
+                try { URL("https://mundraub.org/node/$nid").readText() } catch (ex : Exception) { "null" }
+            }
+
+            val htmlStr = runBlocking { deferredStr.await() }
+            if (htmlStr == "null") return@setOnInfoWindowClickListener
+            val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">").substringBefore("</span>", "?")
+            val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
+            marker.snippet += "\n[$number] $description"
+            marker.showInfoWindow()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -373,11 +408,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 }
 
 
+// TODO tests
+//    - test scripts for app or at least info extraction
+
 // TODO bugs
 //    - when tapping a marker, markers reload, so it sometimes disappears
 
 // TODO individual node data
-//    - https://mundraub.org/node/950
+//    - https://mundraub.org/node/75327
+//    - images? impractical, rare, waste data
 
 // TODO latlng boundaries
 //    * incorrect or no update on non-north-oriented map
@@ -395,10 +434,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 // TODO medium-term
-//    - click on marker: info window with rich fruit info
-//        - season, API (descr, picture) ...
-//        - Marker callback ? should not be needed
-//    - replace AsyncTask with IntentService
+//    - replace AsyncTask with coroutines
 //        - AsyncTask will be removed in Android 11
 //        - https://stackoverflow.com/a/21284021/2111778
 
