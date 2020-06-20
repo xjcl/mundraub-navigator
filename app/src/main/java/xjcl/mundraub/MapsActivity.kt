@@ -183,9 +183,9 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
         val curMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toDouble() / 32
         val isSeasonal = {month : Double -> treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0}
         val months = (1..12).joinToString("") { when {
-             isSeasonal(it + .25) and  isSeasonal(it + .75) -> "x"
-             isSeasonal(it + .25) and !isSeasonal(it + .75) -> "l"
-            !isSeasonal(it + .25) and  isSeasonal(it + .75) -> "r"
+             isSeasonal(it + .25) &&  isSeasonal(it + .75) -> "x"
+             isSeasonal(it + .25) && !isSeasonal(it + .75) -> "l"
+            !isSeasonal(it + .25) &&  isSeasonal(it + .75) -> "r"
             else -> "_"
         }}
 
@@ -375,7 +375,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         })
 
         mMap.setOnInfoWindowClickListener { marker ->
-            if (marker.snippet.count {it =='\n'} >= 5) return@setOnInfoWindowClickListener
+            if (marker.snippet == "" || marker.snippet.count {it =='\n'} >= 5) return@setOnInfoWindowClickListener
 
             val nid = marker.snippet.split("\n")[4].toInt()
             val deferredStr = GlobalScope.async {
