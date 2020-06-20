@@ -299,7 +299,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 val markerType = markerData[0]
                 val monthCodes = markerData[1]; val curMonth = markerData[2].toFloat()
                 val isSeasonal = markerData[3].toBoolean(); val fruitColor = markerData[4].toInt()
-                val descriptionStr = if (markerData.size > 6) markerData[6] else ""
+                val descriptionStr = if (markerData.size > 6) markerData.slice(6 until markerData.size).joinToString("\n") else ""
 
                 val info = LinearLayout(this@MapsActivity)
                 info.orientation = LinearLayout.VERTICAL
@@ -417,7 +417,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - test scripts for app or at least info extraction
 
 // TODO bugs
-//    * no description download possible for "Other herb" etc.
 //    - when tapping a marker, markers reload, so it sometimes disappears
 
 // TODO individual node data
@@ -444,7 +443,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //        - AsyncTask will be removed in Android 11
 //        - https://stackoverflow.com/a/21284021/2111778
 //    - pass info in a better way than snippets
-//        ( currently description cannot contain newlines
 
 // TODO long-term / never
 //    - groups, actions, cider makers, saplings, ...
