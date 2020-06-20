@@ -414,6 +414,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - test scripts for app or at least info extraction
 
 // TODO bugs
+//    * no description download possible for "Other herb" etc.
 //    - when tapping a marker, markers reload, so it sometimes disappears
 
 // TODO individual node data
@@ -432,7 +433,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - startup: load markers from last time
 
 // TODO publishing
-//    * ask for permission for using the name Mundraub and the assets
+//    * find a name and publish on the app store
 
 
 // TODO medium-term
