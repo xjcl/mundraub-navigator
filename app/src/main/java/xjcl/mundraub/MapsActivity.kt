@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.*
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -160,14 +159,12 @@ fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Fl
 }
 
 
-class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String) : AsyncTask<Void, Void, String>() {
-    val mActivity = activity
-    val mMap = map
-    val mURL = url
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
-    override fun doInBackground(vararg params: Void?): String =
-        try { URL(mURL).readText() } catch (ex : Exception) { "null" }
+    private lateinit var mMap: GoogleMap
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeature(feature: Feature): Marker {
         val latlng = LatLng(feature.pos[0], feature.pos[1])
         val tid = feature.properties?.tid
@@ -177,9 +174,12 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
             else -> "normal"
         }
 
+        val title = getString(resources.getIdentifier("tid$tid", "string", packageName))
+        val fruitColor = BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit).getPixel(10, 30)
+
         val icon =
             if (type == "cluster") // isCluster
-                BitmapDescriptorFactory.fromBitmap( bitmapWithText(R.drawable._cluster, mActivity, feature.count.toString(), 45F) )
+                BitmapDescriptorFactory.fromBitmap( bitmapWithText(R.drawable._cluster, this, feature.count.toString(), 45F) )
             else // isTree
                 BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
 
@@ -193,23 +193,20 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
             else -> "_"
         }}
 
-        val titleId = mActivity.resources.getIdentifier("tid$tid", "string", mActivity.packageName)
-        val title = mActivity.getString(titleId)
-
-        val fruitColor = BitmapFactory.decodeResource(mActivity.resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit).getPixel(10, 30)
         val snippet = type + "\n" + months + "\n" + curMonth + "\n" + isSeasonal(curMonth) + "\n" + fruitColor + "\n" + feature.properties?.nid
 
-        return mMap.addMarker(MarkerOptions().
-            position(latlng).title(title).snippet(snippet).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
+        return mMap.addMarker(MarkerOptions().position(latlng).title(title).snippet(snippet).icon(icon)
+            .anchor(.5F, if (type == "cluster") .5F else 1F))
     }
 
+    // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
     private fun addLocationMarkers(jsonStr: String) {
         Log.e("addLocationMarkers", jsonStr)
         if (jsonStr == "null" || jsonStr == "") return
 
         // --- parse newly downloaded markers ---
-        // API inconsistently either returns String or double/int... -> strip away "s
-        val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr, { it.value.substring(1, it.value.length - 1) })
+        // API inconsistently either returns String or double/int... -> strip away double quotes
+        val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr) { it.value.substring(1, it.value.length - 1) }
         val root = Json.parse(Root.serializer(), jsonStrClean)
 
         // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
@@ -233,54 +230,29 @@ class AsyncAreaGetRequest(activity: MapsActivity, map : GoogleMap, url : String)
         }
     }
 
-    override fun onPostExecute(jsonStr: String) = addLocationMarkers(jsonStr)
-}
-
-
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
-
-    private lateinit var mMap: GoogleMap
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    // --- update markers when user finished moving map ---
+    // --- Update markers when user finished moving the map ---
     private fun updateMarkers() {
         val zoom = mMap.cameraPosition.zoom
         val bboxLo = mMap.projection.visibleRegion.nearLeft
         val bboxHi = mMap.projection.visibleRegion.farRight
 
-        // https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
+        // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
              "&zoom=${(zoom + .5F).toInt()}&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 
         Log.e("updateMarkers", "GET $url")
 
-        AsyncAreaGetRequest(this, mMap, url).execute()
+        val deferredStr = GlobalScope.async {
+            try { URL(url).readText() } catch (ex: Exception) { "null" }
+        }
+
+        val jsonStr = runBlocking { deferredStr.await() }
+        addLocationMarkers(jsonStr)
     }
 
     override fun onCameraIdle() = updateMarkers()
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        // dummy zoom to trigger onCameraIdle with *correct* orientation  https://stackoverflow.com/a/61993030/2111778
-        mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
-        // onStartup: if GPS enabled, then zoom into user, else zoom into Germany
-        fusedLocationClient.lastLocation.addOnFailureListener(this) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
-        }
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-            if (location == null) return@addOnSuccessListener
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
-        }
-
-        if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_DENIED) return
-
-        mMap.isMyLocationEnabled = true  // show blue circle on map
-    }
-
+    // --- On startup: Prepare map and cause onRequestPermissionsResult to be called ---
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setOnCameraIdleListener(this)
@@ -288,7 +260,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions,0)
 
-        // Build a vertical layout to provide an info window for a marker
+        // --- Build a vertical layout to provide an info window for a marker ---
         // https://stackoverflow.com/a/31629308/2111778
         mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
             override fun getInfoWindow(arg0: Marker): View? = null
@@ -375,6 +347,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             }
         })
 
+        // --- Download detailed node description when user taps ("clicks") on info window ---
         mMap.setOnInfoWindowClickListener { marker ->
             if (marker.snippet.count {it =='\n'} >= 6) return@setOnInfoWindowClickListener
 
@@ -395,6 +368,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         }
     }
 
+    // --- When user rotates phone, re-download markers for the new screen size ---
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        // dummy zoom to trigger onCameraIdle with *correct* orientation  https://stackoverflow.com/a/61993030/2111778
+        mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )
+    }
+
+    // --- On startup: If GPS enabled, then zoom into user, else zoom into Germany ---
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        fusedLocationClient.lastLocation.addOnFailureListener(this) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            if (location == null) return@addOnSuccessListener
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
+        }
+
+        if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_DENIED) return
+
+        mMap.isMyLocationEnabled = true  // show blue circle on map
+    }
+
+    // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -419,6 +416,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO bugs
 //    - when tapping a marker, markers reload, so it sometimes disappears
 
+// TODO pokemon
+//    - detect when someone "visits" a marker
+//    - list of which species have ever been visited (including link to most recent one)
+//    - list of recently visited or starred markers
+
 // TODO individual node data
 //    - https://mundraub.org/node/75327
 //    - images? impractical, rare, waste data
@@ -436,6 +438,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // TODO publishing
 //    * find a name and publish on the app store
+
+
+// TODO user profiles
+//    - allow login
+//    - allow adding a node
+//    - allow editing a node
 
 
 // TODO medium-term
