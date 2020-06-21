@@ -430,7 +430,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    * bigger boundaries useful
 
 // TODO marker assets
-//    - use hi-dpi / hi-res markers
+//    * use hi-dpi / hi-res markers
+
+// TODO UI
+//    - depending on font, current day can be too wide (use whole row or fixed width or ignore)
 
 // TODO stateful app
 //    - onInternetConnection: download new markers
