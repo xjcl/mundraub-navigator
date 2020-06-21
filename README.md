@@ -2,7 +2,7 @@
 <table>
 <tr>
 <td>
-<img src="demo2.jpg" alt="Demo of the app" width="500px">
+<img src="demo_2020-06-21.jpg" alt="Demo of the app" width="500px">
 </td>
 <td rowspan="2"  valign="top">
 
@@ -14,10 +14,8 @@ Features:
 - Seasonality information for each species
 - Keeps location markers when internet lost, even when backgrounded
 - Can track location and use Google Maps to navigate to markers
-- Supported languages: German and English
-- TODO features: Marker description texts, status and images
-- Not features: User accounts, adding/editing markers
-
+- Languages: 🇺🇸🇩🇪
+- Not yet supported: User accounts (adding/editing markers)
 
 </td>
 </tr>

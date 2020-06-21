@@ -429,6 +429,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    * incorrect or no update on non-north-oriented map
 //    * bigger boundaries useful
 
+// TODO filter
+//    - allow filtering by fruit type
+
 // TODO UI
 //    - depending on font, current day can be too wide (use whole row or fixed width or ignore)
 
