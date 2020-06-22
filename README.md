@@ -10,11 +10,14 @@
 
 Mundraub Mobile is an unofficial Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
 
+Go fruit foraging, discover your local neighborhood, reduce food waste, and gain a deeper appreciation for nature and her seasons!
+
 Features:
-- Seasonality information for each species
-- Keeps location markers when internet lost, even when backgrounded
-- Can track location and use Google Maps to navigate to markers
-- Languages: 🇺🇸🇩🇪
+- Look up local fruit trees and shrubs on Mundraub
+    - including mini-calendar with seasonality information
+- Google Maps integration for directions to markers
+- Stays usable even when losing internet connection
+- Languages: 🇺🇸/🇩🇪
 - Not yet supported: User accounts (adding/editing markers)
 
 </td>
