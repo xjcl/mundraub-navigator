@@ -6,7 +6,7 @@
 </td>
 <td rowspan="2"  valign="top">
 
-# Mundraub Mobile
+# <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Mobile
 
 Mundraub Mobile is an unofficial Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
 
