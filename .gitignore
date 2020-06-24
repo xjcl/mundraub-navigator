@@ -15,3 +15,7 @@
 
 app/src/debug/res/values/google_maps_api.xml
 app/src/release/res/values/google_maps_api.xml
+app/debug/app-debug.aab
+app/release/app-release.aab
+*.keystore
+private_key.pepk
