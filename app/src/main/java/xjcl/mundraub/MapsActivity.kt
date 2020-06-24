@@ -131,7 +131,7 @@ val treeIdToMarkerIcon = hashMapOf(
     37 to R.drawable.otherherb
 )
 
-var markers = ArrayList<Marker>()
+var markers = HashMap<LatLng, Marker>()
 
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Float, outline: Boolean = true, xpos: Float = .5F, color: Int = Color.WHITE) : Bitmap {
@@ -201,7 +201,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
     private fun addLocationMarkers(jsonStr: String) {
-        Log.e("addLocationMarkers", jsonStr)
+        Log.e("addLocationMarkers", markers.size.toString() + " " + jsonStr)
         if (jsonStr == "null" || jsonStr == "") return
 
         // --- parse newly downloaded markers ---
@@ -210,23 +210,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         val root = Json.parse(Root.serializer(), jsonStrClean)
 
         // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
-        val markersNew = ArrayList<Marker>()
         val featuresSet = HashSet<LatLng>( root.features.map { LatLng(it.pos[0], it.pos[1]) } )
-        for (mark in markers) {
-            if (featuresSet.contains(mark.position)) markersNew.add(mark) else mark.remove()
+        for (mark in markers.toMap()) {  // copy constructor
+            if (!featuresSet.contains(mark.key)) { mark.value.remove(); markers.remove(mark.key) }
         }
-        markers = markersNew
 
         // --- add newly downloaded markers not already in old set ---
-        val markersSet = HashSet<LatLng>( markers.map { it.position } )
-
         for (feature in root.features) {
             val latlng = LatLng(feature.pos[0], feature.pos[1])
-
-            if (markersSet.contains(latlng))
-                continue
-
-            markers.add(addMarkerFromFeature(feature))
+            if (markers.contains(latlng)) continue
+            markers[latlng] = addMarkerFromFeature(feature)
         }
     }
 
