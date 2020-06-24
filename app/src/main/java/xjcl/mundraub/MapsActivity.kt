@@ -29,8 +29,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
@@ -243,12 +242,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         Log.e("updateMarkers", "GET $url")
 
-        val deferredStr = GlobalScope.async {
-            try { URL(url).readText() } catch (ex: Exception) { "null" }
+        GlobalScope.launch {
+            val jsonStr = try { URL(url).readText() } catch (ex: Exception) { "null" }
+            runOnUiThread { addLocationMarkers(jsonStr) }
         }
-
-        val jsonStr = runBlocking { deferredStr.await() }
-        addLocationMarkers(jsonStr)
     }
 
     override fun onCameraIdle() = updateMarkers()
@@ -366,17 +363,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             val nid = marker.snippet.split("\n")[5]
             if (nid == "null") return@setOnInfoWindowClickListener
 
-            val deferredStr = GlobalScope.async {
-                try { URL("https://mundraub.org/node/$nid").readText() } catch (ex : Exception) { "null" }
-            }
+            GlobalScope.launch {
+                val htmlStr = try { URL("https://mundraub.org/node/$nid").readText() } catch (ex : Exception) { "null" }
 
-            val htmlStr = runBlocking { deferredStr.await() }
-            if (htmlStr == "null") return@setOnInfoWindowClickListener
-            val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">").substringBefore("</span>", "?")
-            val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
-            val descriptionUnescaped = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
-            marker.snippet += "\n[$number] $descriptionUnescaped"
-            marker.showInfoWindow()
+                runOnUiThread {
+                    if (htmlStr == "null") return@runOnUiThread
+                    val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">")
+                        .substringBefore("</span>", "?")
+                    val description =
+                        htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
+                    val descriptionUnescaped =
+                        HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                            .toString()  // unescape "&quot;" etc
+                    marker.snippet += "\n[$number] $descriptionUnescaped"
+                    marker.showInfoWindow()
+                }
+            }
         }
     }
 
