@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -278,7 +279,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
                 val description = TextView(this@MapsActivity)
                 // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
-                description.width = (12 * 13 * resources.displayMetrics.density).toInt() + 5
+                val density = resources.displayMetrics.density
+                val masterWidth = (12 * 13 * density).toInt()
+                description.width = masterWidth
                 description.text = descriptionStr
                 description.textSize = 12F
                 if (descriptionStr.isNotBlank()) info.addView(description)
@@ -298,6 +301,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 seasonText.setTextColor(Color.BLACK)
                 seasonText.text = this@MapsActivity.getString(if (isSeasonal) R.string.inSeason else R.string.notInSeason)
                 info.addView(seasonText)
+
+                val day = RelativeLayout(this@MapsActivity)
+                val tv = TextView(this@MapsActivity)
+                tv.text = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
+                tv.setTextColor(if (isSeasonal) fruitColor else Color.GRAY)
+                tv.setTypeface(null, Typeface.BOLD)
+                tv.measure(0, 0)
+                val params = RelativeLayout.LayoutParams(tv.measuredWidth, tv.measuredHeight)
+                params.leftMargin = ( density * 13 * (curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
+                day.addView(tv, params)
+                info.addView(day)
 
                 val months = LinearLayout(this@MapsActivity)
                 months.orientation = LinearLayout.HORIZONTAL
@@ -329,15 +343,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                     if (monthCodes[i-1] != '_') letter.setTypeface(null, Typeface.BOLD)
                     letter.text = "JFMAMJJASOND"[i-1].toString()
 
-                    val day = TextView(this@MapsActivity)
-                    day.setTextColor(if (isSeasonal) fruitColor else Color.GRAY)
-                    day.gravity = Gravity.CENTER
-                    day.setTypeface(null, Typeface.BOLD)
-                    day.text = if (curMonth.toInt() == i) Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString() else ""
-
                     val month = LinearLayout(this@MapsActivity)
                     month.orientation = LinearLayout.VERTICAL
-                    month.addView(day)
                     month.addView(circle)
                     month.addView(letter)
                     months.addView(month)
@@ -410,6 +417,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 }
 
 
+// TODO other
+//    * respond to nicco, and/or send screenshots
+
+// TODO UI
+//    * depending on font, current day can be too wide (use whole row or fixed width or ignore)
+
+// TODO publishing
+//    * fix UI issue
+//    * prepare for publishing (key etc.)
+//    * upload to Play Store for private beta
+//    * write blog post about it
+//    * publish to reddit about it
+
+
+// TODO latlng boundaries
+//    * incorrect or no update on non-north-oriented map
+//    * bigger boundaries useful
+
 // TODO tests
 //    - test scripts for app or at least info extraction
 
@@ -425,22 +450,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - https://mundraub.org/node/75327
 //    - images? impractical, rare, waste data
 
-// TODO latlng boundaries
-//    * incorrect or no update on non-north-oriented map
-//    * bigger boundaries useful
-
 // TODO filter
 //    - allow filtering by fruit type
-
-// TODO UI
-//    - depending on font, current day can be too wide (use whole row or fixed width or ignore)
 
 // TODO stateful app
 //    - onInternetConnection: download new markers
 //    - startup: load markers from last time
 
-// TODO publishing
-//    * find a name and publish on the app store
+// TODO persistence
+//    - keep markers near person better
+//    - favorite markers that get permanently stored
 
 
 // TODO user profiles
