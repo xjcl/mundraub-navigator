@@ -280,7 +280,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 val description = TextView(this@MapsActivity)
                 // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
                 val density = resources.displayMetrics.density
-                val masterWidth = (12 * 13 * density).toInt()
+                var masterWidth = (12 * 13 * density).toInt()
                 description.width = masterWidth
                 description.text = descriptionStr
                 description.textSize = 12F
@@ -301,17 +301,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 seasonText.setTextColor(Color.BLACK)
                 seasonText.text = this@MapsActivity.getString(if (isSeasonal) R.string.inSeason else R.string.notInSeason)
                 info.addView(seasonText)
-
-                val day = RelativeLayout(this@MapsActivity)
-                val tv = TextView(this@MapsActivity)
-                tv.text = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
-                tv.setTextColor(if (isSeasonal) fruitColor else Color.GRAY)
-                tv.setTypeface(null, Typeface.BOLD)
-                tv.measure(0, 0)
-                val params = RelativeLayout.LayoutParams(tv.measuredWidth, tv.measuredHeight)
-                params.leftMargin = ( density * 13 * (curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
-                day.addView(tv, params)
-                info.addView(day)
 
                 val months = LinearLayout(this@MapsActivity)
                 months.orientation = LinearLayout.HORIZONTAL
@@ -349,6 +338,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                     month.addView(letter)
                     months.addView(month)
                 }
+                months.measure(0, 0)
+                Log.e("width change", masterWidth.toString() + " -> " + months.measuredWidth)
+                masterWidth = months.measuredWidth
+                description.width = masterWidth
+
+                val day = RelativeLayout(this@MapsActivity)
+                val tv = TextView(this@MapsActivity)
+                tv.text = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
+                tv.setTextColor(if (isSeasonal) fruitColor else Color.GRAY)
+                tv.setTypeface(null, Typeface.BOLD)
+                tv.measure(0, 0)
+                val params = RelativeLayout.LayoutParams(tv.measuredWidth, tv.measuredHeight)
+                params.leftMargin = ( masterWidth / 12F * (curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
+                day.addView(tv, params)
+
+                info.addView(day)
                 info.addView(months)
                 return info
             }
