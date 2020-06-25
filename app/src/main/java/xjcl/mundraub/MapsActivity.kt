@@ -46,7 +46,7 @@ data class Feature(val pos: List<Double>, val properties: Properties? = null, va
 @Serializable
 data class Root(val features: List<Feature>)
 
-data class MarkerData(val type : String, val title : String, val months : String, val curMonth : Double,
+data class MarkerData(val type : String, val title : String, val monthCodes : String, val curMonth : Double,
                       val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?)
 
 // Key: treeId (type of tree/fruit),  Value: Pair<Int, Int> with first and last month of season
@@ -189,14 +189,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
         val curMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toDouble() / 32
         val isSeasonal = {month : Double -> treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0}
-        val months = (1..12).joinToString("") { when {
+        val monthCodes = (1..12).joinToString("") { when {
              isSeasonal(it + .25) &&  isSeasonal(it + .75) -> "x"
              isSeasonal(it + .25) && !isSeasonal(it + .75) -> "l"
             !isSeasonal(it + .25) &&  isSeasonal(it + .75) -> "r"
             else -> "_"
         }}
 
-        markersData[latlng] = MarkerData(type, title, months, curMonth, isSeasonal(curMonth), fruitColor, feature.properties?.nid, null)
+        markersData[latlng] = MarkerData(type, title, monthCodes, curMonth, isSeasonal(curMonth), fruitColor, feature.properties?.nid, null)
 
         return mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
     }
@@ -260,10 +260,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
             override fun getInfoContents(marker: Marker): View {
                 val md = markersData[marker.position] ?: return TextView(this@MapsActivity)
-                val markerType = md.type
-                val monthCodes = md.months; val curMonth = md.curMonth.toFloat()
-                val isSeasonal = md.isSeasonal; val fruitColor = md.fruitColor
-                val descriptionStr = md.description ?: ""
 
                 val info = LinearLayout(this@MapsActivity)
                 info.orientation = LinearLayout.VERTICAL
@@ -273,24 +269,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 val density = resources.displayMetrics.density
                 var masterWidth = (12 * 13 * density).toInt()
                 description.width = masterWidth
-                description.text = descriptionStr
+                description.text = md.description ?: ""
                 description.textSize = 12F
-                if (descriptionStr.isNotBlank()) info.addView(description)
+                if (description.text.isNotBlank()) info.addView(description)
 
                 val title = TextView(this@MapsActivity)
-                title.setTextColor(fruitColor)
+                title.setTextColor(md.fruitColor)
                 title.gravity = Gravity.CENTER
                 title.setTypeface(null, Typeface.BOLD)
                 title.text = marker.title
                 info.addView(title)
 
                 // no month/season information in this case so return early
-                if (markerType == "cluster" || markerType == "other")
+                if (md.type == "cluster" || md.type == "other")
                     return info
 
                 val seasonText = TextView(this@MapsActivity)
                 seasonText.setTextColor(Color.BLACK)
-                seasonText.text = this@MapsActivity.getString(if (isSeasonal) R.string.inSeason else R.string.notInSeason)
+                seasonText.text = this@MapsActivity.getString(if (md.isSeasonal) R.string.inSeason else R.string.notInSeason)
                 info.addView(seasonText)
 
                 val months = LinearLayout(this@MapsActivity)
@@ -302,25 +298,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                     val circleLeft = ImageView(this@MapsActivity)
                     val circleRight = ImageView(this@MapsActivity)
 
-                    val resLeft = if ("xl".contains(monthCodes[i-1])) R.drawable._dot_l1 else R.drawable._dot_l0
-                    val resRight = if ("xr".contains(monthCodes[i-1])) R.drawable._dot_r1 else R.drawable._dot_r0
+                    val resLeft = if ("xl".contains(md.monthCodes[i-1])) R.drawable._dot_l1 else R.drawable._dot_l0
+                    val resRight = if ("xr".contains(md.monthCodes[i-1])) R.drawable._dot_r1 else R.drawable._dot_r0
                     circleLeft.setImageResource(resLeft)
                     circleRight.setImageResource(resRight)
-                    if ("xl".contains(monthCodes[i-1])) circleLeft.setColorFilter(fruitColor)
-                    if ("xr".contains(monthCodes[i-1])) circleRight.setColorFilter(fruitColor)
+                    if ("xl".contains(md.monthCodes[i-1])) circleLeft.setColorFilter(md.fruitColor)
+                    if ("xr".contains(md.monthCodes[i-1])) circleRight.setColorFilter(md.fruitColor)
                     // add vertical line for current time in year
-                    if (curMonth.toInt() == i)
-                        (if (curMonth % 1 < .5) circleLeft else circleRight).setImageBitmap(
-                            bitmapWithText( (if (curMonth % 1 < .5) resLeft else resRight), this@MapsActivity,
-                                "|", 50F, false,  2 * (curMonth % .5F), if (isSeasonal) fruitColor else Color.GRAY) )
+                    if (md.curMonth.toInt() == i)
+                        (if (md.curMonth % 1 < .5) circleLeft else circleRight).setImageBitmap(
+                            bitmapWithText( (if (md.curMonth % 1 < .5) resLeft else resRight), this@MapsActivity,
+                                "|", 50F, false,  2 * (md.curMonth % .5).toFloat(), if (md.isSeasonal) md.fruitColor else Color.GRAY) )
 
                     circle.addView(circleLeft)
                     circle.addView(circleRight)
 
                     val letter = TextView(this@MapsActivity)
-                    letter.setTextColor(if (monthCodes[i-1] != '_') fruitColor else Color.GRAY)
+                    letter.setTextColor(if (md.monthCodes[i-1] != '_') md.fruitColor else Color.GRAY)
                     letter.gravity = Gravity.CENTER
-                    if (monthCodes[i-1] != '_') letter.setTypeface(null, Typeface.BOLD)
+                    if (md.monthCodes[i-1] != '_') letter.setTypeface(null, Typeface.BOLD)
                     letter.text = "JFMAMJJASOND"[i-1].toString()
 
                     val month = LinearLayout(this@MapsActivity)
@@ -337,11 +333,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 val day = RelativeLayout(this@MapsActivity)
                 val tv = TextView(this@MapsActivity)
                 tv.text = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
-                tv.setTextColor(if (isSeasonal) fruitColor else Color.GRAY)
+                tv.setTextColor(if (md.isSeasonal) md.fruitColor else Color.GRAY)
                 tv.setTypeface(null, Typeface.BOLD)
                 tv.measure(0, 0)
                 val params = RelativeLayout.LayoutParams(tv.measuredWidth, tv.measuredHeight)
-                params.leftMargin = ( masterWidth / 12F * (curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
+                params.leftMargin = ( masterWidth / 12F * (md.curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
                 day.addView(tv, params)
 
                 info.addView(day)
@@ -358,13 +354,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             GlobalScope.launch(Dispatchers.IO) {
                 val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@launch }
 
-                runOnUiThread {
-                    val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">").substringBefore("</span>", "?")
-                    val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
-                    val descriptionUnescaped = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
-                    md.description = "[$number] $descriptionUnescaped"
-                    marker.showInfoWindow()
-                }
+                val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">").substringBefore("</span>", "?")
+                val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
+                val descriptionUnescaped = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
+                md.description = "[$number] $descriptionUnescaped"
+
+                runOnUiThread { marker.showInfoWindow() }
             }
         }
     }
