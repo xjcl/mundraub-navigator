@@ -41,12 +41,13 @@ import kotlin.collections.HashSet
 
 @Serializable
 data class Properties(val nid: Int, val tid: Int)  // node id, tree type id
-
 @Serializable
 data class Feature(val pos: List<Double>, val properties: Properties? = null, val count: Int? = null)
-
 @Serializable
 data class Root(val features: List<Feature>)
+
+data class MarkerData(val type : String, val title : String, val months : String, val curMonth : Double,
+                      val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?)
 
 // Key: treeId (type of tree/fruit),  Value: Pair<Int, Int> with first and last month of season
 // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
@@ -133,6 +134,7 @@ val treeIdToMarkerIcon = hashMapOf(
 )
 
 var markers = HashMap<LatLng, Marker>()
+var markersData = HashMap<LatLng, MarkerData>()
 
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Float, outline: Boolean = true, xpos: Float = .5F, color: Int = Color.WHITE) : Bitmap {
@@ -194,10 +196,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             else -> "_"
         }}
 
-        val snippet = type + "\n" + months + "\n" + curMonth + "\n" + isSeasonal(curMonth) + "\n" + fruitColor + "\n" + feature.properties?.nid
+        markersData[latlng] = MarkerData(type, title, months, curMonth, isSeasonal(curMonth), fruitColor, feature.properties?.nid, null)
 
-        return mMap.addMarker(MarkerOptions().position(latlng).title(title).snippet(snippet).icon(icon)
-            .anchor(.5F, if (type == "cluster") .5F else 1F))
+        return mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
     }
 
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
@@ -213,7 +214,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
         val featuresSet = HashSet<LatLng>( root.features.map { LatLng(it.pos[0], it.pos[1]) } )
         for (mark in markers.toMap()) {  // copy constructor
-            if (!featuresSet.contains(mark.key)) { mark.value.remove(); markers.remove(mark.key) }
+            if (!featuresSet.contains(mark.key)) { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }
         }
 
         // --- add newly downloaded markers not already in old set ---
@@ -250,7 +251,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mMap.setOnCameraIdleListener(this)
 
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        ActivityCompat.requestPermissions(this, permissions,0)
+        ActivityCompat.requestPermissions(this, permissions, 0)
 
         // --- Build a vertical layout to provide an info window for a marker ---
         // https://stackoverflow.com/a/31629308/2111778
@@ -258,12 +259,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             override fun getInfoWindow(arg0: Marker): View? = null
 
             override fun getInfoContents(marker: Marker): View {
-                // I'm sending display data encoded in the snippet string as I found no clean way to do this
-                val markerData = marker.snippet.split("\n")
-                val markerType = markerData[0]
-                val monthCodes = markerData[1]; val curMonth = markerData[2].toFloat()
-                val isSeasonal = markerData[3].toBoolean(); val fruitColor = markerData[4].toInt()
-                val descriptionStr = if (markerData.size > 6) markerData.slice(6 until markerData.size).joinToString("\n") else ""
+                val md = markersData[marker.position] ?: return TextView(this@MapsActivity)
+                val markerType = md.type
+                val monthCodes = md.months; val curMonth = md.curMonth.toFloat()
+                val isSeasonal = md.isSeasonal; val fruitColor = md.fruitColor
+                val descriptionStr = md.description ?: ""
 
                 val info = LinearLayout(this@MapsActivity)
                 info.orientation = LinearLayout.VERTICAL
@@ -352,24 +352,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         // --- Download detailed node description when user taps ("clicks") on info window ---
         mMap.setOnInfoWindowClickListener { marker ->
-            if (marker.snippet.count {it =='\n'} >= 6) return@setOnInfoWindowClickListener
-
-            val nid = marker.snippet.split("\n")[5]
-            if (nid == "null") return@setOnInfoWindowClickListener
+            val md = markersData[marker.position] ?: return@setOnInfoWindowClickListener
+            if (md.description != null || md.nid == null) return@setOnInfoWindowClickListener
 
             GlobalScope.launch(Dispatchers.IO) {
-                val htmlStr = try { URL("https://mundraub.org/node/$nid").readText() } catch (ex : Exception) { "null" }
+                val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@launch }
 
                 runOnUiThread {
-                    if (htmlStr == "null") return@runOnUiThread
-                    val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">")
-                        .substringBefore("</span>", "?")
-                    val description =
-                        htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
-                    val descriptionUnescaped =
-                        HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                            .toString()  // unescape "&quot;" etc
-                    marker.snippet += "\n[$number] $descriptionUnescaped"
+                    val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">").substringBefore("</span>", "?")
+                    val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
+                    val descriptionUnescaped = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
+                    md.description = "[$number] $descriptionUnescaped"
                     marker.showInfoWindow()
                 }
             }
@@ -418,19 +411,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 }
 
 
-// TODO other
-//    * respond to nicco, and/or send screenshots
-
-// TODO UI
-//    * depending on font, current day can be too wide (use whole row or fixed width or ignore)
-
 // TODO publishing
-//    * fix UI issue
-//    * prepare for publishing (key etc.)
-//    * upload to Play Store for private beta
+//    * send Play Store link to testers
 //    * write blog post about it
 //    * publish to reddit about it
-
+//    * official newsletter
 
 // TODO latlng boundaries
 //    * incorrect or no update on non-north-oriented map
@@ -468,12 +453,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - allow adding a node
 //    - allow editing a node
 
-
-// TODO medium-term
-//    - replace AsyncTask with coroutines
-//        - AsyncTask will be removed in Android 11
-//        - https://stackoverflow.com/a/21284021/2111778
-//    - pass info in a better way than snippets
 
 // TODO long-term / never
 //    - groups, actions, cider makers, saplings, ...
