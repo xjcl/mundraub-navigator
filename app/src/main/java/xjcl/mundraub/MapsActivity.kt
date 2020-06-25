@@ -28,13 +28,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
 
@@ -235,7 +236,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         Log.e("updateMarkers", "GET $url")
 
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
             val jsonStr = try { URL(url).readText() } catch (ex: Exception) { "null" }
             runOnUiThread { addLocationMarkers(jsonStr) }
         }
@@ -356,7 +357,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             val nid = marker.snippet.split("\n")[5]
             if (nid == "null") return@setOnInfoWindowClickListener
 
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 val htmlStr = try { URL("https://mundraub.org/node/$nid").readText() } catch (ex : Exception) { "null" }
 
                 runOnUiThread {
