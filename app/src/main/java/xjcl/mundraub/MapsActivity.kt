@@ -228,8 +228,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     // --- Update markers when user finished moving the map ---
     private fun updateMarkers() {
         val zoom = mMap.cameraPosition.zoom
-        val bboxLo = mMap.projection.visibleRegion.nearLeft
-        val bboxHi = mMap.projection.visibleRegion.farRight
+        val bboxLo = mMap.projection.visibleRegion.latLngBounds.southwest
+        val bboxHi = mMap.projection.visibleRegion.latLngBounds.northeast
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
@@ -413,8 +413,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    * official newsletter
 
 // TODO latlng boundaries
-//    * incorrect or no update on non-north-oriented map
-//    * bigger boundaries useful
+//    * extend boundaries to go slightly offscreen so less re-loading needed?
 
 // TODO tests
 //    - test scripts for app or at least info extraction
