@@ -362,6 +362,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 runOnUiThread { marker.showInfoWindow() }
             }
         }
+
+        updateMarkers()
     }
 
     // --- When user rotates phone, re-download markers for the new screen size ---
