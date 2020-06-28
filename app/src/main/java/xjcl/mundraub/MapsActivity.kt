@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -28,6 +29,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Picasso.LoadedFrom
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.IO
@@ -47,7 +50,8 @@ data class Feature(val pos: List<Double>, val properties: Properties? = null, va
 data class Root(val features: List<Feature>)
 
 data class MarkerData(val type : String, val title : String, val monthCodes : String, val curMonth : Double,
-                      val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?)
+                      val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?,
+                      var image : Bitmap?)
 
 // Key: treeId (type of tree/fruit),  Value: Pair<Int, Int> with first and last month of season
 // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
@@ -196,7 +200,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             else -> "_"
         }}
 
-        markersData[latlng] = MarkerData(type, title, monthCodes, curMonth, isSeasonal(curMonth), fruitColor, feature.properties?.nid, null)
+        markersData[latlng] = MarkerData(type, title, monthCodes, curMonth, isSeasonal(curMonth), fruitColor, feature.properties?.nid, null, null)
 
         return mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
     }
@@ -263,6 +267,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
                 val info = LinearLayout(this@MapsActivity)
                 info.orientation = LinearLayout.VERTICAL
+
+                if (md.image != null) {
+                    val iv = ImageView(this@MapsActivity)
+                    iv.setImageBitmap(md.image)
+                    info.addView(iv)
+                }
 
                 val description = TextView(this@MapsActivity)
                 // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
@@ -352,14 +362,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             if (md.description != null || md.nid == null) return@setOnInfoWindowClickListener
 
             GlobalScope.launch(Dispatchers.IO) {
+                // --- Download number of finds and description ---
                 val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@launch }
 
-                val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">").substringBefore("</span>", "?")
+                val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">", "?").substringBefore("</span>")
                 val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
                 val descriptionUnescaped = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
                 md.description = "[$number] $descriptionUnescaped"
 
                 runOnUiThread { marker.showInfoWindow() }
+
+                // --- Download image in lowest quality ---
+                val imageURL = htmlStr.substringAfter("srcset=\"", "").substringBefore(" ")
+                if (imageURL.isBlank() || md.image != null) return@launch
+
+                runOnUiThread {
+                    Picasso.with(this@MapsActivity).load("https://mundraub.org/$imageURL").into(object : com.squareup.picasso.Target {
+                        override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
+                        override fun onBitmapFailed(errorDrawable: Drawable?) { }
+                        override fun onBitmapLoaded(bitmap: Bitmap?, from: LoadedFrom?) { md.image = bitmap; marker.showInfoWindow() }
+                    })
+                }
             }
         }
 
