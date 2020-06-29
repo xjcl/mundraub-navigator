@@ -174,6 +174,10 @@ fun scaleToWidth(bitmapMaybeNull : Bitmap?, width : Int) : Bitmap {
     return Bitmap.createScaledBitmap(bitmap, width, (width.toDouble() / bitmap.width * bitmap.height).toInt(), true)
 }
 
+fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitude, scalar * vec.longitude)
+fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)
+fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.latitude, vec1.longitude - vec2.longitude)
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -395,6 +399,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 }
             }
         }
+
+        // --- Custom zoom to marker at an *off-center* position to leave more space for its large info window ---
+        mMap.setOnMarkerClickListener { marker ->
+            marker.showInfoWindow()
+            val targetPosition = vecAdd(marker.position, vecMul(.2, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
+            true
+        }
     }
 
     // --- When user rotates phone, re-download markers for the new screen size ---
@@ -469,7 +481,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - allow filtering by fruit type
 
 // TODO UI
-//    - when tap on marker: do not center but zoom below center (OnMarkerClickListener)
+//    - when tap on marker: sometimes window goes off-screen (solution: measure info window?)
+//    - maybe immediately download when tapping marker? (1 instead of 2 taps)
 
 // TODO menu
 //    - One-tap menu in the ActionBar (https://developer.android.com/training/appbar)
