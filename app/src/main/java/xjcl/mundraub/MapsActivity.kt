@@ -395,8 +395,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 }
             }
         }
-
-        updateMarkers()
     }
 
     // --- When user rotates phone, re-download markers for the new screen size ---
@@ -459,7 +457,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    * extend boundaries to go slightly offscreen so less re-loading needed?
 
 // TODO bugs
-//    - when tapping a marker, markers reload, so it sometimes disappears
+//    - when tapping a marker, markers reload, so it sometimes
+//    - coroutine bug: sometimes markers don't load when opening app for no reason >:(
 
 // TODO pokemon
 //    - detect when someone "visits" a marker
