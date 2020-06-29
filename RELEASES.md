@@ -1,4 +1,8 @@
 
+v4
+- Zoom so marker is below center, leaving more room for its info window
+- (Partly) fixes no markers when opening app
+
 v3
 - Show user-submitted image in marker info window
 - Fixes to support different pixel densities
