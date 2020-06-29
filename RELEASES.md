@@ -1,4 +1,8 @@
 
+v3
+- Show user-submitted image in marker info window
+- Fixes to support different pixel densities
+
 v2
 - First working Play Store release
 - Fixes some graphical glitches (date overflowing, off-center dots, non-north-oriented maps)
