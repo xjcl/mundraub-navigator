@@ -432,16 +432,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 // TODO publishing
-//    * send Play Store link to testers
+//    - replace icon with high-res version
+//    - replace feature image with actual feature
 //    * write blog post about it
 //    * publish to reddit about it
 //    * official newsletter
 
+// TODO QA
+//    - Full automated UI scripts using Espresso
+//    - Node test with image: https://mundraub.org/node/75327
+//    - Ensure correct season information
+//    - Test different pixel densities by setting screen rezo on my phone
+
+
 // TODO latlng boundaries
 //    * extend boundaries to go slightly offscreen so less re-loading needed?
-
-// TODO tests
-//    - test scripts for app or at least info extraction
 
 // TODO bugs
 //    - when tapping a marker, markers reload, so it sometimes disappears
@@ -451,12 +456,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - list of which species have ever been visited (including link to most recent one)
 //    - list of recently visited or starred markers
 
-// TODO individual node data
-//    - https://mundraub.org/node/75327
-//    - images? impractical, rare, waste data
-
 // TODO filter
 //    - allow filtering by fruit type
+
+// TODO UI
+//    - when tap on marker: do not center but zoom below center (OnMarkerClickListener)
+
+// TODO menu
+//    - One-tap menu in the ActionBar (https://developer.android.com/training/appbar)
 
 // TODO stateful app
 //    - onInternetConnection: download new markers
