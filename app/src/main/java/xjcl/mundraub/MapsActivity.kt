@@ -150,19 +150,28 @@ fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Fl
     val textBounds = Rect()
 
     val paint = Paint()
-    paint.color = Color.DKGRAY
-    paint.textSize = textSize
+    paint.textSize = textSize * activity.resources.displayMetrics.density / 3F
     paint.getTextBounds(text, 0, text.length, textBounds)
-
-    if (outline)
-        for (delta in listOf(3 to 0, -3 to 0, 0 to 3, 0 to -3, 2 to 2, 2 to -2, -2 to 2, -2 to -2))
-            canvas.drawText(text, canvas.width * xpos - textBounds.exactCenterX() + delta.first,
-                canvas.height/2F - textBounds.exactCenterY() + delta.second, paint)
-
     paint.color = color
+
+    // https://stackoverflow.com/a/9133305/2111778
+    if (outline) {
+        val stkPaint = Paint()
+        stkPaint.style = Paint.Style.STROKE
+        stkPaint.strokeWidth = 2F * activity.resources.displayMetrics.density
+        stkPaint.textSize = paint.textSize
+        stkPaint.color = Color.DKGRAY
+        canvas.drawText(text, canvas.width * xpos - textBounds.exactCenterX(), canvas.height/2F - textBounds.exactCenterY(), stkPaint)
+    }
+
     canvas.drawText(text, canvas.width * xpos - textBounds.exactCenterX(), canvas.height/2F - textBounds.exactCenterY(), paint)
 
     return bitmap
+}
+
+fun scaleToWidth(bitmapMaybeNull : Bitmap?, width : Int) : Bitmap {
+    val bitmap = bitmapMaybeNull ?: Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8)
+    return Bitmap.createScaledBitmap(bitmap, width, (width.toDouble() / bitmap.width * bitmap.height).toInt(), true)
 }
 
 
@@ -182,7 +191,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         }
 
         val title = getString(resources.getIdentifier("tid$tid", "string", packageName))
-        val fruitColor = BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit).getPixel(10, 30)
+        val fruitColor = BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
+            .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
 
         val icon =
             if (type == "cluster") // isCluster
@@ -265,19 +275,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             override fun getInfoContents(marker: Marker): View {
                 val md = markersData[marker.position] ?: return TextView(this@MapsActivity)
 
-                val info = LinearLayout(this@MapsActivity)
-                info.orientation = LinearLayout.VERTICAL
-
-                if (md.image != null) {
-                    val iv = ImageView(this@MapsActivity)
-                    iv.setImageBitmap(md.image)
-                    info.addView(iv)
-                }
-
-                val description = TextView(this@MapsActivity)
                 // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
                 val density = resources.displayMetrics.density
                 var masterWidth = (12 * 13 * density).toInt()
+
+                val info = LinearLayout(this@MapsActivity)
+                info.orientation = LinearLayout.VERTICAL
+
+                val photo = ImageView(this@MapsActivity)
+                photo.setImageBitmap(scaleToWidth(md.image, masterWidth))
+                if (md.image != null) info.addView(photo)
+
+                val description = TextView(this@MapsActivity)
                 description.width = masterWidth
                 description.text = md.description ?: ""
                 description.textSize = 12F
@@ -339,6 +348,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 Log.e("width change", masterWidth.toString() + " -> " + months.measuredWidth)
                 masterWidth = months.measuredWidth
                 description.width = masterWidth
+                photo.setImageBitmap(scaleToWidth(md.image, masterWidth))
 
                 val day = RelativeLayout(this@MapsActivity)
                 val tv = TextView(this@MapsActivity)
