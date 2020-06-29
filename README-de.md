@@ -2,7 +2,7 @@
 <table>
 <tr>
 <td width="35%">
-<img src="demo_2020-06-21.jpg" alt="Demo of the app">
+<img src="demo_2020-06-29.jpg" alt="Demo of the app">
 </td>
 <td rowspan="2"  valign="top">
 
@@ -19,6 +19,8 @@ Features:
 - Bleibt auch in Funklöchern nutzbar
 - Sprachen: 🇺🇸/🇩🇪
 - Noch nicht unterstützt: Nutzer-Accounts (Marker hinzufügen/bearbeiten)
+
+<a href='https://play.google.com/store/apps/details?id=xjcl.mundraub&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Jetzt bei Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png' width="200px"/></a>
 
 </td>
 </tr>
