@@ -187,80 +187,79 @@ fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.
 class JanMapFragment : SupportMapFragment() {
 
     private lateinit var view : RelativeLayout
+    private lateinit var mapView : View
 
+    // --- Create drawer for filtering ---
     // TODO: backdrop (materialui with shadow?) -> Android Shape  https://developer.android.com/training/material/shadows-clipping https://stackoverflow.com/a/16149979/2111778
-    // TODO: animation / FloatingActionButton
+    // TODO: animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
+    // TODO: top-level info window "Only showing: Apple"
+    // TODO: test rotation
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val mapView = super.onCreateView(inflater, container, savedInstanceState)!!
-
-        // TODO move to onActivityCreated() to get actual height
-        mapView.post {
-            val width = mapView.measuredWidth
-            val height = mapView.measuredHeight
-            val widthAndHeight = "$width $height"
-            Log.e("wah", widthAndHeight)
-        }
-        // 1440 x 2240  height
-        val scrWidth = 1440
-        val scrHeight = 2240
+        mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
         view = RelativeLayout(this.context)
         view.addView(mapView)
 
-        val linear = LinearLayout(this.context)
-        linear.orientation = LinearLayout.VERTICAL
+        // This needs to happen in post so measuredHeight is available
+        mapView.post {
+            val scrHeight = mapView.measuredHeight
 
-        val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        lp.setMargins((.03 * scrHeight).toInt(), (.03 * scrHeight).toInt(), 0, 0);
-        linear.layoutParams = lp
+            val linear = LinearLayout(this.context)
+            linear.orientation = LinearLayout.VERTICAL
 
-        val ivs = HashMap<Int, ImageView>()
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            lp.setMargins((.03 * scrHeight).toInt(), (.03 * scrHeight).toInt(), 0, 0);
+            linear.layoutParams = lp
 
-        for (entry in treeIdToMarkerIconSorted)
-            ivs[entry.key] = ImageView(this.context)
+            val ivs = HashMap<Int, ImageView>()
 
-        for (entry in treeIdToMarkerIconSorted) {
+            for (entry in treeIdToMarkerIconSorted)
+                ivs[entry.key] = ImageView(this.context)
 
-            val iv = ivs[entry.key] ?: continue
-            iv.setImageResource(entry.value)
+            for (entry in treeIdToMarkerIconSorted) {
 
-            iv.setOnClickListener {
-                Log.e("onClick", entry.key.toString())
-                if (selectedSpecies == entry.key) {
-                    for (other in ivs)
-                        other.value.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
-                    selectedSpecies = null
-                } else {
-                    for (other in ivs)
-                        other.value.setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
-                    selectedSpecies = entry.key
-                    iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                val iv = ivs[entry.key] ?: continue
+                iv.setImageResource(entry.value)
+
+                iv.setOnClickListener {
+                    Log.e("onClick", entry.key.toString())
+                    if (selectedSpecies == entry.key) {
+                        for (other in ivs)
+                            other.value.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                        selectedSpecies = null
+                    } else {
+                        for (other in ivs)
+                            other.value.setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
+                        selectedSpecies = entry.key
+                        iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                    }
+                    // TODO XXX: trigger updateMarkers()
                 }
-                // TODO: trigger updateMarkers()
+
+                val bmp = BitmapFactory.decodeResource(resources, entry.value)
+                iv.setImageBitmap(bmp)
+
+                val markerHeight = .94 * (scrHeight - bmp.height) / (treeIdToMarkerIconSorted.size - 1)
+
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                val bottom =
+                    if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight.toInt()
+                lp.setMargins(0, 0, 0, bottom)
+                iv.layoutParams = lp
+
+                linear.addView(iv)
             }
 
-            val bmp = BitmapFactory.decodeResource(resources, entry.value)
-            iv.setImageBitmap(bmp)
-
-            val markerHeight = .8 * scrHeight / treeIdToMarkerIconSorted.size
-
-            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else - bmp.height + markerHeight.toInt()
-            lp.setMargins(0, 0, 0, bottom)
-            iv.layoutParams = lp
-
-            linear.addView(iv)
+            view.addView(linear)
         }
 
-        // TODO add clear icon ??
-
-        view.addView(linear)
-
         return view
-    }
-
-    override fun onActivityCreated(p0: Bundle?) {
-        super.onActivityCreated(p0)
     }
 }
 
@@ -527,7 +526,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as JanMapFragment
-        //val mapFragment = JanMapFragment()
         mapFragment.getMapAsync(this)
         // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true
@@ -551,6 +549,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - Node test with image: https://mundraub.org/node/75327
 //    - Ensure correct season information
 //    - Test different pixel densities by setting screen rezo on my phone
+//    - Test rotation
+//    - Test offline use
 
 
 // TODO latlng boundaries
