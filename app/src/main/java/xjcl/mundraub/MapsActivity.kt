@@ -6,6 +6,9 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RoundRectShape
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -196,7 +199,8 @@ class JanMapFragment : SupportMapFragment() {
     // TODO: backdrop (materialui with shadow?) -> Android Shape  https://developer.android.com/training/material/shadows-clipping https://stackoverflow.com/a/16149979/2111778
     // TODO: animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
     // TODO: top-level info window "Only showing: Apple"
-    // TODO: test rotation
+    // TODO: fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
+    // TODO: fix north-oriented button (https://stackoverflow.com/questions/14489880/change-position-of-google-maps-apis-my-location-button)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
@@ -206,14 +210,25 @@ class JanMapFragment : SupportMapFragment() {
         // This needs to happen in post so measuredHeight is available
         mapView.post {
             val scrHeight = mapView.measuredHeight
+            val bmpSample = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
+            Log.e("scrHeight", scrHeight.toString())
+            Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
             val linear = LinearLayout(this.context)
             linear.orientation = LinearLayout.VERTICAL
 
-            val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
+            val pad = scrHeight / 100
+            val c = bmpSample.width / 2F + pad  // corner size
+            val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
+            sd.paint.color = Color.parseColor("#C0FFFFFF")
+            sd.setPadding(pad, pad, pad, pad)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) linear.elevation = 6F  // Default elevation of a FAB is 6
+            else sd.paint.color = Color.parseColor("#42000000")
+
+            linear.background = sd
+
+            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             lp.setMargins((.03 * scrHeight).toInt(), (.03 * scrHeight).toInt(), 0, 0);
             linear.layoutParams = lp
 
@@ -245,14 +260,11 @@ class JanMapFragment : SupportMapFragment() {
                 val bmp = BitmapFactory.decodeResource(resources, entry.value)
                 iv.setImageBitmap(bmp)
 
-                val markerHeight = .94 * (scrHeight - bmp.height) / (treeIdToMarkerIconSorted.size - 1)
+                // 3% top-margin 1% top-padding 1% bottom-padding 3% bottom-margin => 92%
+                val markerHeight = .92 * (scrHeight - bmp.height) / (treeIdToMarkerIconSorted.size - 1)
 
-                val lp = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                val bottom =
-                    if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight.toInt()
+                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight.toInt()
                 lp.setMargins(0, 0, 0, bottom)
                 iv.layoutParams = lp
 
@@ -571,6 +583,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO UI
 //    - when tap on marker: sometimes window goes off-screen (solution: measure info window?)
 //    - maybe immediately download when tapping marker? (1 instead of 2 taps)
+//    - "force reload" button
 
 // TODO menu
 //    - One-tap menu in the ActionBar (https://developer.android.com/training/appbar)
