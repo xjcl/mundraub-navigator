@@ -196,11 +196,12 @@ class JanMapFragment : SupportMapFragment() {
     private lateinit var mapView : View
 
     // --- Create drawer for species filtering ---
-    // TODO: backdrop (materialui with shadow?) -> Android Shape  https://developer.android.com/training/material/shadows-clipping https://stackoverflow.com/a/16149979/2111778
+    // -> This moves Google controls over using screen and marker dimensions
+    // -> 2% top-margin 1% top-padding 1% bottom-padding 2% bottom-margin => 94% height
     // TODO: animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
     // TODO: top-level info window "Only showing: Apple"
     // TODO: fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
-    // TODO: fix north-oriented button (https://stackoverflow.com/questions/14489880/change-position-of-google-maps-apis-my-location-button)
+    // TODO: better division of height for non-xxxhdpi-devices
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
@@ -214,22 +215,25 @@ class JanMapFragment : SupportMapFragment() {
             Log.e("scrHeight", scrHeight.toString())
             Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
+            mMap.setPadding((.04 * scrHeight).toInt() + bmpSample.width, 0, 0, 0)
+
             val linear = LinearLayout(this.context)
             linear.orientation = LinearLayout.VERTICAL
 
-            val pad = scrHeight / 100
+            val pad = (.01 * scrHeight).toInt()
             val c = bmpSample.width / 2F + pad  // corner size
             val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
-            sd.paint.color = Color.parseColor("#C0FFFFFF")
+            sd.paint.color = Color.parseColor("#D0FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
             sd.setPadding(pad, pad, pad, pad)
 
+            // https://developer.android.com/training/material/shadows-clipping
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) linear.elevation = 6F  // Default elevation of a FAB is 6
             else sd.paint.color = Color.parseColor("#42000000")
 
             linear.background = sd
 
             val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            lp.setMargins((.03 * scrHeight).toInt(), (.03 * scrHeight).toInt(), 0, 0);
+            lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
             linear.layoutParams = lp
 
             val ivs = HashMap<Int, ImageView>()
@@ -260,8 +264,7 @@ class JanMapFragment : SupportMapFragment() {
                 val bmp = BitmapFactory.decodeResource(resources, entry.value)
                 iv.setImageBitmap(bmp)
 
-                // 3% top-margin 1% top-padding 1% bottom-padding 3% bottom-margin => 92%
-                val markerHeight = .92 * (scrHeight - bmp.height) / (treeIdToMarkerIconSorted.size - 1)
+                val markerHeight = .94 * (scrHeight - bmp.height) / (treeIdToMarkerIconSorted.size - 1)
 
                 val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight.toInt()
