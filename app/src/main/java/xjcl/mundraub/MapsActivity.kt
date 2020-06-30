@@ -141,6 +141,9 @@ val treeIdToMarkerIcon = hashMapOf(
 )
 val treeIdToMarkerIconSorted = treeIdToMarkerIcon.toSortedMap()
 
+lateinit var mMap: GoogleMap
+lateinit var fusedLocationClient: FusedLocationProviderClient
+
 var markers = HashMap<LatLng, Marker>()
 var markersData = HashMap<LatLng, MarkerData>()
 var selectedSpecies : Int? = null
@@ -189,7 +192,7 @@ class JanMapFragment : SupportMapFragment() {
     private lateinit var view : RelativeLayout
     private lateinit var mapView : View
 
-    // --- Create drawer for filtering ---
+    // --- Create drawer for species filtering ---
     // TODO: backdrop (materialui with shadow?) -> Android Shape  https://developer.android.com/training/material/shadows-clipping https://stackoverflow.com/a/16149979/2111778
     // TODO: animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
     // TODO: top-level info window "Only showing: Apple"
@@ -236,7 +239,7 @@ class JanMapFragment : SupportMapFragment() {
                         selectedSpecies = entry.key
                         iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
                     }
-                    // TODO XXX: trigger updateMarkers()
+                    mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
                 }
 
                 val bmp = BitmapFactory.decodeResource(resources, entry.value)
@@ -264,9 +267,6 @@ class JanMapFragment : SupportMapFragment() {
 }
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
-
-    private lateinit var mMap: GoogleMap
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeature(feature: Feature): Marker {
