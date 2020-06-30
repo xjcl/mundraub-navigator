@@ -215,7 +215,7 @@ class JanMapFragment : SupportMapFragment() {
             Log.e("scrHeight", scrHeight.toString())
             Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
-            mMap.setPadding((.04 * scrHeight).toInt() + bmpSample.width, 0, 0, 0)
+            mMap.setPadding((.04 * scrHeight).toInt() + bmpSample.width, 0, 0, 0)  // 2% left-margin 1% left-padding 1% right-padding
 
             val linear = LinearLayout(this.context)
             linear.orientation = LinearLayout.VERTICAL
@@ -241,6 +241,7 @@ class JanMapFragment : SupportMapFragment() {
             for (entry in treeIdToMarkerIconSorted)
                 ivs[entry.key] = ImageView(this.context)
 
+            var i = 0
             for (entry in treeIdToMarkerIconSorted) {
 
                 val iv = ivs[entry.key] ?: continue
@@ -264,14 +265,20 @@ class JanMapFragment : SupportMapFragment() {
                 val bmp = BitmapFactory.decodeResource(resources, entry.value)
                 iv.setImageBitmap(bmp)
 
-                val markerHeight = .94 * (scrHeight - bmp.height) / (treeIdToMarkerIconSorted.size - 1)
-
+                // *** Height calculation for markers
+                // Note that a straight-up division of (totalHeight / numSection) gives poor results
+                // E.g. dividing a distance of 42 into 4 sections straight-up would give 10 10 10 10 or 11 11 11 11
+                //   but ideally we want something like 10 11 10 11 so the totalHeight is preserved
                 val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight.toInt()
+                val totalHeight = .94 * (scrHeight - bmp.height)
+                val exactHeight = (totalHeight / (ivs.size - 1))
+                val markerHeight = ((i+1) * exactHeight).toInt() - (i * exactHeight).toInt()
+                val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight
                 lp.setMargins(0, 0, 0, bottom)
                 iv.layoutParams = lp
 
                 linear.addView(iv)
+                i += 1
             }
 
             view.addView(linear)
