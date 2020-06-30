@@ -246,6 +246,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     // --- Update markers when user finished moving the map ---
     private fun updateMarkers() {
         val zoom = mMap.cameraPosition.zoom
+        if (zoom <= 3) return  // Bugfix, do not remove, see commit message
         val bboxLo = mMap.projection.visibleRegion.latLngBounds.southwest
         val bboxHi = mMap.projection.visibleRegion.latLngBounds.northeast
 
