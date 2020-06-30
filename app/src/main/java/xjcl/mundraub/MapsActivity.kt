@@ -9,7 +9,9 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -39,6 +41,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
 import java.util.*
+import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 
@@ -136,9 +139,11 @@ val treeIdToMarkerIcon = hashMapOf(
     36 to R.drawable.thyme,
     37 to R.drawable.otherherb
 )
+val treeIdToMarkerIconSorted = treeIdToMarkerIcon.toSortedMap()
 
 var markers = HashMap<LatLng, Marker>()
 var markersData = HashMap<LatLng, MarkerData>()
+var selectedSpecies : Int? = null
 
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Float, outline: Boolean = true, xpos: Float = .5F, color: Int = Color.WHITE) : Bitmap {
@@ -178,6 +183,86 @@ fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitud
 fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)
 fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.latitude, vec1.longitude - vec2.longitude)
 
+
+class JanMapFragment : SupportMapFragment() {
+
+    private lateinit var view : RelativeLayout
+
+    // TODO: backdrop (materialui with shadow?) -> Android Shape  https://developer.android.com/training/material/shadows-clipping https://stackoverflow.com/a/16149979/2111778
+    // TODO: animation / FloatingActionButton
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val mapView = super.onCreateView(inflater, container, savedInstanceState)!!
+
+        // TODO move to onActivityCreated() to get actual height
+        mapView.post {
+            val width = mapView.measuredWidth
+            val height = mapView.measuredHeight
+            val widthAndHeight = "$width $height"
+            Log.e("wah", widthAndHeight)
+        }
+        // 1440 x 2240  height
+        val scrWidth = 1440
+        val scrHeight = 2240
+
+        view = RelativeLayout(this.context)
+        view.addView(mapView)
+
+        val linear = LinearLayout(this.context)
+        linear.orientation = LinearLayout.VERTICAL
+
+        val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        lp.setMargins((.03 * scrHeight).toInt(), (.03 * scrHeight).toInt(), 0, 0);
+        linear.layoutParams = lp
+
+        val ivs = HashMap<Int, ImageView>()
+
+        for (entry in treeIdToMarkerIconSorted)
+            ivs[entry.key] = ImageView(this.context)
+
+        for (entry in treeIdToMarkerIconSorted) {
+
+            val iv = ivs[entry.key] ?: continue
+            iv.setImageResource(entry.value)
+
+            iv.setOnClickListener {
+                Log.e("onClick", entry.key.toString())
+                if (selectedSpecies == entry.key) {
+                    for (other in ivs)
+                        other.value.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                    selectedSpecies = null
+                } else {
+                    for (other in ivs)
+                        other.value.setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
+                    selectedSpecies = entry.key
+                    iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                }
+                // TODO: trigger updateMarkers()
+            }
+
+            val bmp = BitmapFactory.decodeResource(resources, entry.value)
+            iv.setImageBitmap(bmp)
+
+            val markerHeight = .8 * scrHeight / treeIdToMarkerIconSorted.size
+
+            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else - bmp.height + markerHeight.toInt()
+            lp.setMargins(0, 0, 0, bottom)
+            iv.layoutParams = lp
+
+            linear.addView(iv)
+        }
+
+        // TODO add clear icon ??
+
+        view.addView(linear)
+
+        return view
+    }
+
+    override fun onActivityCreated(p0: Bundle?) {
+        super.onActivityCreated(p0)
+    }
+}
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -220,9 +305,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     }
 
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
-    private fun addLocationMarkers(jsonStr: String) {
-        Log.e("addLocationMarkers", markers.size.toString() + " " + jsonStr)
-        if (jsonStr == "null" || jsonStr == "") return
+    private fun addLocationMarkers(jsonStrPre: String) {
+        Log.e("addLocationMarkers", markers.size.toString() + " " + jsonStrPre)
+        val jsonStr = if (jsonStrPre == "null") "{\"features\":[]}" else jsonStrPre
 
         // --- parse newly downloaded markers ---
         // API inconsistently either returns String or double/int... -> strip away double quotes
@@ -252,12 +337,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-             "&zoom=${(zoom + .5F).toInt()}&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
+             "&zoom=${(zoom + .5F).toInt()}" +
+             if (selectedSpecies != null) "&cat=${selectedSpecies}" else "&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 
         Log.e("updateMarkers", "GET $url")
 
         GlobalScope.launch(Dispatchers.IO) {
-            val jsonStr = try { URL(url).readText() } catch (ex: Exception) { "null" }
+            val jsonStr = try { URL(url).readText() } catch (ex: Exception) { return@launch }
             runOnUiThread { addLocationMarkers(jsonStr) }
         }
     }
@@ -440,7 +526,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as JanMapFragment
+        //val mapFragment = JanMapFragment()
         mapFragment.getMapAsync(this)
         // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true
