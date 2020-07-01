@@ -1,4 +1,9 @@
 
+v5
+- Marker drawer for filtering by species
+- Info bar to clarify marker drawer functionality
+- Fixes markers missing when opening app
+
 v4
 - Zoom so marker is below center, leaving more room for its info window
 - (Partly) fixes no markers when opening app
