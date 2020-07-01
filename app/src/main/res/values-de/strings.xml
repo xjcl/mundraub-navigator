@@ -43,4 +43,6 @@
 
     <string name="inSeason">Fruchtreife!!</string>
     <string name="notInSeason">Nicht fruchtreif</string>
+
+    <string name="onlyShowing">Nur angezeigt:\u0020</string>
 </resources>

@@ -43,4 +43,6 @@
 
     <string name="inSeason">In season!! :D</string>
     <string name="notInSeason">Not in season :(</string>
+
+    <string name="onlyShowing">Only showing:\u0020</string>
 </resources>

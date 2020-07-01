@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
@@ -185,6 +186,10 @@ fun scaleToWidth(bitmapMaybeNull : Bitmap?, width : Int) : Bitmap {
     return Bitmap.createScaledBitmap(bitmap, width, (width.toDouble() / bitmap.width * bitmap.height).toInt(), true)
 }
 
+fun getFruitColor(resources : Resources, tid: Int?) : Int =
+    BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
+    .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
+
 fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitude, scalar * vec.longitude)
 fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)
 fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.latitude, vec1.longitude - vec2.longitude)
@@ -195,13 +200,11 @@ class JanMapFragment : SupportMapFragment() {
     private lateinit var view : RelativeLayout
     private lateinit var mapView : View
 
-    // --- Create drawer for species filtering ---
+    // --- Create drawer and info bar for species filtering ---
     // -> This moves Google controls over using screen and marker dimensions
     // -> 2% top-margin 1% top-padding 1% bottom-padding 2% bottom-margin => 94% height
     // TODO: animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
-    // TODO: top-level info window "Only showing: Apple"
     // TODO: fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
-    // TODO: better division of height for non-xxxhdpi-devices
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
@@ -217,6 +220,52 @@ class JanMapFragment : SupportMapFragment() {
 
             mMap.setPadding((.04 * scrHeight).toInt() + bmpSample.width, 0, 0, 0)  // 2% left-margin 1% left-padding 1% right-padding
 
+
+            // *** info bar
+            // TODO XXX clean this up a lot, remove duplication, var names, ...
+            val infoBar = LinearLayout(this.context)
+            infoBar.orientation = LinearLayout.HORIZONTAL
+
+            val lp_ = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            lp_.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
+            infoBar.layoutParams = lp_
+            infoBar.gravity = Gravity.CENTER
+
+            val info = TextView(this.context)
+            info.text = getString(R.string.onlyShowing)
+            infoBar.addView(info)
+
+            val species = TextView(this.context)
+            species.text = ""
+            species.setTypeface(null, Typeface.BOLD)
+            infoBar.addView(species)
+
+                val pad_min = (2.5 * resources.displayMetrics.density).toInt()
+                val pad_max = (7.5 * resources.displayMetrics.density).toInt()
+                val c_ = 999F
+                val sd_ = ShapeDrawable(RoundRectShape(floatArrayOf(c_, c_, c_, c_, c_, c_, c_, c_), null, null))
+                sd_.paint.color = Color.parseColor("#D0FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
+                sd_.setPadding(pad_max, pad_min, pad_max, pad_min)
+                infoBar.setPadding(pad_max, pad_min, pad_max, pad_min)  // TODO ^ Why do either of these 2 result in discolorations!!! >:(
+                infoBar.background = sd_
+                infoBar.visibility = View.GONE
+
+            // https://developer.android.com/training/material/shadows-clipping
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
+            else sd_.paint.color = Color.parseColor("#42000000")
+
+            // linearHolder needed so LinearLayout does not extend all the way to the edge
+            val linearHolder = LinearLayout(this.context)
+            linearHolder.orientation = LinearLayout.VERTICAL
+            val lp__ = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            linearHolder.layoutParams = lp__
+            linearHolder.gravity = Gravity.CENTER
+            linearHolder.addView(infoBar)
+
+            view.addView(linearHolder)
+
+
+            // *** species drawer (LinearLayout)
             val linear = LinearLayout(this.context)
             linear.orientation = LinearLayout.VERTICAL
 
@@ -249,14 +298,20 @@ class JanMapFragment : SupportMapFragment() {
 
                 iv.setOnClickListener {
                     Log.e("onClick", entry.key.toString())
+                    species.text = getString(resources.getIdentifier("tid${entry.key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
+                    species.setTextColor(getFruitColor(resources, entry.key))
                     if (selectedSpecies == entry.key) {
+                        // show all species
                         for (other in ivs)
                             other.value.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
                         selectedSpecies = null
+                        infoBar.visibility = View.GONE
                     } else {
+                        // show 1 species
                         for (other in ivs)
                             other.value.setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
                         selectedSpecies = entry.key
+                        infoBar.visibility = View.VISIBLE
                         iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
                     }
                     mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
@@ -301,8 +356,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         }
 
         val title = getString(resources.getIdentifier("tid$tid", "string", packageName))
-        val fruitColor = BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
-            .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
+        val fruitColor = getFruitColor(resources, tid)
 
         val icon =
             if (type == "cluster") // isCluster
@@ -580,15 +634,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // TODO bugs
 //    - when tapping a marker, markers reload, so it sometimes
-//    - coroutine bug: sometimes markers don't load when opening app for no reason >:(
 
 // TODO pokemon
 //    - detect when someone "visits" a marker
 //    - list of which species have ever been visited (including link to most recent one)
 //    - list of recently visited or starred markers
-
-// TODO filter
-//    - allow filtering by fruit type
 
 // TODO UI
 //    - when tap on marker: sometimes window goes off-screen (solution: measure info window?)
