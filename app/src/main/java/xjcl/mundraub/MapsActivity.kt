@@ -2,6 +2,10 @@ package xjcl.mundraub
 
 import android.Manifest
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -9,6 +13,7 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -194,6 +199,10 @@ fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitud
 fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)
 fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.latitude, vec1.longitude - vec2.longitude)
 
+
+val networkStateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent?) = mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
+}
 
 class JanMapFragment : SupportMapFragment() {
 
@@ -604,6 +613,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mapFragment.retainInstance = true
     }
 
+    override fun onResume() {
+        super.onResume()
+        registerReceiver(networkStateReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+    }
+
+    override fun onPause() {
+        unregisterReceiver(networkStateReceiver)
+        super.onPause()
+    }
+
     override fun onBackPressed() {
         moveTaskToBack(true)  // do not call onCreate after user accidentally hits Back (useful offline)
     }
@@ -663,7 +682,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - One-tap menu in the ActionBar (https://developer.android.com/training/appbar)
 
 // TODO marker availability
-//    * onInternetConnection: download new markers
 //    - startup: load markers from last time
 //    - keep markers near user location always
 //    - favorite markers that get permanently stored
