@@ -2,10 +2,7 @@ package xjcl.mundraub
 
 import android.Manifest
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -14,6 +11,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
 import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +23,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.text.HtmlCompat
@@ -199,10 +198,6 @@ fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitud
 fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)
 fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.latitude, vec1.longitude - vec2.longitude)
 
-
-val networkStateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent?) = mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
-}
 
 class JanMapFragment : SupportMapFragment() {
 
@@ -431,10 +426,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
     override fun onCameraIdle() = updateMarkers()
 
+    // --- OnInternetConnected: Automatically update (download) markers ---
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun setUpNetworking() {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) = runOnUiThread { this@MapsActivity.updateMarkers() }
+        })
+    }
+
     // --- On startup: Prepare map and cause onRequestPermissionsResult to be called ---
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setOnCameraIdleListener(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) setUpNetworking()
 
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions, 0)
@@ -611,16 +617,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mapFragment.getMapAsync(this)
         // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true
-    }
-
-    override fun onResume() {
-        super.onResume()
-        registerReceiver(networkStateReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
-    }
-
-    override fun onPause() {
-        unregisterReceiver(networkStateReceiver)
-        super.onPause()
     }
 
     override fun onBackPressed() {
