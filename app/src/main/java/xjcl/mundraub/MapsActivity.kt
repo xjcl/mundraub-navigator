@@ -203,8 +203,6 @@ class JanMapFragment : SupportMapFragment() {
     // --- Create drawer and info bar for species filtering ---
     // -> This moves Google controls over using screen and marker dimensions
     // -> 2% top-margin 1% top-padding 1% bottom-padding 2% bottom-margin => 94% height
-    // TODO: animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
-    // TODO: fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
@@ -219,7 +217,6 @@ class JanMapFragment : SupportMapFragment() {
             Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
             mMap.setPadding((.04 * scrHeight).toInt() + bmpSample.width, 0, 0, 0)  // 2% left-margin 1% left-padding 1% right-padding
-
 
             // *** info bar
             // TODO XXX clean this up a lot, remove duplication, var names, ...
@@ -246,7 +243,7 @@ class JanMapFragment : SupportMapFragment() {
                 val sd_ = ShapeDrawable(RoundRectShape(floatArrayOf(c_, c_, c_, c_, c_, c_, c_, c_), null, null))
                 sd_.paint.color = Color.parseColor("#D0FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
                 sd_.setPadding(pad_max, pad_min, pad_max, pad_min)
-                infoBar.setPadding(pad_max, pad_min, pad_max, pad_min)  // TODO ^ Why do either of these 2 result in discolorations!!! >:(
+                infoBar.setPadding(pad_max, pad_min, pad_max, pad_min)
                 infoBar.background = sd_
                 infoBar.visibility = View.GONE
 
@@ -350,9 +347,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         val latlng = LatLng(feature.pos[0], feature.pos[1])
         val tid = feature.properties?.tid
         val type = when {
-            feature.properties == null -> "cluster"
-            treeIdToSeason[tid]?.first == 0.0 -> "other"
-            else -> "normal"
+            feature.properties == null -> "cluster"       // Cluster of 2+ markers
+            treeIdToSeason[tid]?.first == 0.0 -> "other"  // Marker of unknown species with no season info
+            else -> "normal"                              // Marker of known species with season info
         }
 
         val title = getString(resources.getIdentifier("tid$tid", "string", packageName))
@@ -614,11 +611,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 // TODO publishing
-//    - replace icon with high-res version
-//    - replace feature image with actual feature
-//    * write blog post about it
-//    * publish to reddit about it
-//    * official newsletter
+//    * replace icon with high-res version
+//    * replace feature image with high-res icon
+//    - write blog post about it
+//    - publish to reddit about it
+//    - official Facebook group
+//    - official email newsletter
 
 // TODO QA
 //    - Full automated UI scripts using Espresso
@@ -629,31 +627,46 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - Test offline use
 
 
+
+// TODO navigation
+//    * add own material button sliding in and out for markers
+//    * open Maps with navigation intent when tapped
+
+// TODO clusters
+//    * use Material design cluster icon with shadow
+//        * should fix font centering issue too
+//    * request max zoom level earlier (clusters are a useless anti-affordance)
+
+// TODO marker filter
+//    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
+//    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
+//         -> either remove drawer, shrink it (???) or put it on the x axis (bottom) (?)
+//         -> minor priority as the app is not really usable in landscape mode
+
 // TODO latlng boundaries
 //    * extend boundaries to go slightly offscreen so less re-loading needed?
 
 // TODO bugs
-//    - when tapping a marker, markers reload, so it sometimes
+//    - when tapping a marker, markers reload, so it sometimes deletes the marker in focus
 
 // TODO pokemon
-//    - detect when someone "visits" a marker
-//    - list of which species have ever been visited (including link to most recent one)
-//    - list of recently visited or starred markers
+//    * detect when someone "visits" a marker
+//    * list of recently visited or starred markers
+//    * list of which species have ever been visited (including link to most recent one)
 
 // TODO UI
-//    - when tap on marker: sometimes window goes off-screen (solution: measure info window?)
-//    - maybe immediately download info when tapping marker? (1 instead of 2 taps)
+//    * AppBar should be Mundraub color
+//    - immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
+//    - disable rotation (as no space for info window in landscape window)
 
 // TODO menu
 //    - One-tap menu in the ActionBar (https://developer.android.com/training/appbar)
 
-// TODO stateful app
-//    - onInternetConnection: download new markers
+// TODO marker availability
+//    * onInternetConnection: download new markers
 //    - startup: load markers from last time
-
-// TODO persistence
-//    - keep markers near person better
+//    - keep markers near user location always
 //    - favorite markers that get permanently stored
 
 
@@ -661,12 +674,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - allow login
 //    - allow adding a node
 //    - allow editing a node
+//    - allow reporting a problem with a node
 
 
-// TODO long-term / never
-//    - groups, actions, cider makers, saplings, ...
-
-
-// TODO not really needed
-//    - bounding box might benefit from being bigger than the viewport
+// TODO wontfix
+//    - rarely used marker types: groups, actions, cider, saplings
 //    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
