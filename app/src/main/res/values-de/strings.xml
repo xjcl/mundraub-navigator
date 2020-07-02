@@ -45,4 +45,6 @@
     <string name="notInSeason">Nicht fruchtreif</string>
 
     <string name="onlyShowing">Nur angezeigt:\u0020</string>
+
+    <string name="tapForInfo">--- Berühren für Details ---</string>
 </resources>

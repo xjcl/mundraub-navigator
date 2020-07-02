@@ -454,9 +454,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
                 val description = TextView(this@MapsActivity)
                 description.width = masterWidth
-                description.text = md.description ?: ""
+                description.text = md.description ?: this@MapsActivity.getString(R.string.tapForInfo)
                 description.textSize = 12F
-                if (description.text.isNotBlank()) info.addView(description)
+                if (md.type != "cluster") info.addView(description)
 
                 val title = TextView(this@MapsActivity)
                 title.setTextColor(md.fruitColor)
@@ -642,7 +642,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // TODO UI
 //    - when tap on marker: sometimes window goes off-screen (solution: measure info window?)
-//    - maybe immediately download when tapping marker? (1 instead of 2 taps)
+//    - maybe immediately download info when tapping marker? (1 instead of 2 taps)
 //    - "force reload" button
 
 // TODO menu
