@@ -655,7 +655,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    * list of which species have ever been visited (including link to most recent one)
 
 // TODO UI
-//    * AppBar should be Mundraub color
 //    - immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
 //    - disable rotation (as no space for info window in landscape window)

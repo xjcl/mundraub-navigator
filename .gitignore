@@ -19,3 +19,5 @@ app/debug/app-debug.aab
 app/release/app-release.aab
 *.keystore
 private_key.pepk
+
+mundraub_logo.svg
