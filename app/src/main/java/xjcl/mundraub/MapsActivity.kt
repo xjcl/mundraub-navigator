@@ -441,7 +441,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mMap = googleMap
         mMap.setOnCameraIdleListener(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) setUpNetworking()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) setUpNetworking()
 
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions, 0)
