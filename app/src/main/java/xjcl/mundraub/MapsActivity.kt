@@ -228,9 +228,11 @@ class JanMapFragment : SupportMapFragment() {
             val infoBar = LinearLayout(this.context)
             infoBar.orientation = LinearLayout.HORIZONTAL
 
-            val lp_ = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            lp_.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
-            infoBar.layoutParams = lp_
+            infoBar.layoutParams = {
+                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
+                lp
+            }()
             infoBar.gravity = Gravity.CENTER
 
             val info = TextView(this.context)
@@ -259,8 +261,7 @@ class JanMapFragment : SupportMapFragment() {
             // linearHolder needed so LinearLayout does not extend all the way to the edge
             val linearHolder = LinearLayout(this.context)
             linearHolder.orientation = LinearLayout.VERTICAL
-            val lp__ = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            linearHolder.layoutParams = lp__
+            linearHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             linearHolder.gravity = Gravity.CENTER
             linearHolder.addView(infoBar)
 
@@ -283,9 +284,11 @@ class JanMapFragment : SupportMapFragment() {
 
             linear.background = sd
 
-            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
-            linear.layoutParams = lp
+            linear.layoutParams = {
+                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
+                lp
+            }()
 
             val ivs = HashMap<Int, ImageView>()
 
@@ -326,13 +329,16 @@ class JanMapFragment : SupportMapFragment() {
                 // Note that a straight-up division of (totalHeight / numSection) gives poor results
                 // E.g. dividing a distance of 42 into 4 sections straight-up would give 10 10 10 10 or 11 11 11 11
                 //   but ideally we want something like 10 11 10 11 so the totalHeight is preserved
-                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+
                 val totalHeight = .94 * (scrHeight - bmp.height)
                 val exactHeight = (totalHeight / (ivs.size - 1))
                 val markerHeight = ((i+1) * exactHeight).toInt() - (i * exactHeight).toInt()
                 val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight
-                lp.setMargins(0, 0, 0, bottom)
-                iv.layoutParams = lp
+                iv.layoutParams = {
+                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    lp.setMargins(0, 0, 0, bottom)
+                    lp
+                }()
 
                 linear.addView(iv)
                 i += 1
