@@ -629,6 +629,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO publishing
 //    * replace icon with high-res version
 //    * replace feature image with high-res icon
+//    * use mundraub logo / font in AppBar !?
 //    - write blog post about it
 //    - publish to reddit about it
 //    - official Facebook group
@@ -654,6 +655,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    * request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
+//    * pseudo-marker for resetting the filter
 //    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
 //    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
 //         -> either remove drawer, shrink it (???) or put it on the x axis (bottom) (?)
