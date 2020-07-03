@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#94B422</color>
-    <color name="colorPrimaryDark">#628200</color>
-    <color name="colorAccent">#03DAC5</color>
+    <!-- Primary color used in mundraub.org logo -->
+    <color name="colorPrimary">#94b422</color>
+    <!-- Darker color suggested by https://material.io/resources/color/#!/?view.left=0&view.right=0&primary.color=94b422 -->
+    <color name="colorPrimaryDark">#628400</color>
+    <!-- Complementary color suggested by https://material.io/design/color/the-color-system.html#tools-for-picking-colors -->
+    <color name="colorAccent">#4222b4</color>
 </resources>
