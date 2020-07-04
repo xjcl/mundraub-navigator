@@ -3,7 +3,9 @@ package xjcl.mundraub
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.*
@@ -13,6 +15,7 @@ import android.graphics.drawable.shapes.RoundRectShape
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,13 +23,12 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -40,6 +42,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
 import kotlinx.coroutines.Dispatchers
@@ -153,9 +156,14 @@ val treeIdToMarkerIconSorted = treeIdToMarkerIcon.toSortedMap()
 lateinit var mMap: GoogleMap
 lateinit var fusedLocationClient: FusedLocationProviderClient
 
+lateinit var relView : RelativeLayout
+lateinit var mapView : View
+lateinit var fab : FloatingActionButton
+
 var markers = HashMap<LatLng, Marker>()
 var markersData = HashMap<LatLng, MarkerData>()
 var selectedSpecies : Int? = null
+var fabAnimationFromTo : Pair<Float, Float> = 0F to 0F
 
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Float, outline: Boolean = true, xpos: Float = .5F, color: Int = Color.WHITE) : Bitmap {
@@ -202,21 +210,19 @@ fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.
 
 class JanMapFragment : SupportMapFragment() {
 
-    private lateinit var view : RelativeLayout
-    private lateinit var mapView : View
-
     // --- Create drawer and info bar for species filtering ---
     // -> This moves Google controls over using screen and marker dimensions
     // -> 2% top-margin 1% top-padding 1% bottom-padding 2% bottom-margin => 94% height
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
-        view = RelativeLayout(this.context)
-        view.addView(mapView)
+        relView = RelativeLayout(this.context)
+        relView.addView(mapView)
 
         // This needs to happen in post so measuredHeight is available
         mapView.post {
             val scrHeight = mapView.measuredHeight
+            val scrWidth = mapView.measuredWidth
             val bmpSample = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
             Log.e("scrHeight", scrHeight.toString())
             Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
@@ -265,7 +271,7 @@ class JanMapFragment : SupportMapFragment() {
             linearHolder.gravity = Gravity.CENTER
             linearHolder.addView(infoBar)
 
-            view.addView(linearHolder)
+            relView.addView(linearHolder)
 
 
             // *** species drawer (LinearLayout)
@@ -344,10 +350,38 @@ class JanMapFragment : SupportMapFragment() {
                 i += 1
             }
 
-            view.addView(linear)
+            relView.addView(linear)
+
+
+            // *** FAB for Maps navigation ***
+            fab = FloatingActionButton(this.context!!)
+            fab.setImageBitmap( BitmapFactory.decodeResource(resources, R.drawable.directions_material) )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
+            fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#d0ffffff"))
+            //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#ffffff"))
+            //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
+            fab.elevation = 6F
+            fab.layoutParams = {
+                val lp = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT)
+                lp.setMargins(0, 0, (.04 * scrHeight).toInt(), (.04 * scrHeight).toInt())
+                lp
+            }()
+
+            fab.measure(0, 0)
+            fabAnimationFromTo = scrWidth.toFloat() to scrWidth - (.04 * scrHeight).toFloat() - fab.measuredWidth
+            fab.x = fabAnimationFromTo.first
+
+            // Why is Android so broken -_- Can't set gravity on FAB directly
+            val fabHolder = LinearLayout(this.context)
+            fabHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+            fabHolder.gravity = Gravity.END or Gravity.BOTTOM
+            fabHolder.addView(fab)
+
+            relView.addView(fabHolder)
         }
 
-        return view
+        return relView
     }
 }
 
@@ -551,6 +585,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             }
         })
 
+        // --- Disappear the navigation button once window closes ---
+        mMap.setOnInfoWindowCloseListener {
+            fab.animate().x(fabAnimationFromTo.first)
+        }
+
         // --- Download detailed node description when user taps ("clicks") on info window ---
         mMap.setOnInfoWindowClickListener { marker ->
             val md = markersData[marker.position] ?: return@setOnInfoWindowClickListener
@@ -581,9 +620,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             }
         }
 
-        // --- Custom zoom to marker at an *off-center* position to leave more space for its large info window ---
+        // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
         mMap.setOnMarkerClickListener { marker ->
             marker.showInfoWindow()
+            if (markersData[marker.position]?.type ?: "" != "cluster") {
+                // --- Click on FAB will give directions to Marker in Google Maps app ---
+                fab.setOnClickListener {
+                    fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                        if (location == null) return@addOnSuccessListener
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                            "http://maps.google.com/maps?saddr=${location.latitude}, ${location.longitude}&daddr=${marker.position.latitude}, ${marker.position.longitude}"
+                        )))
+                    }
+                }
+                fab.animate().x(fabAnimationFromTo.second)
+            }
             val targetPosition = vecAdd(marker.position, vecMul(.2, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
             mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
             true
@@ -661,6 +712,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    * request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
+//    * pseudo-marker for showing only fruit in season
 //    * pseudo-marker for resetting the filter
 //    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
 //    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
