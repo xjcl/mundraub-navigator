@@ -448,7 +448,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     // --- Update markers when user finished moving the map ---
     private fun updateMarkers() {
         val zoom = mMap.cameraPosition.zoom
-        if (zoom <= 3) return  // Bugfix, do not remove, see commit message
+        if (zoom <= 2) return  // Bugfix, do not remove, see commit message
         val bboxLo = mMap.projection.visibleRegion.latLngBounds.southwest
         val bboxHi = mMap.projection.visibleRegion.latLngBounds.northeast
 
@@ -686,6 +686,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO publishing
 //    * replace icon with high-res version
 //    * replace feature image with high-res icon
+//    * rename to Mundraub Navigator
 //    - write blog post about it
 //    - publish to reddit about it
 //    - official Facebook group
@@ -720,6 +721,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // TODO bugs
 //    - when tapping a marker, markers reload, so it sometimes deletes the marker in focus
+//    - marker boundaries don't work on older devices (~Lollipop)
 
 // * TODO pokemon
 //    - detect when someone "visits" a marker
