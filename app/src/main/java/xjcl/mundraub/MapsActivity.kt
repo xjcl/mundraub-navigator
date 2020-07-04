@@ -684,9 +684,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 // TODO publishing
-//    * replace icon with high-res version
-//    * replace feature image with high-res icon
-//    * rename to Mundraub Navigator
 //    - write blog post about it
 //    - publish to reddit about it
 //    - official Facebook group

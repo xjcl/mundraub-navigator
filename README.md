@@ -6,9 +6,9 @@
 </td>
 <td rowspan="2"  valign="top">
 
-# <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Mobile
+# <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Navigator
 
-Mundraub Mobile is an unofficial Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
+Mundraub Navigator is an unofficial Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
 
 Go foraging, find fresh fruit, discover your local neighborhood, reduce food waste, and gain a deeper appreciation for nature and her seasons!
 

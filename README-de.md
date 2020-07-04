@@ -6,9 +6,9 @@
 </td>
 <td rowspan="2"  valign="top">
 
-# <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Mobile
+# <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Navigator
 
-Mundraub Mobile ist eine inoffizielle Kotlin-App für Android, die öffentlich zugängige Obstbäume auf https://mundraub.org aufspürt.
+Mundraub Navigator ist eine inoffizielle Kotlin-App für Android, die öffentlich zugängige Obstbäume auf https://mundraub.org aufspürt.
 
 Begebe dich auf ein Abenteuer, finde frische Früchte, entdecke dein Viertel, beuge Lebensmittelverschwendung vor, und komm in Kontakt mit der Natur und ihren Zyklen!
 
