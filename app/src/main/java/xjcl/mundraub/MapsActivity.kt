@@ -361,7 +361,7 @@ class JanMapFragment : SupportMapFragment() {
             fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#d0ffffff"))
             //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#ffffff"))
             //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
-            fab.elevation = 6F
+            fab.compatElevation = 6F
             fab.layoutParams = {
                 val lp = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT)
                 lp.setMargins(0, 0, (.04 * scrHeight).toInt(), (.04 * scrHeight).toInt())
@@ -686,7 +686,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO publishing
 //    * replace icon with high-res version
 //    * replace feature image with high-res icon
-//    * use mundraub logo / font in AppBar !?
 //    - write blog post about it
 //    - publish to reddit about it
 //    - official Facebook group
@@ -702,14 +701,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 
-// TODO navigation
-//    * add own material button sliding in and out for markers
-//    * open Maps with navigation intent when tapped
-
-// TODO clusters
-//    * use Material design cluster icon with shadow
-//        * should fix font centering issue too
-//    * request max zoom level earlier (clusters are a useless anti-affordance)
+// * TODO clusters
+//    * use complementary color for cluster icons
+//    - use Material design cluster icon with shadow
+//        - should fix font centering issue too
+//    - request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
 //    * pseudo-marker for showing only fruit in season
@@ -720,23 +716,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //         -> minor priority as the app is not really usable in landscape mode
 
 // TODO latlng boundaries
-//    * extend boundaries to go slightly offscreen so less re-loading needed?
+//    - extend boundaries to go slightly offscreen so less re-loading needed?
 
 // TODO bugs
 //    - when tapping a marker, markers reload, so it sometimes deletes the marker in focus
 
-// TODO pokemon
-//    * detect when someone "visits" a marker
-//    * list of recently visited or starred markers
-//    * list of which species have ever been visited (including link to most recent one)
+// * TODO pokemon
+//    - detect when someone "visits" a marker
+//    - list of recently visited or starred markers
+//    - list of which species have ever been visited (including link to most recent one)
 
 // TODO UI
 //    - immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
-//    - disable rotation (as no space for info window in landscape window)
+//    * disable rotation (as no space for info window in landscape window)
+//    * replace #d0ffffff with #ffffff because Android is broken
 
-// TODO menu
-//    - One-tap menu in the ActionBar (https://developer.android.com/training/appbar)
+// TODO AppBar
+//    - one-tap menu in the AppBar (https://developer.android.com/training/appbar)
+//    - improve look of AppBar, perhaps make it white + mundraub font/logo
+//    * add version info ("v5") in AppBar
 
 // TODO marker availability
 //    - startup: load markers from last time
