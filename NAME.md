@@ -1,4 +1,6 @@
 
+Possible app names:
+
 ```
 Mundraub Unofficial
 - no longer unofficial
@@ -16,4 +18,11 @@ Mundraub Minimal
 + warns about lacking functionality
 - might undersell the app
 - might no longer be accurate in the future
+
+Mundraub Navigator
++ accurate name
++ not over-promising
++ i like this one
+
+Mundraub Finder
 ```
