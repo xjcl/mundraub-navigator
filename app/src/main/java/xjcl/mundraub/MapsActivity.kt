@@ -254,7 +254,7 @@ class JanMapFragment : SupportMapFragment() {
                 val pad_max = (7.5 * resources.displayMetrics.density).toInt()
                 val c_ = 999F
                 val sd_ = ShapeDrawable(RoundRectShape(floatArrayOf(c_, c_, c_, c_, c_, c_, c_, c_), null, null))
-                sd_.paint.color = Color.parseColor("#D0FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
+                sd_.paint.color = Color.parseColor("#FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
                 sd_.setPadding(pad_max, pad_min, pad_max, pad_min)
                 infoBar.setPadding(pad_max, pad_min, pad_max, pad_min)
                 infoBar.background = sd_
@@ -281,7 +281,7 @@ class JanMapFragment : SupportMapFragment() {
             val pad = (.01 * scrHeight).toInt()
             val c = bmpSample.width / 2F + pad  // corner size
             val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
-            sd.paint.color = Color.parseColor("#D0FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
+            sd.paint.color = Color.parseColor("#FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
             sd.setPadding(pad, pad, pad, pad)
 
             // https://developer.android.com/training/material/shadows-clipping
@@ -358,8 +358,8 @@ class JanMapFragment : SupportMapFragment() {
             fab.setImageBitmap( BitmapFactory.decodeResource(resources, R.drawable.directions_material) )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
-            fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#d0ffffff"))
-            //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#ffffff"))
+            fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
+            //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
             //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
             fab.compatElevation = 6F
             fab.layoutParams = {
@@ -728,7 +728,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO UI
 //    - immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
-//    * replace #d0ffffff with #ffffff because Android is broken
 
 // TODO AppBar
 //    - one-tap menu in the AppBar (https://developer.android.com/training/appbar)
