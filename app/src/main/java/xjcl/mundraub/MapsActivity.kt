@@ -729,7 +729,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO UI
 //    - immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
-//    * disable rotation (as no space for info window in landscape window)
 //    * replace #d0ffffff with #ffffff because Android is broken
 
 // TODO AppBar
