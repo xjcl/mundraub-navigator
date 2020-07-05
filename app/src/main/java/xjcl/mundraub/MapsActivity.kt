@@ -402,7 +402,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         val icon =
             if (type == "cluster") // isCluster
-                BitmapDescriptorFactory.fromBitmap( bitmapWithText(R.drawable._cluster, this, feature.count.toString(), 45F) )
+                BitmapDescriptorFactory.fromBitmap( bitmapWithText(R.drawable._cluster_c, this, feature.count.toString(), 45F) )
             else // isTree
                 BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
 
