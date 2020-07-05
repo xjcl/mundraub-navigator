@@ -39,10 +39,12 @@
     <string name="tid36">Thymina</string>
     <string name="tid37">Andere Kräuter</string>
 
+    <string name="tid98">Nur erntereif</string>
+    <string name="tid99">Filter zurücksetzen</string>
     <string name="tidnull">Mehrere Marker (bitte zoomen)</string>
 
-    <string name="inSeason">Fruchtreife!!</string>
-    <string name="notInSeason">Nicht fruchtreif</string>
+    <string name="inSeason">Erntezeit: Ja!</string>
+    <string name="notInSeason">Erntezeit: Nein</string>
 
     <string name="onlyShowing">Nur angezeigt:\u0020</string>
 

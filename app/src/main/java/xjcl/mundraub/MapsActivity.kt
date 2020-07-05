@@ -165,7 +165,7 @@ var markersData = HashMap<LatLng, MarkerData>()
 const val selectedSpeciesStrDefault : String = "4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 var selectedSpeciesStr : String = selectedSpeciesStrDefault
 var fabAnimationFromTo : Pair<Float, Float> = 0F to 0F
-val origY = HashMap<Int, Float>()
+val origY = HashMap<ImageView, Float>()
 
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Float, outline: Boolean = true, xpos: Float = .5F, color: Int = Color.WHITE) : Bitmap {
@@ -328,50 +328,42 @@ class JanMapFragment : SupportMapFragment() {
                 }()
             }
 
+            // sadly .yBy() is not enough for this as the EndAction can get interrupted
+            fun animateJump(iv : ImageView) {
+                if (!origY.containsKey(iv)) origY[iv] = iv.y
+                iv.animate().y((origY[iv]?:0F) - 3 * density).withEndAction { iv.animate().y((origY[iv]?:0F) + 3 * density) }  // We commence to make you (jump, jump)! :D
+            }
+            fun handleClick(key : Int, cond : (Int) -> Boolean, infoViz : Int, str : String) {
+                val iv = ivs[key] ?: return@handleClick
+                Log.e("onClick", key.toString())
+                species.text = getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
+                species.setTextColor(getFruitColor(resources, key))
+                for (other in ivs)
+                    other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#777777"), PorterDuff.Mode.MULTIPLY)
+                infoBar.visibility = infoViz
+                selectedSpeciesStr = str
+                animateJump(iv)
+                mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
+            }
+
+            // filter to 1 species
             var i = 0
             for (entry in treeIdToMarkerIconSorted) {
-
                 val iv = ivs[entry.key] ?: continue
-
-                // filter to 1 species
-                iv.setOnClickListener {
-                    if (!origY.containsKey(entry.key)) origY[entry.key] = iv.y
-                    Log.e("onClick", entry.key.toString())
-                    species.text = getString(resources.getIdentifier("tid${entry.key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
-                    species.setTextColor(getFruitColor(resources, entry.key))
-                    for (other in ivs)
-                        other.value.setColorFilter(Color.parseColor(if (other.key < 90) "#777777" else "#FFFFFF"), PorterDuff.Mode.MULTIPLY)
-                    infoBar.visibility = View.VISIBLE
-                    selectedSpeciesStr = entry.key.toString()
-                    iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
-                    iv.animate().y((origY[entry.key]?:0F) - 3 * density).withEndAction { it.animate().y((origY[entry.key]?:0F) + 3 * density) }  // We commence to make you (jump, jump)! :D
-                    mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
-                }
-
+                iv.setOnClickListener { handleClick(entry.key, {it > 90 || it == entry.key}, View.VISIBLE, entry.key.toString()) }
                 fillImageView(iv, entry.value, i)
-
                 linear.addView(iv)
                 i += 1
             }
 
             // filter to all species currently in season
-            fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
             ivs[98]!!.setOnClickListener {  }
+            fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
             linear.addView(ivs[98]!!)
 
             // reset filter (show all species)
+            ivs[99]!!.setOnClickListener { handleClick(99, {it < 99}, View.GONE, selectedSpeciesStrDefault) }
             fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_b, i + 1)
-            ivs[99]!!.setOnClickListener {
-                if (!origY.containsKey(entry.key)) origY[entry.key] = iv.y
-                if (selectedSpeciesStr == selectedSpeciesStrDefault) return@setOnClickListener
-                for (other in ivs)
-                    other.value.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
-                (it as ImageView).setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
-                infoBar.visibility = View.GONE
-                selectedSpeciesStr = selectedSpeciesStrDefault
-                iv.animate().y((origY[entry.key]?:0F) - 3 * density).withEndAction { it.animate().y((origY[entry.key]?:0F) + 3 * density) }  // We commence to make you (jump, jump)! :D
-                mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
-            }
             linear.addView(ivs[99]!!)
 
             relView.addView(linear)
