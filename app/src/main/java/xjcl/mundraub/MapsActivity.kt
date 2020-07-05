@@ -622,19 +622,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
         mMap.setOnMarkerClickListener { marker ->
+            if (markersData[marker.position]?.type ?: "" == "cluster") return@setOnMarkerClickListener true
             marker.showInfoWindow()
-            if (markersData[marker.position]?.type ?: "" != "cluster") {
-                // --- Click on FAB will give directions to Marker in Google Maps app ---
-                fab.setOnClickListener {
-                    fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-                        if (location == null) return@addOnSuccessListener
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                            "http://maps.google.com/maps?saddr=${location.latitude}, ${location.longitude}&daddr=${marker.position.latitude}, ${marker.position.longitude}"
-                        )))
-                    }
+            // --- Click on FAB will give directions to Marker in Google Maps app ---
+            fab.setOnClickListener {
+                fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                    if (location == null) return@addOnSuccessListener
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                        "http://maps.google.com/maps?saddr=${location.latitude}, ${location.longitude}&daddr=${marker.position.latitude}, ${marker.position.longitude}"
+                    )))
                 }
-                fab.animate().x(fabAnimationFromTo.second)
             }
+            fab.animate().x(fabAnimationFromTo.second)
             val targetPosition = vecAdd(marker.position, vecMul(.2, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
             mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
             true
