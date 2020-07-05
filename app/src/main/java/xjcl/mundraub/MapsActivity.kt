@@ -251,8 +251,9 @@ class JanMapFragment : SupportMapFragment() {
             species.setTypeface(null, Typeface.BOLD)
             infoBar.addView(species)
 
-                val pad_min = (2.5 * resources.displayMetrics.density).toInt()
-                val pad_max = (7.5 * resources.displayMetrics.density).toInt()
+                val density = resources.displayMetrics.density
+                val pad_min = (2.5 * density).toInt()
+                val pad_max = (7.5 * density).toInt()
                 val c_ = 999F
                 val sd_ = ShapeDrawable(RoundRectShape(floatArrayOf(c_, c_, c_, c_, c_, c_, c_, c_), null, null))
                 sd_.paint.color = Color.parseColor("#FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
@@ -308,6 +309,7 @@ class JanMapFragment : SupportMapFragment() {
             fun fillImageView(iv : ImageView, res: Int, i : Int) {
                 val bmp = BitmapFactory.decodeResource(resources, res)
                 iv.setImageBitmap(bmp)
+                Log.e("bmpH", bmp.height.toString())
 
                 // *** Height calculation for markers
                 // Note that a straight-up division of (totalHeight / numSection) gives poor results
@@ -340,6 +342,7 @@ class JanMapFragment : SupportMapFragment() {
                     infoBar.visibility = View.VISIBLE
                     selectedSpeciesStr = entry.key.toString()
                     iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                    it.animate().yBy(-3 * density).withEndAction { it.animate().yBy(3 * density) }  // We commence to make you (jump, jump)! :D
                     mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
                 }
 
@@ -363,6 +366,7 @@ class JanMapFragment : SupportMapFragment() {
                 (it as ImageView).setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
                 infoBar.visibility = View.GONE
                 selectedSpeciesStr = selectedSpeciesStrDefault
+                it.animate().yBy(-3 * density).withEndAction { it.animate().yBy(3 * density) }  // We commence to make you (jump, jump)! :D
                 mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
             }
             linear.addView(ivs[99]!!)
