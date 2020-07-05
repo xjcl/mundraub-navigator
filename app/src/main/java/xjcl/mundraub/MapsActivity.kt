@@ -162,7 +162,8 @@ lateinit var fab : FloatingActionButton
 
 var markers = HashMap<LatLng, Marker>()
 var markersData = HashMap<LatLng, MarkerData>()
-var selectedSpecies : Int? = null
+const val selectedSpeciesStrDefault : String = "4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
+var selectedSpeciesStr : String = selectedSpeciesStrDefault
 var fabAnimationFromTo : Pair<Float, Float> = 0F to 0F
 
 // Helper function as adding text to a bitmap needs more code than one might expect
@@ -329,24 +330,16 @@ class JanMapFragment : SupportMapFragment() {
 
                 val iv = ivs[entry.key] ?: continue
 
+                // filter to 1 species
                 iv.setOnClickListener {
                     Log.e("onClick", entry.key.toString())
                     species.text = getString(resources.getIdentifier("tid${entry.key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
                     species.setTextColor(getFruitColor(resources, entry.key))
-                    if (selectedSpecies == entry.key) {
-                        // show all species
-                        for (other in ivs)
-                            other.value.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
-                        selectedSpecies = null
-                        infoBar.visibility = View.GONE
-                    } else {
-                        // show 1 species
-                        for (other in ivs)
-                            other.value.setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
-                        selectedSpecies = entry.key
-                        infoBar.visibility = View.VISIBLE
-                        iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
-                    }
+                    for (other in ivs)
+                        other.value.setColorFilter(Color.parseColor(if (other.key < 90) "#777777" else "#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                    infoBar.visibility = View.VISIBLE
+                    selectedSpeciesStr = entry.key.toString()
+                    iv.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
                     mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
                 }
 
@@ -356,10 +349,22 @@ class JanMapFragment : SupportMapFragment() {
                 i += 1
             }
 
+            // filter to all species currently in season
             fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
+            ivs[98]!!.setOnClickListener {  }
             linear.addView(ivs[98]!!)
 
+            // reset filter (show all species)
             fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_b, i + 1)
+            ivs[99]!!.setOnClickListener {
+                if (selectedSpeciesStr == selectedSpeciesStrDefault) return@setOnClickListener
+                for (other in ivs)
+                    other.value.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.MULTIPLY)
+                (it as ImageView).setColorFilter(Color.parseColor("#777777"), PorterDuff.Mode.MULTIPLY)
+                infoBar.visibility = View.GONE
+                selectedSpeciesStr = selectedSpeciesStrDefault
+                mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
+            }
             linear.addView(ivs[99]!!)
 
             relView.addView(linear)
@@ -466,8 +471,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-             "&zoom=${(zoom + .5F).toInt()}" +
-             if (selectedSpecies != null) "&cat=${selectedSpecies}" else "&cat=4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
+             "&zoom=${(zoom + .5F).toInt()}&cat=${selectedSpeciesStr}"
 
         Log.e("updateMarkers", "GET $url")
 
@@ -679,7 +683,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        supportActionBar!!.title = "${supportActionBar!!.title} v${BuildConfig.VERSION_NAME}"
+        supportActionBar!!.title = "${supportActionBar!!.title} v${BuildConfig.VERSION_NAME}!"
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
