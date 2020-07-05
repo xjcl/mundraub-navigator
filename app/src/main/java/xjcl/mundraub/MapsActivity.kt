@@ -668,6 +668,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+        supportActionBar!!.title = "${supportActionBar!!.title} v${BuildConfig.VERSION_NAME}"
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -700,7 +701,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 
 // * TODO clusters
-//    * use complementary color for cluster icons
 //    - use Material design cluster icon with shadow
 //        - should fix font centering issue too
 //    - request max zoom level earlier (clusters are a useless anti-affordance)
@@ -732,7 +732,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO AppBar
 //    - one-tap menu in the AppBar (https://developer.android.com/training/appbar)
 //    - improve look of AppBar, perhaps make it white + mundraub font/logo
-//    * add version info ("v5") in AppBar
 
 // TODO marker availability
 //    - startup: load markers from last time
