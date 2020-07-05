@@ -301,11 +301,33 @@ class JanMapFragment : SupportMapFragment() {
             for (entry in treeIdToMarkerIconSorted)
                 ivs[entry.key] = ImageView(this.context)
 
+            ivs[98] = ImageView(this.context)
+            ivs[99] = ImageView(this.context)
+
+            fun fillImageView(iv : ImageView, res: Int, i : Int) {
+                val bmp = BitmapFactory.decodeResource(resources, res)
+                iv.setImageBitmap(bmp)
+
+                // *** Height calculation for markers
+                // Note that a straight-up division of (totalHeight / numSection) gives poor results
+                // E.g. dividing a distance of 42 into 4 sections straight-up would give 10 10 10 10 or 11 11 11 11
+                //   but ideally we want something like 10 11 10 11 so the totalHeight is preserved  -> markerHeight
+
+                val totalHeight = .94 * (scrHeight - bmp.height)
+                val exactHeight = (totalHeight / (ivs.size - 1))
+                val markerHeight = ((i+1) * exactHeight).toInt() - (i * exactHeight).toInt()
+                val bottom = if (res == R.drawable._marker_reset_filter_b) 0 else -bmp.height + markerHeight
+                iv.layoutParams = {
+                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    lp.setMargins(0, 0, 0, bottom)
+                    lp
+                }()
+            }
+
             var i = 0
             for (entry in treeIdToMarkerIconSorted) {
 
                 val iv = ivs[entry.key] ?: continue
-                iv.setImageResource(entry.value)
 
                 iv.setOnClickListener {
                     Log.e("onClick", entry.key.toString())
@@ -328,34 +350,24 @@ class JanMapFragment : SupportMapFragment() {
                     mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
                 }
 
-                val bmp = BitmapFactory.decodeResource(resources, entry.value)
-                iv.setImageBitmap(bmp)
-
-                // *** Height calculation for markers
-                // Note that a straight-up division of (totalHeight / numSection) gives poor results
-                // E.g. dividing a distance of 42 into 4 sections straight-up would give 10 10 10 10 or 11 11 11 11
-                //   but ideally we want something like 10 11 10 11 so the totalHeight is preserved
-
-                val totalHeight = .94 * (scrHeight - bmp.height)
-                val exactHeight = (totalHeight / (ivs.size - 1))
-                val markerHeight = ((i+1) * exactHeight).toInt() - (i * exactHeight).toInt()
-                val bottom = if (treeIdToMarkerIconSorted.lastKey() == entry.key) 0 else -bmp.height + markerHeight
-                iv.layoutParams = {
-                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    lp.setMargins(0, 0, 0, bottom)
-                    lp
-                }()
+                fillImageView(iv, entry.value, i)
 
                 linear.addView(iv)
                 i += 1
             }
+
+            fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
+            linear.addView(ivs[98]!!)
+
+            fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_b, i + 1)
+            linear.addView(ivs[99]!!)
 
             relView.addView(linear)
 
 
             // *** FAB for Maps navigation ***
             fab = FloatingActionButton(this.context!!)
-            fab.setImageBitmap( BitmapFactory.decodeResource(resources, R.drawable.directions_material) )
+            fab.setImageBitmap( BitmapFactory.decodeResource(resources, R.drawable.material_directions) )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
             fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
@@ -707,6 +719,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO marker filter
 //    * pseudo-marker for showing only fruit in season
 //    * pseudo-marker for resetting the filter
+//    * group markers into categories (fruit trees, fruit shrubs, nuts, herbs)
 //    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
 //    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
 //         -> either remove drawer, shrink it (???) or put it on the x axis (bottom) (?)
