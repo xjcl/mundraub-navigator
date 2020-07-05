@@ -8,7 +8,7 @@
 
 # <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Navigator
 
-Mundraub Navigator is an unofficial Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
+Mundraub Navigator is a Kotlin Android app for using https://mundraub.org, a map of public fruit trees.
 
 Go foraging, find fresh fruit, discover your local neighborhood, reduce food waste, and gain a deeper appreciation for nature and her seasons!
 
@@ -29,6 +29,10 @@ Features:
 ## I went to a marker but couldn't find anything
 
 Mundraub has a visual bug where marker images are anchored at the center and not the tip/bottom. This might lead to users placing markers north of where they wanted to place them, so try checking the area directly south of the marker.
+
+## Is this app official?
+
+I've been in contact with Kai from Mundraub, and he approves of the app (and the name and asset use). But I did all the development and am in charge of all development decisions.
 
 ## How to build
 

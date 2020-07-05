@@ -8,7 +8,7 @@
 
 # <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Navigator
 
-Mundraub Navigator ist eine inoffizielle Kotlin-App für Android, die öffentlich zugängige Obstbäume auf https://mundraub.org aufspürt.
+Mundraub Navigator ist eine Kotlin-App für Android, die öffentlich zugängige Obstbäume auf https://mundraub.org aufspürt.
 
 Begebe dich auf ein Abenteuer, finde frische Früchte, entdecke dein Viertel, beuge Lebensmittelverschwendung vor, und komm in Kontakt mit der Natur und ihren Zyklen!
 
@@ -29,5 +29,9 @@ Features:
 ## Ich war bei einem Marker, habe aber nichts entdeckt
 
 Mundraub hat einen visuellen Bug der Marker in der Mitte statt der Spitze/unten verankert. Dies kann in der Praxis dazu führen dass Marker zu weit nördlich platziert werden, also kann man das Gewächs manchmal um einiges weiter südlich finden.
+
+## Ist die App offiziell?
+
+Ich bin mit Kai von Mundraub in Kontakt, er mag die App und hat mir Erlaubnis für Namen und Grafiken erteilt. Aber an der Entwicklung direkt bin nur ich beteiligt.
 
 [This README in English](README.md)
