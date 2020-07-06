@@ -39,14 +39,14 @@
     <string name="tid36">Thyme</string>
     <string name="tid37">Other herb</string>
 
-    <string name="tid98">Only in season</string>
-    <string name="tid99">Reset filter</string>
+    <string name="tid98">Seasonals</string>
+    <string name="tid99">Everything</string>
     <string name="tidnull">Cluster (Zoom To Expand)</string>
 
     <string name="inSeason">In season!! :D</string>
     <string name="notInSeason">Not in season :(</string>
 
-    <string name="onlyShowing">Only showing:\u0020</string>
+    <string name="onlyShowing">Showing:\u0020</string>
 
     <string name="tapForInfo">--- Tap to download info ---</string>
 </resources>

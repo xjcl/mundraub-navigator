@@ -248,8 +248,9 @@ class JanMapFragment : SupportMapFragment() {
             infoBar.addView(info)
 
             val species = TextView(this.context)
-            species.text = ""
+            species.text = getString(resources.getIdentifier("tid99", "string", "xjcl.mundraub"))
             species.setTypeface(null, Typeface.BOLD)
+            species.setTextColor(getFruitColor(resources, 99))
             infoBar.addView(species)
 
                 val density = resources.displayMetrics.density
@@ -261,7 +262,6 @@ class JanMapFragment : SupportMapFragment() {
                 sd_.setPadding(pad_max, pad_min, pad_max, pad_min)
                 infoBar.setPadding(pad_max, pad_min, pad_max, pad_min)
                 infoBar.background = sd_
-                infoBar.visibility = View.GONE
 
             // https://developer.android.com/training/material/shadows-clipping
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
@@ -322,7 +322,7 @@ class JanMapFragment : SupportMapFragment() {
                 val totalHeight = .94 * (scrHeight - bmp.height)
                 val exactHeight = (totalHeight / (ivs.size - 1))
                 val markerHeight = ((i+1) * exactHeight).toInt() - (i * exactHeight).toInt()
-                val bottom = if (res == R.drawable._marker_reset_filter_b) 0 else -bmp.height + markerHeight
+                val bottom = if (res == R.drawable._marker_reset_filter_a) 0 else -bmp.height + markerHeight
                 iv.layoutParams = {
                     val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                     lp.setMargins(0, 0, 0, bottom)
@@ -335,14 +335,13 @@ class JanMapFragment : SupportMapFragment() {
                 if (!origY.containsKey(iv)) origY[iv] = iv.y
                 iv.animate().y((origY[iv]?:0F) - 3 * density).withEndAction { iv.animate().y((origY[iv]?:0F) + 3 * density) }  // We commence to make you (jump, jump)! :D
             }
-            fun handleClick(key : Int, cond : (Int) -> Boolean, infoViz : Int, str : String) {
-                val iv = ivs[key] ?: return@handleClick
+            fun handleClick(key : Int, cond : (Int) -> Boolean, str : String) {
+                val iv = ivs[key] ?: return
                 Log.e("onClick", key.toString())
                 species.text = getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
                 species.setTextColor(getFruitColor(resources, key))
                 for (other in ivs)
                     other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#777777"), PorterDuff.Mode.MULTIPLY)
-                infoBar.visibility = infoViz
                 selectedSpeciesStr = str
                 animateJump(iv)
                 mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
@@ -352,7 +351,7 @@ class JanMapFragment : SupportMapFragment() {
             var i = 0
             for (entry in treeIdToMarkerIconSorted) {
                 val iv = ivs[entry.key] ?: continue
-                iv.setOnClickListener { handleClick(entry.key, {it > 90 || it == entry.key}, View.VISIBLE, entry.key.toString()) }
+                iv.setOnClickListener { handleClick(entry.key, {it == entry.key || it > 90}, entry.key.toString()) }
                 fillImageView(iv, entry.value, i)
                 linear.addView(iv)
                 i += 1
@@ -364,8 +363,8 @@ class JanMapFragment : SupportMapFragment() {
             linear.addView(ivs[98]!!)
 
             // reset filter (show all species)
-            ivs[99]!!.setOnClickListener { handleClick(99, {it < 99}, View.GONE, selectedSpeciesStrDefault) }
-            fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_b, i + 1)
+            ivs[99]!!.setOnClickListener { handleClick(99, {true}, selectedSpeciesStrDefault) }
+            fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_a, i + 1)
             linear.addView(ivs[99]!!)
 
             relView.addView(linear)
