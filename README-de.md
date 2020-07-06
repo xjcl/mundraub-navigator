@@ -34,4 +34,6 @@ Mundraub hat einen visuellen Bug der Marker in der Mitte statt der Spitze/unten 
 
 Ich bin mit Kai von Mundraub in Kontakt, er mag die App und hat mir Erlaubnis für Namen und Grafiken erteilt. Aber an der Entwicklung direkt bin nur ich beteiligt.
 
+[Discord-Server](https://discord.gg/M9Scjre)
+
 [This README in English](README.md)

@@ -44,4 +44,6 @@ Add your `google_maps_key` in a file called `app/src/debug/res/values/google_map
 
 Then just build it in Android Studio.
 
+[Discord server](https://discord.gg/M9Scjre)
+
 [Dieses README gibt es auch auf Deutsch](README-de.md)

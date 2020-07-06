@@ -736,17 +736,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - marker boundaries don't work on older devices (~Lollipop)
 
 // * TODO pokemon
+//    * favorite markers
+//        * in a cardview list
+//        * store offline
 //    - detect when someone "visits" a marker
 //    - list of recently visited or starred markers
 //    - list of which species have ever been visited (including link to most recent one)
 
 // TODO UI
-//    - immediately download info when tapping marker (1 instead of 2 taps)
+//    * immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
 
 // TODO AppBar
+//    * improve look of AppBar, perhaps make it white + mundraub font/logo
 //    - one-tap menu in the AppBar (https://developer.android.com/training/appbar)
-//    - improve look of AppBar, perhaps make it white + mundraub font/logo
 
 // TODO marker availability
 //    - startup: load markers from last time
