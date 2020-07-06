@@ -1,4 +1,10 @@
 
+v6
+- App no longer unofficial! Now it has a new name and uses official Mundraub colors
+- Improved filtering bar, including filtering by seasonality
+- Maps navigation via FAB-Button which slides in from offscreen
+- Many UI improvements ("tap to download", cluster non-tappable, jumping markers, fix for old Androids, etc.)
+
 v5
 - Marker drawer for filtering by species
 - Info bar to clarify marker drawer functionality
