@@ -90,7 +90,7 @@ val treeIdToSeason = hashMapOf(
     17 to ( 0.0 to  0.0),
 
     18 to ( 7.5 to 11.0), // changed this cos i'm 100% certain they grow around my bday
-    19 to ( 0.0 to  0.0), // wild strawberry
+    19 to ( 6.0 to 10.0), // wild strawberry
     20 to ( 6.5 to 10.0),
     21 to ( 5.5 to 10.0), // note that berries and blossoms are both edible but have different seasons (5.5-10 vs 9-11)
     22 to ( 6.5 to  9.0),
@@ -132,7 +132,7 @@ val treeIdToMarkerIcon = hashMapOf(
     17 to R.drawable.othernut,
 
     18 to R.drawable.blackberry,
-    19 to R.drawable.otherfruitshrub,  // wild strawberry
+    19 to R.drawable.wildstrawberry,
     20 to R.drawable.blueberry,
     21 to R.drawable.elderberry,
     22 to R.drawable.raspberry,
@@ -267,7 +267,6 @@ class JanMapFragment : SupportMapFragment() {
 
             // https://developer.android.com/training/material/shadows-clipping
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
-            else sd_.paint.color = Color.parseColor("#42000000")
 
             // linearHolder needed so LinearLayout does not extend all the way to the edge
             val linearHolder = LinearLayout(this.context)
@@ -291,7 +290,6 @@ class JanMapFragment : SupportMapFragment() {
 
             // https://developer.android.com/training/material/shadows-clipping
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) linear.elevation = 6F  // Default elevation of a FAB is 6
-            else sd.paint.color = Color.parseColor("#42000000")
 
             linear.background = sd
 
@@ -335,7 +333,7 @@ class JanMapFragment : SupportMapFragment() {
             // sadly .yBy() is not enough for this as the EndAction can get interrupted
             fun animateJump(iv : ImageView) {
                 if (!origY.containsKey(iv)) origY[iv] = iv.y
-                iv.animate().y((origY[iv]?:0F) - 3 * density).withEndAction { iv.animate().y(origY[iv]?:0F) }  // We commence to make you (jump, jump)! :D
+                iv.animate().y((origY[iv]?:0F) - 6 * density).withEndAction { iv.animate().y(origY[iv]?:0F) }  // We commence to make you (jump, jump)! :D
             }
             fun handleClick(key : Int, cond : (Int) -> Boolean, str : String) {
                 val iv = ivs[key] ?: return
