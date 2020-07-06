@@ -112,6 +112,8 @@ val treeIdToSeason = hashMapOf(
     36 to ( 6.0 to  9.0),
     37 to ( 0.0 to  0.0)
 )
+val getCurMonth = { Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toDouble() / 32 }
+val isSeasonal = {tid : Int?, month : Double -> treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0}
 
 val treeIdToMarkerIcon = hashMapOf(
      4 to R.drawable.apple,
@@ -358,7 +360,10 @@ class JanMapFragment : SupportMapFragment() {
             }
 
             // filter to all species currently in season
-            ivs[98]!!.setOnClickListener {  }
+            ivs[98]!!.setOnClickListener {
+                val set = treeIdToSeason.keys.filter { isSeasonal(it, getCurMonth()) }.toSet()
+                handleClick(98, {set.contains(it) || it > 90}, set.joinToString(","))  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
+            }
             fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
             linear.addView(ivs[98]!!)
 
@@ -424,16 +429,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
 
         // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
-        val curMonth = Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toDouble() / 32
-        val isSeasonal = {month : Double -> treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0}
         val monthCodes = (1..12).joinToString("") { when {
-             isSeasonal(it + .25) &&  isSeasonal(it + .75) -> "x"
-             isSeasonal(it + .25) && !isSeasonal(it + .75) -> "l"
-            !isSeasonal(it + .25) &&  isSeasonal(it + .75) -> "r"
+             isSeasonal(tid, it + .25) &&  isSeasonal(tid, it + .75) -> "x"
+             isSeasonal(tid, it + .25) && !isSeasonal(tid, it + .75) -> "l"
+            !isSeasonal(tid, it + .25) &&  isSeasonal(tid, it + .75) -> "r"
             else -> "_"
         }}
 
-        markersData[latlng] = MarkerData(type, title, monthCodes, curMonth, isSeasonal(curMonth), fruitColor, feature.properties?.nid, null, null)
+        markersData[latlng] = MarkerData(type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor, feature.properties?.nid, null, null)
 
         return mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
     }
@@ -721,8 +724,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
-//    * pseudo-marker for showing only fruit in season
-//    * pseudo-marker for resetting the filter
 //    * group markers into categories (fruit trees, fruit shrubs, nuts, herbs)
 //    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
 //    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
