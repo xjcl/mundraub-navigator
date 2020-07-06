@@ -9,6 +9,7 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.*
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
@@ -23,7 +24,10 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -685,6 +689,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         supportActionBar!!.title = "${supportActionBar!!.title} v${BuildConfig.VERSION_NAME}!"
+        supportActionBar!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        supportActionBar!!.setLogo(R.drawable.mundraub_logo_bar)  // export with 15px border
+        supportActionBar!!.setDisplayUseLogoEnabled(true)
+        supportActionBar!!.setDisplayShowHomeEnabled(true)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -748,7 +756,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - "force reload" button
 
 // TODO AppBar
-//    * improve look of AppBar, perhaps make it white + mundraub font/logo
 //    - one-tap menu in the AppBar (https://developer.android.com/training/appbar)
 
 // TODO marker availability
