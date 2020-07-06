@@ -293,11 +293,13 @@ class JanMapFragment : SupportMapFragment() {
 
             linear.background = sd
 
-            linear.layoutParams = {
+            /*linear.layoutParams = {
                 val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
                 lp
-            }()
+            }()*/  // setMargins doesn't work on older Androids... I'm going to murder someone at Google over this
+            linear.x = (.02 * scrHeight).toFloat()
+            linear.y = (.02 * scrHeight).toFloat()
 
             val ivs = HashMap<Int, ImageView>()
 
