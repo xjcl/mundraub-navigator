@@ -286,7 +286,7 @@ class JanMapFragment : SupportMapFragment() {
             val pad = (.01 * scrHeight).toInt()
             val c = bmpSample.width / 2F + pad  // corner size
             val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
-            sd.paint.color = Color.parseColor("#FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
+            sd.paint.color = Color.parseColor("#FFFFFF")
             sd.setPadding(pad, pad, pad, pad)
 
             // https://developer.android.com/training/material/shadows-clipping
@@ -335,7 +335,7 @@ class JanMapFragment : SupportMapFragment() {
             // sadly .yBy() is not enough for this as the EndAction can get interrupted
             fun animateJump(iv : ImageView) {
                 if (!origY.containsKey(iv)) origY[iv] = iv.y
-                iv.animate().y((origY[iv]?:0F) - 3 * density).withEndAction { iv.animate().y((origY[iv]?:0F) + 3 * density) }  // We commence to make you (jump, jump)! :D
+                iv.animate().y((origY[iv]?:0F) - 3 * density).withEndAction { iv.animate().y(origY[iv]?:0F) }  // We commence to make you (jump, jump)! :D
             }
             fun handleClick(key : Int, cond : (Int) -> Boolean, str : String) {
                 val iv = ivs[key] ?: return
@@ -343,7 +343,7 @@ class JanMapFragment : SupportMapFragment() {
                 species.text = getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
                 species.setTextColor(getFruitColor(resources, key))
                 for (other in ivs)
-                    other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#777777"), PorterDuff.Mode.MULTIPLY)
+                    other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
                 selectedSpeciesStr = str
                 animateJump(iv)
                 mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
