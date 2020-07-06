@@ -29,6 +29,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
@@ -688,11 +689,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        supportActionBar!!.title = "${supportActionBar!!.title} v${BuildConfig.VERSION_NAME}!"
+        supportActionBar!!.title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Navigator v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-        supportActionBar!!.setLogo(R.drawable.mundraub_logo_bar)  // export with 15px border
-        supportActionBar!!.setDisplayUseLogoEnabled(true)
-        supportActionBar!!.setDisplayShowHomeEnabled(true)
+        supportActionBar!!.setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
+        supportActionBar!!.displayOptions = ActionBar.DISPLAY_SHOW_HOME or
+                ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
