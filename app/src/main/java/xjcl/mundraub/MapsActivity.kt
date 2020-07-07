@@ -24,10 +24,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -274,37 +271,21 @@ class JanMapFragment : SupportMapFragment() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
 
             // linearHolder needed so LinearLayout does not extend all the way to the edge
-            val linearHolder = LinearLayout(this.context)
-            linearHolder.orientation = LinearLayout.VERTICAL
-            linearHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            linearHolder.gravity = Gravity.CENTER
-            linearHolder.addView(infoBar)
+            val infoBarHolder = LinearLayout(this.context)
+            infoBarHolder.orientation = LinearLayout.VERTICAL
+            infoBarHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            infoBarHolder.gravity = Gravity.CENTER
+            infoBarHolder.addView(infoBar)
 
-            relView.addView(linearHolder)
+            relView.addView(infoBarHolder)
 
 
             // *** species drawer (LinearLayout)
             val linear = LinearLayout(this.context)
             linear.orientation = LinearLayout.VERTICAL
 
-            val pad = (.01 * scrHeight).toInt()
-            val c = bmpSample.width / 2F + pad  // corner size
-            val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
-            sd.paint.color = Color.parseColor("#FFFFFF")
-            sd.setPadding(pad, pad, pad, pad)
-
-            // https://developer.android.com/training/material/shadows-clipping
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) linear.elevation = 6F  // Default elevation of a FAB is 6
-
-            linear.background = sd
-
-            /*linear.layoutParams = {
-                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
-                lp
-            }()*/  // setMargins doesn't work on older Androids... I'm going to murder someone at Google over this
-            linear.x = (.02 * scrHeight).toFloat()
-            linear.y = (.02 * scrHeight).toFloat()
+            val linearLabels = LinearLayout(this.context)
+            linearLabels.orientation = LinearLayout.VERTICAL
 
             val ivs = HashMap<Int, ImageView>()
 
@@ -314,20 +295,53 @@ class JanMapFragment : SupportMapFragment() {
             ivs[98] = ImageView(this.context)
             ivs[99] = ImageView(this.context)
 
+            // *** Height calculation for markers
+            // Note that a straight-up division of (totalHeight / numSection) gives poor results
+            // E.g. dividing a distance of 42 into 4 sections straight-up would give 10 10 10 10 or 11 11 11 11
+            //   but ideally we want 10 11 10 11 so the totalHeight is preserved  -> done by this function
+            val bmp = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
+            val totalHeight = .94 * (scrHeight - bmp.height)
+            val exactHeight = (totalHeight / (ivs.size - 1))
+            fun markerHeight(lo : Int, hi : Int) : Int = (hi * exactHeight).toInt() - (lo * exactHeight).toInt()
+
+            // Prepare vertical labels next to filter (linearLabels)
+            val groupNames = listOf(9 to getString(R.string.catFruitTrees), 4 to getString(R.string.catNutTrees),
+                13 to getString(R.string.catFruitShrubs), 7 to getString(R.string.catHerbs))
+            var cum = 0
+            for (el in groupNames) {
+                val tv = TextView(this.context)
+                tv.text = el.second
+                tv.gravity = Gravity.CENTER
+                tv.rotation = 90F
+
+                tv.measure(0, 0)
+                Log.e("tvm", "${tv.measuredHeight} ${tv.measuredWidth}")
+
+                tv.height = markerHeight(cum, cum + el.first) - density.toInt()  // make room for ImageView divider
+                tv.width = tv.measuredHeight + 400  // 400 IQ
+
+                val tvHolder = RelativeLayout(this.context)
+                tvHolder.layoutParams = {
+                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    lp.setMargins(-200, if (el == groupNames[0]) (4 * density).toInt() else 0, -200, 0)
+                    lp
+                }()
+                tvHolder.addView(tv)
+
+                cum += el.first
+                linearLabels.addView(tvHolder)
+
+                val iv = ImageView(this.context)
+                iv.setImageResource(R.drawable.divider)  // has height of  = 1 * density
+                linearLabels.addView(iv)
+            }
+
             fun fillImageView(iv : ImageView, res: Int, i : Int) {
                 val bmp = BitmapFactory.decodeResource(resources, res)
                 iv.setImageBitmap(bmp)
                 Log.e("bmpH", bmp.height.toString())
 
-                // *** Height calculation for markers
-                // Note that a straight-up division of (totalHeight / numSection) gives poor results
-                // E.g. dividing a distance of 42 into 4 sections straight-up would give 10 10 10 10 or 11 11 11 11
-                //   but ideally we want something like 10 11 10 11 so the totalHeight is preserved  -> markerHeight
-
-                val totalHeight = .94 * (scrHeight - bmp.height)
-                val exactHeight = (totalHeight / (ivs.size - 1))
-                val markerHeight = ((i+1) * exactHeight).toInt() - (i * exactHeight).toInt()
-                val bottom = if (res == R.drawable._marker_reset_filter_a) 0 else -bmp.height + markerHeight
+                val bottom = if (res == R.drawable._marker_reset_filter_a) 0 else -bmp.height + markerHeight(i, i+1)
                 iv.layoutParams = {
                     val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                     lp.setMargins(0, 0, 0, bottom)
@@ -375,7 +389,31 @@ class JanMapFragment : SupportMapFragment() {
             fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_a, i + 1)
             linear.addView(ivs[99]!!)
 
-            relView.addView(linear)
+
+            val linearHolder = LinearLayout(this.context)
+            linearHolder.addView(linearLabels)
+            linearHolder.addView(linear)
+
+            val pad = (.01 * scrHeight).toInt()
+            val c = bmpSample.width / 2F + pad  // corner size
+            val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
+            sd.paint.color = Color.parseColor("#FFFFFF")
+            sd.setPadding(pad, pad, pad, pad)
+
+            // https://developer.android.com/training/material/shadows-clipping
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) linearHolder.elevation = 6F  // Default elevation of a FAB is 6
+
+            linearHolder.background = sd
+
+            /*linear.layoutParams = {
+                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
+                lp
+            }()*/  // setMargins doesn't work on older Androids... I'm going to murder someone at Google over this
+            linearHolder.x = (.02 * scrHeight).toFloat()
+            linearHolder.y = (.02 * scrHeight).toFloat()
+
+            relView.addView(linearHolder)
 
 
             // *** FAB for Maps navigation ***
@@ -720,6 +758,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - Node test with image: https://mundraub.org/node/75327
 //    - Ensure correct season information
 //    - Test different pixel densities by setting screen rezo on my phone
+//    - Test both supported languages (EN/DE)
 //    - Test rotation
 //    - Test offline use
 
@@ -731,7 +770,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
-//    * group markers into categories (fruit trees, fruit shrubs, nuts, herbs)
+//    * apply darkened markers to map too
 //    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
 //    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
 //         -> either remove drawer, shrink it (???) or put it on the x axis (bottom) (?)
@@ -746,7 +785,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // * TODO pokemon
 //    * favorite markers
-//        * in a cardview list
+//        * in a cardview list  -> wait no on the main map!!
 //        * store offline
 //    - detect when someone "visits" a marker
 //    - list of recently visited or starred markers

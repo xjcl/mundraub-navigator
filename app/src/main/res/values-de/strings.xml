@@ -46,6 +46,11 @@
     <string name="inSeason">Erntezeit: Ja!</string>
     <string name="notInSeason">Erntezeit: Nein</string>
 
+    <string name="catFruitTrees">Obstbäume</string>
+    <string name="catNutTrees">Nüsse</string>  <!--    Nussbäume-->
+    <string name="catFruitShrubs">Obststräucher</string>
+    <string name="catHerbs">Kräuter</string>
+
     <string name="onlyShowing">Angezeigt:\u0020</string>
 
     <string name="tapForInfo">--- Berühren für Details ---</string>
