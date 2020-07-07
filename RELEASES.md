@@ -1,4 +1,9 @@
 
+v7
+- Vertical text for marker categories
+- Clean white ActionBar with Mundraub logo
+- Added wild strawberry support
+
 v6
 - App no longer unofficial! Now it has a new name and uses official Mundraub colors
 - Improved filtering bar, including filtering by seasonality
