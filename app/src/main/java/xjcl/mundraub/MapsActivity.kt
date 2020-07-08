@@ -171,6 +171,20 @@ var selectedSpeciesStr : String = selectedSpeciesStrDefault
 var fabAnimationFromTo : Pair<Float, Float> = 0F to 0F
 val origY = HashMap<ImageView, Float>()
 
+// This stupidly needs to be stored with a strong reference because it otherwise gets garbage-collected
+// https://stackoverflow.com/a/24602348/2111778
+class JanTarget : com.squareup.picasso.Target {
+    var marker: Marker? = null
+    var md: MarkerData? = null
+    override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
+    override fun onBitmapFailed(errorDrawable: Drawable?) { }
+    override fun onBitmapLoaded(bitmap: Bitmap?, from: LoadedFrom?) {
+        md!!.image = bitmap
+        marker!!.showInfoWindow()
+    }
+}
+val picassoBitmapTarget = JanTarget()
+
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize: Float, outline: Boolean = true, xpos: Float = .5F, color: Int = Color.WHITE) : Bitmap {
     val options = BitmapFactory.Options()
@@ -671,11 +685,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 if (imageURL.isBlank() || md.image != null) return@launch
 
                 runOnUiThread {
-                    Picasso.with(this@MapsActivity).load("https://mundraub.org/$imageURL").into(object : com.squareup.picasso.Target {
-                        override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
-                        override fun onBitmapFailed(errorDrawable: Drawable?) { }
-                        override fun onBitmapLoaded(bitmap: Bitmap?, from: LoadedFrom?) { md.image = bitmap; marker.showInfoWindow() }
-                    })
+                    Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
+                    picassoBitmapTarget.md = md
+                    picassoBitmapTarget.marker = marker
+                    Picasso.with(this@MapsActivity).load("https://mundraub.org/$imageURL").into(picassoBitmapTarget)
                 }
             }
         }
