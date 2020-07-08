@@ -1,4 +1,9 @@
 
+v8
+- Fix image download not working sometimes
+- Fix filtering bar covering Google logo
+- Fix markers missing when opening app (for real this time)
+
 v7
 - Vertical text for marker categories
 - Clean white ActionBar with Mundraub logo
