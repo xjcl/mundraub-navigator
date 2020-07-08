@@ -57,6 +57,7 @@ import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
+import kotlin.math.max
 
 
 @Serializable
@@ -247,19 +248,17 @@ class JanMapFragment : SupportMapFragment() {
             Log.e("scrHeight", scrHeight.toString())
             Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
-            mMap.setPadding((.04 * scrHeight).toInt() + bmpSample.width, 0, 0, 0)  // 2% left-margin 1% left-padding 1% right-padding
-
             // *** info bar
             // TODO XXX clean this up a lot, remove duplication, var names, ...
             val infoBar = LinearLayout(this.context)
             infoBar.orientation = LinearLayout.HORIZONTAL
+            infoBar.gravity = Gravity.CENTER
 
             infoBar.layoutParams = {
                 val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
                 lp
             }()
-            infoBar.gravity = Gravity.CENTER
 
             val info = TextView(this.context)
             info.text = getString(R.string.onlyShowing)
@@ -313,8 +312,7 @@ class JanMapFragment : SupportMapFragment() {
             // Note that a straight-up division of (totalHeight / numSection) gives poor results
             // E.g. dividing a distance of 42 into 4 sections straight-up would give 10 10 10 10 or 11 11 11 11
             //   but ideally we want 10 11 10 11 so the totalHeight is preserved  -> done by this function
-            val bmp = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
-            val totalHeight = .94 * (scrHeight - bmp.height)
+            val totalHeight = .94 * (scrHeight - bmpSample.height)
             val exactHeight = (totalHeight / (ivs.size - 1))
             fun markerHeight(lo : Int, hi : Int) : Int = (hi * exactHeight).toInt() - (lo * exactHeight).toInt()
 
@@ -322,6 +320,7 @@ class JanMapFragment : SupportMapFragment() {
             val groupNames = listOf(9 to getString(R.string.catFruitTrees), 4 to getString(R.string.catNutTrees),
                 13 to getString(R.string.catFruitShrubs), 7 to getString(R.string.catHerbs))
             var cum = 0
+            var totalLeftPadding = 0
             for (el in groupNames) {
                 val tv = TextView(this.context)
                 tv.text = el.second
@@ -348,7 +347,10 @@ class JanMapFragment : SupportMapFragment() {
                 val iv = ImageView(this.context)
                 iv.setImageResource(R.drawable.divider)  // has height of  = 1 * density
                 linearLabels.addView(iv)
+
+                totalLeftPadding = max(totalLeftPadding, (.04 * scrHeight).toInt() + bmpSample.width + tv.measuredHeight)
             }
+            mMap.setPadding(totalLeftPadding, 0, 0, 0)  // 2% left-margin 1% left-padding 1% right-padding
 
             fun fillImageView(iv : ImageView, res: Int, i : Int) {
                 val bmp = BitmapFactory.decodeResource(resources, res)
