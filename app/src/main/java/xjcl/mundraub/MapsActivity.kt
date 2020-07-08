@@ -797,7 +797,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
 // TODO bugs
 //    - when tapping a marker, markers reload, so it sometimes deletes the marker in focus
-//    - marker boundaries don't work on older devices (~Lollipop)
+//    - better workaround for initial Maps download issue
 
 // * TODO pokemon
 //    * favorite markers
@@ -805,7 +805,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //        * store offline
 //    - detect when someone "visits" a marker
 //    - list of recently visited or starred markers
-//    - list of which species have ever been visited (including link to most recent one)
+//    - list of which marker types have ever been visited (including link to most recent one)
+//    - list of how common each marker type is
 
 // TODO UI
 //    * immediately download info when tapping marker (1 instead of 2 taps)
