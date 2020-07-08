@@ -171,6 +171,7 @@ const val selectedSpeciesStrDefault : String = "4,5,6,7,8,9,10,11,12,14,15,16,17
 var selectedSpeciesStr : String = selectedSpeciesStrDefault
 var fabAnimationFromTo : Pair<Float, Float> = 0F to 0F
 val origY = HashMap<ImageView, Float>()
+var totalLeftPadding = 0
 
 // This stupidly needs to be stored with a strong reference because it otherwise gets garbage-collected
 // https://stackoverflow.com/a/24602348/2111778
@@ -320,7 +321,6 @@ class JanMapFragment : SupportMapFragment() {
             val groupNames = listOf(9 to getString(R.string.catFruitTrees), 4 to getString(R.string.catNutTrees),
                 13 to getString(R.string.catFruitShrubs), 7 to getString(R.string.catHerbs))
             var cum = 0
-            var totalLeftPadding = 0
             for (el in groupNames) {
                 val tv = TextView(this.context)
                 tv.text = el.second
@@ -350,7 +350,7 @@ class JanMapFragment : SupportMapFragment() {
 
                 totalLeftPadding = max(totalLeftPadding, (.04 * scrHeight).toInt() + bmpSample.width + tv.measuredHeight)
             }
-            mMap.setPadding(totalLeftPadding, 0, 0, 0)  // 2% left-margin 1% left-padding 1% right-padding
+            if (::mMap.isInitialized) mMap.setPadding(totalLeftPadding, 0, 0, 0)
 
             fun fillImageView(iv : ImageView, res: Int, i : Int) {
                 val bmp = BitmapFactory.decodeResource(resources, res)
@@ -557,6 +557,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setOnCameraIdleListener(this)
+        mMap.setPadding(totalLeftPadding, 0, 0, 0)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) setUpNetworking()
 
