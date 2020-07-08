@@ -532,7 +532,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-             "&zoom=${(zoom + .5F).toInt()}&cat=${selectedSpeciesStr}"
+             "&zoom=${(zoom + .25F).toInt()}&cat=${selectedSpeciesStr}"
 
         Log.e("updateMarkers", "GET $url")
 
@@ -710,7 +710,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 }
             }
             fab.animate().x(fabAnimationFromTo.second)
-            val targetPosition = vecAdd(marker.position, vecMul(.2, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
+            val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
             mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
             true
         }
