@@ -221,6 +221,13 @@ fun scaleToWidth(bitmapMaybeNull : Bitmap?, width : Int) : Bitmap {
     return Bitmap.createScaledBitmap(bitmap, width, (width.toDouble() / bitmap.width * bitmap.height).toInt(), true)
 }
 
+fun materialDesignBg(padX: Int, padY: Int, c: Float): Drawable {
+    val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
+    sd.paint.color = Color.parseColor("#FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
+    sd.setPadding(padX, padY, padX, padY)
+    return sd
+}
+
 fun getFruitColor(resources : Resources, tid: Int?) : Int =
     BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
     .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
@@ -271,15 +278,8 @@ class JanMapFragment : SupportMapFragment() {
             species.setTextColor(getFruitColor(resources, 99))
             infoBar.addView(species)
 
-                val density = resources.displayMetrics.density
-                val pad_min = (2.5 * density).toInt()
-                val pad_max = (7.5 * density).toInt()
-                val c_ = 999F
-                val sd_ = ShapeDrawable(RoundRectShape(floatArrayOf(c_, c_, c_, c_, c_, c_, c_, c_), null, null))
-                sd_.paint.color = Color.parseColor("#FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
-                sd_.setPadding(pad_max, pad_min, pad_max, pad_min)
-                infoBar.setPadding(pad_max, pad_min, pad_max, pad_min)
-                infoBar.background = sd_
+            val density = resources.displayMetrics.density
+            infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
 
             // https://developer.android.com/training/material/shadows-clipping
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
@@ -409,17 +409,11 @@ class JanMapFragment : SupportMapFragment() {
             val linearHolder = LinearLayout(this.context)
             linearHolder.addView(linearLabels)
             linearHolder.addView(linear)
-
             val pad = (.01 * scrHeight).toInt()
-            val c = bmpSample.width / 2F + pad  // corner size
-            val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
-            sd.paint.color = Color.parseColor("#FFFFFF")
-            sd.setPadding(pad, pad, pad, pad)
+            linearHolder.background = materialDesignBg(pad, pad, bmpSample.width / 2F + pad)
 
             // https://developer.android.com/training/material/shadows-clipping
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) linearHolder.elevation = 6F  // Default elevation of a FAB is 6
-
-            linearHolder.background = sd
 
             /*linear.layoutParams = {
                 val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
