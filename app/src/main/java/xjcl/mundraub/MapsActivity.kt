@@ -92,7 +92,7 @@ val treeIdToSeason = hashMapOf(
     16 to ( 9.5 to 11.0),
     17 to ( 0.0 to  0.0),
 
-    18 to ( 7.5 to 11.0), // changed this cos i'm 100% certain they grow around my bday
+    18 to ( 8.0 to 11.0),
     19 to ( 6.0 to 10.0), // wild strawberry
     20 to ( 6.5 to 10.0),
     21 to ( 5.5 to 10.0), // note that berries and blossoms are both edible but have different seasons (5.5-10 vs 9-11)
