@@ -223,7 +223,7 @@ fun scaleToWidth(bitmapMaybeNull : Bitmap?, width : Int) : Bitmap {
 
 fun materialDesignBg(padX: Int, padY: Int, c: Float): Drawable {
     val sd = ShapeDrawable(RoundRectShape(floatArrayOf(c, c, c, c, c, c, c, c), null, null))
-    sd.paint.color = Color.parseColor("#FFFFFF")  // I think the crosshairs are C0 or less, but I like D0 better
+    sd.paint.color = Color.parseColor("#FFFFFF")
     sd.setPadding(padX, padY, padX, padY)
     return sd
 }
