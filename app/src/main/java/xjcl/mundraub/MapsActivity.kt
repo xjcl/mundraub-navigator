@@ -69,7 +69,7 @@ data class Root(val features: List<Feature>)
 
 data class MarkerData(val type : String, val title : String, val monthCodes : String, val curMonth : Double,
                       val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?,
-                      var image : Bitmap?)
+                      var uploader : String?, var uploadDate : String?, var image : Bitmap?)
 
 // Key: treeId (type of tree/fruit),  Value: Pair<Int, Int> with first and last month of season
 // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
@@ -487,7 +487,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             else -> "_"
         }}
 
-        markersData[latlng] = MarkerData(type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor, feature.properties?.nid, null, null)
+        markersData[latlng] = MarkerData(type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor,
+            feature.properties?.nid, null, null, null, null)
 
         return mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
     }
@@ -579,9 +580,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
                 val description = TextView(this@MapsActivity)
                 description.width = masterWidth
-                description.text = md.description ?: this@MapsActivity.getString(R.string.tapForInfo)
                 description.textSize = 12F
                 if (md.type != "cluster") info.addView(description)
+                if (md.description != null) {
+                    description.text = md.description
+
+                    val uploader = TextView(this@MapsActivity)
+                    uploader.textSize = 12F
+                    uploader.text = md.uploader
+                    uploader.gravity = Gravity.RIGHT
+                    uploader.maxWidth = masterWidth
+                    info.addView(uploader)
+
+                    val uploadDate = TextView(this@MapsActivity)
+                    uploadDate.textSize = 12F
+                    uploadDate.text = md.uploadDate
+                    uploadDate.gravity = Gravity.RIGHT
+                    uploadDate.maxWidth = masterWidth
+                    info.addView(uploadDate)
+                } else {
+                    description.text = this@MapsActivity.getString(R.string.tapForInfo)
+                }
 
                 val title = TextView(this@MapsActivity)
                 title.setTextColor(md.fruitColor)
@@ -671,13 +690,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 // --- Download number of finds and description ---
                 val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@launch }
 
-                fun extractUnescaped(after : String, before : String) : String {
+                fun extractUnescaped(htmlStr : String, after : String, before : String) : String {
                     val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
                     return HtmlCompat.fromHtml(extractEscaped, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
                 }
 
-                val number = extractUnescaped("Anzahl: <span class=\"tag\">", "</span>")
-                val description = extractUnescaped("<p>", "</p>")
+                val number = extractUnescaped(htmlStr, "Anzahl: <span class=\"tag\">", "</span>")
+                val description = extractUnescaped(htmlStr, "<p>", "</p>")
+                md.uploader = extractUnescaped(htmlStr.substringAfter("typeof=\"schema:Person\""), ">", "</span>")
+                md.uploadDate = extractUnescaped(htmlStr.substringAfter("am <span>"), ", ", " - ")
                 md.description = "[$number] $description"
 
                 runOnUiThread { marker.showInfoWindow() }
