@@ -671,10 +671,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 // --- Download number of finds and description ---
                 val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@launch }
 
-                val number = htmlStr.substringAfter("Anzahl: <span class=\"tag\">", "?").substringBefore("</span>")
-                val description = htmlStr.substringAfter("<p>").substringBefore("</p>", "(no data)")
-                val descriptionUnescaped = HtmlCompat.fromHtml(description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
-                md.description = "[$number] $descriptionUnescaped"
+                fun extractUnescaped(after : String, before : String) : String {
+                    val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
+                    return HtmlCompat.fromHtml(extractEscaped, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
+                }
+
+                val number = extractUnescaped("Anzahl: <span class=\"tag\">", "</span>")
+                val description = extractUnescaped("<p>", "</p>")
+                md.description = "[$number] $description"
 
                 runOnUiThread { marker.showInfoWindow() }
 
@@ -761,7 +765,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO publishing
 //    - write blog post about it
 //    - publish to reddit about it
-//    - official Facebook group
 //    - official email newsletter
 
 // TODO QA
@@ -804,6 +807,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - list of how common each marker type is
 
 // TODO UI
+//    * show uploader and date
+//    * filter by all nuts etc
+//    - all markers jump when pressing filter?
 //    * immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
 
