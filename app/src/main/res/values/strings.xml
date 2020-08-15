@@ -51,11 +51,6 @@
     <string name="inSeason">In season!! :D</string>
     <string name="notInSeason">Not in season :(</string>
 
-    <string name="catFruitTrees">Fruit trees</string>
-    <string name="catNutTrees">Nuts</string>  <!--    Nut trees-->
-    <string name="catFruitShrubs">Fruit shrubs</string>
-    <string name="catHerbs">Herbs</string>
-
     <string name="onlyShowing">Showing:\u0020</string>
 
     <string name="tapForInfo">--- Tap to download info ---</string>

@@ -39,17 +39,17 @@
     <string name="tid36">Thymina</string>
     <string name="tid37">Andere Kräuter</string>
 
+    <string name="tid80">Obstbäume</string>
+    <string name="tid81">Nüsse</string>  <!--    Nussbäume-->
+    <string name="tid82">Obststräucher</string>
+    <string name="tid83">Kräuter</string>
+
     <string name="tid98">Saisonales</string>
     <string name="tid99">Alles</string>
     <string name="tidnull">Mehrere Marker (bitte zoomen)</string>
 
     <string name="inSeason">Erntezeit: Ja!</string>
     <string name="notInSeason">Erntezeit: Nein</string>
-
-    <string name="catFruitTrees">Obstbäume</string>
-    <string name="catNutTrees">Nüsse</string>  <!--    Nussbäume-->
-    <string name="catFruitShrubs">Obststräucher</string>
-    <string name="catHerbs">Kräuter</string>
 
     <string name="onlyShowing">Angezeigt:\u0020</string>
 
