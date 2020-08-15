@@ -170,7 +170,7 @@ var markersData = HashMap<LatLng, MarkerData>()
 const val selectedSpeciesStrDefault : String = "4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 var selectedSpeciesStr : String = selectedSpeciesStrDefault
 var fabAnimationFromTo : Pair<Float, Float> = 0F to 0F
-val origY = HashMap<ImageView, Float>()
+val origY = HashMap<View, Float>()
 var totalLeftPadding = 0
 
 // This stupidly needs to be stored with a strong reference because it otherwise gets garbage-collected
@@ -294,7 +294,8 @@ class JanMapFragment : SupportMapFragment() {
             relView.addView(infoBarHolder)
 
 
-            // *** species drawer (LinearLayout)
+            // *** species filter bar (LinearLayout)
+            // species <80 (4-12 14-17 18-30 31-37)   groups 80-89  special 90-99
             val linear = LinearLayout(this.context)
             linear.orientation = LinearLayout.VERTICAL
 
@@ -316,6 +317,35 @@ class JanMapFragment : SupportMapFragment() {
             val totalHeight = .94 * (scrHeight - bmpSample.height)
             val exactHeight = (totalHeight / (ivs.size - 1))
             fun markerHeight(lo : Int, hi : Int) : Int = (hi * exactHeight).toInt() - (lo * exactHeight).toInt()
+
+            fun fillImageView(iv : ImageView, res: Int, i : Int) {
+                val bmp = BitmapFactory.decodeResource(resources, res)
+                iv.setImageBitmap(bmp)
+                Log.e("bmpH", bmp.height.toString())
+
+                val bottom = if (res == R.drawable._marker_reset_filter_a) 0 else -bmp.height + markerHeight(i, i+1)
+                iv.layoutParams = {
+                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    lp.setMargins(0, 0, 0, bottom)
+                    lp
+                }()
+            }
+
+            // sadly .yBy() is not enough for this as the EndAction can get interrupted
+            fun animateJump(iv : View) {
+                if (!origY.containsKey(iv)) origY[iv] = iv.y
+                iv.animate().y((origY[iv]?:0F) - 6 * density).withEndAction { iv.animate().y(origY[iv]?:0F) }  // We commence to make you (jump, jump)! :D
+            }
+            fun handleClick(iv : View, key : Int, cond : (Int) -> Boolean, str : String) {
+                Log.e("onClick", key.toString())
+                species.text = getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
+                species.setTextColor(getFruitColor(resources, key))
+                for (other in ivs)
+                    other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
+                selectedSpeciesStr = str
+                animateJump(iv)
+                mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
+            }
 
             // Prepare vertical labels next to filter (linearLabels)
             val groupNames = listOf(9 to getString(R.string.catFruitTrees), 4 to getString(R.string.catNutTrees),
@@ -352,41 +382,11 @@ class JanMapFragment : SupportMapFragment() {
             }
             if (::mMap.isInitialized) mMap.setPadding(totalLeftPadding, 0, 0, 0)
 
-            fun fillImageView(iv : ImageView, res: Int, i : Int) {
-                val bmp = BitmapFactory.decodeResource(resources, res)
-                iv.setImageBitmap(bmp)
-                Log.e("bmpH", bmp.height.toString())
-
-                val bottom = if (res == R.drawable._marker_reset_filter_a) 0 else -bmp.height + markerHeight(i, i+1)
-                iv.layoutParams = {
-                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    lp.setMargins(0, 0, 0, bottom)
-                    lp
-                }()
-            }
-
-            // sadly .yBy() is not enough for this as the EndAction can get interrupted
-            fun animateJump(iv : ImageView) {
-                if (!origY.containsKey(iv)) origY[iv] = iv.y
-                iv.animate().y((origY[iv]?:0F) - 6 * density).withEndAction { iv.animate().y(origY[iv]?:0F) }  // We commence to make you (jump, jump)! :D
-            }
-            fun handleClick(key : Int, cond : (Int) -> Boolean, str : String) {
-                val iv = ivs[key] ?: return
-                Log.e("onClick", key.toString())
-                species.text = getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
-                species.setTextColor(getFruitColor(resources, key))
-                for (other in ivs)
-                    other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
-                selectedSpeciesStr = str
-                animateJump(iv)
-                mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
-            }
-
             // filter to 1 species
             var i = 0
             for (entry in treeIdToMarkerIconSorted) {
                 val iv = ivs[entry.key] ?: continue
-                iv.setOnClickListener { handleClick(entry.key, {it == entry.key || it > 90}, entry.key.toString()) }
+                iv.setOnClickListener { handleClick(iv, entry.key, {it == entry.key || it > 90}, entry.key.toString()) }
                 fillImageView(iv, entry.value, i)
                 linear.addView(iv)
                 i += 1
@@ -395,13 +395,13 @@ class JanMapFragment : SupportMapFragment() {
             // filter to all species currently in season
             ivs[98]!!.setOnClickListener {
                 val set = treeIdToSeason.keys.filter { isSeasonal(it, getCurMonth()) }.toSet()
-                handleClick(98, {set.contains(it) || it > 90}, set.joinToString(","))  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
+                handleClick(ivs[98]!!, 98, {set.contains(it) || it > 90}, set.joinToString(","))  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
             }
             fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
             linear.addView(ivs[98]!!)
 
             // reset filter (show all species)
-            ivs[99]!!.setOnClickListener { handleClick(99, {true}, selectedSpeciesStrDefault) }
+            ivs[99]!!.setOnClickListener { handleClick(ivs[99]!!, 99, {true}, selectedSpeciesStrDefault) }
             fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_a, i + 1)
             linear.addView(ivs[99]!!)
 
