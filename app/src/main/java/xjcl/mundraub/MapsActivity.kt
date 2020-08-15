@@ -167,8 +167,7 @@ lateinit var fab : FloatingActionButton
 
 var markers = HashMap<LatLng, Marker>()
 var markersData = HashMap<LatLng, MarkerData>()
-const val selectedSpeciesStrDefault : String = "4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
-var selectedSpeciesStr : String = selectedSpeciesStrDefault
+var selectedSpeciesStr : String = "4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37"
 var fabAnimationFromTo : Pair<Float, Float> = 0F to 0F
 val origY = HashMap<View, Float>()
 var totalLeftPadding = 0
@@ -336,13 +335,13 @@ class JanMapFragment : SupportMapFragment() {
                 if (!origY.containsKey(iv)) origY[iv] = iv.y
                 iv.animate().y((origY[iv]?:0F) - 6 * density).withEndAction { iv.animate().y(origY[iv]?:0F) }  // We commence to make you (jump, jump)! :D
             }
-            fun handleClick(iv : View, key : Int, cond : (Int) -> Boolean, str : String) {
+            fun handleClick(iv : View, key : Int, cond : (Int) -> Boolean) {
                 Log.e("onClick", key.toString())
                 species.text = getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
                 species.setTextColor(getFruitColor(resources, key))
                 for (other in ivs)
                     other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
-                selectedSpeciesStr = str
+                selectedSpeciesStr = ivs.filter { cond(it.key) }.map { it.key.toString() }.joinToString(",")
                 animateJump(iv)
                 mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
             }
@@ -386,7 +385,7 @@ class JanMapFragment : SupportMapFragment() {
             var i = 0
             for (entry in treeIdToMarkerIconSorted) {
                 val iv = ivs[entry.key] ?: continue
-                iv.setOnClickListener { handleClick(iv, entry.key, {it == entry.key || it > 90}, entry.key.toString()) }
+                iv.setOnClickListener { handleClick(iv, entry.key, {it == entry.key || it > 90}) }
                 fillImageView(iv, entry.value, i)
                 linear.addView(iv)
                 i += 1
@@ -395,13 +394,13 @@ class JanMapFragment : SupportMapFragment() {
             // filter to all species currently in season
             ivs[98]!!.setOnClickListener {
                 val set = treeIdToSeason.keys.filter { isSeasonal(it, getCurMonth()) }.toSet()
-                handleClick(ivs[98]!!, 98, {set.contains(it) || it > 90}, set.joinToString(","))  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
+                handleClick(ivs[98]!!, 98, {set.contains(it) || it > 90})  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
             }
             fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
             linear.addView(ivs[98]!!)
 
             // reset filter (show all species)
-            ivs[99]!!.setOnClickListener { handleClick(ivs[99]!!, 99, {true}, selectedSpeciesStrDefault) }
+            ivs[99]!!.setOnClickListener { handleClick(ivs[99]!!, 99, {true}) }
             fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_a, i + 1)
             linear.addView(ivs[99]!!)
 
