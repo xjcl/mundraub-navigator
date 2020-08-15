@@ -340,7 +340,7 @@ class JanMapFragment : SupportMapFragment() {
                 species.text = getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
                 species.setTextColor(getFruitColor(resources, key))
                 for (other in ivs)
-                    other.value.setColorFilter(Color.parseColor(if (cond(other.key)) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
+                    other.value.setColorFilter(Color.parseColor(if (cond(other.key) || other.key >= 90) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
                 selectedSpeciesStr = ivs.filter { cond(it.key) }.map { it.key.toString() }.joinToString(",")
                 animateJump(iv)
                 mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
@@ -372,7 +372,7 @@ class JanMapFragment : SupportMapFragment() {
                 }()
                 tvHolder.addView(tv)
 
-                tv.setOnClickListener { handleClick(tv, group.key, { it in group.lo..group.hi || it > 90 }) }
+                tv.setOnClickListener { handleClick(tv, group.key) { it in group.lo..group.hi } }
 
                 cum += group.size
                 linearLabels.addView(tvHolder)
@@ -389,7 +389,7 @@ class JanMapFragment : SupportMapFragment() {
             var i = 0
             for (entry in treeIdToMarkerIconSorted) {
                 val iv = ivs[entry.key] ?: continue
-                iv.setOnClickListener { handleClick(iv, entry.key, {it == entry.key || it > 90}) }
+                iv.setOnClickListener { handleClick(iv, entry.key) { it == entry.key } }
                 fillImageView(iv, entry.value, i)
                 linear.addView(iv)
                 i += 1
@@ -398,13 +398,13 @@ class JanMapFragment : SupportMapFragment() {
             // filter to all species currently in season
             ivs[98]!!.setOnClickListener {
                 val set = treeIdToSeason.keys.filter { isSeasonal(it, getCurMonth()) }.toSet()
-                handleClick(ivs[98]!!, 98, {set.contains(it) || it > 90})  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
+                handleClick(ivs[98]!!, 98) { set.contains(it) }  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
             }
             fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
             linear.addView(ivs[98]!!)
 
             // reset filter (show all species)
-            ivs[99]!!.setOnClickListener { handleClick(ivs[99]!!, 99, {true}) }
+            ivs[99]!!.setOnClickListener { handleClick(ivs[99]!!, 99) { it < 90 } }
             fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_a, i + 1)
             linear.addView(ivs[99]!!)
 
