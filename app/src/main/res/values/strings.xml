@@ -39,6 +39,11 @@
     <string name="tid36">Thyme</string>
     <string name="tid37">Other herb</string>
 
+    <string name="tid80">Fruit trees</string>
+    <string name="tid81">Nuts</string>  <!--    Nut trees-->
+    <string name="tid82">Fruit shrubs</string>
+    <string name="tid83">Herbs</string>
+
     <string name="tid98">Seasonals</string>
     <string name="tid99">Everything</string>
     <string name="tidnull">Cluster (Zoom To Expand)</string>

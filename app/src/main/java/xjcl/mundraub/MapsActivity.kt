@@ -346,31 +346,35 @@ class JanMapFragment : SupportMapFragment() {
                 mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // trigger updateMarkers()
             }
 
-            // Prepare vertical labels next to filter (linearLabels)
-            val groupNames = listOf(9 to getString(R.string.catFruitTrees), 4 to getString(R.string.catNutTrees),
-                13 to getString(R.string.catFruitShrubs), 7 to getString(R.string.catHerbs))
+            // Prepare vertical labels next to filter (linearLabels)  Pair(size, key)
+            data class Group(val key : Int, val size : Int, val lo : Int, val hi : Int)
+            //val groups = listOf(9 to 80, 4 to 81, 13 to 82, 7 to 83)
+            val groups = listOf(Group(80, 9, 4, 12), Group(81, 4, 14, 17), Group(82, 13, 18, 30), Group(83, 7, 31, 37))
             var cum = 0
-            for (el in groupNames) {
+            for (group in groups) {
                 val tv = TextView(this.context)
-                tv.text = el.second
+                tv.text = getString(resources.getIdentifier("tid${group.key}", "string", "xjcl.mundraub"))
+
                 tv.gravity = Gravity.CENTER
                 tv.rotation = 90F
 
                 tv.measure(0, 0)
                 Log.e("tvm", "${tv.measuredHeight} ${tv.measuredWidth}")
 
-                tv.height = markerHeight(cum, cum + el.first) - density.toInt()  // make room for ImageView divider
+                tv.height = markerHeight(cum, cum + group.size) - density.toInt()  // make room for ImageView divider
                 tv.width = tv.measuredHeight + 400  // 400 IQ
 
                 val tvHolder = RelativeLayout(this.context)
                 tvHolder.layoutParams = {
                     val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    lp.setMargins(-200, if (el == groupNames[0]) (4 * density).toInt() else 0, -200, 0)
+                    lp.setMargins(-200, if (group == groups[0]) (4 * density).toInt() else 0, -200, 0)
                     lp
                 }()
                 tvHolder.addView(tv)
 
-                cum += el.first
+                tv.setOnClickListener { handleClick(tv, group.key, { it in group.lo..group.hi || it > 90 }) }
+
+                cum += group.size
                 linearLabels.addView(tvHolder)
 
                 val iv = ImageView(this.context)
