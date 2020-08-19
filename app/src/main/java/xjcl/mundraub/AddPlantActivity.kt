@@ -1,18 +1,27 @@
 package xjcl.mundraub
 
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.core.view.setPadding
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import khttp.async.Companion.get
 import khttp.async.Companion.post
+import kotlinx.android.synthetic.main.text_input_autocomplete.view.*
+import java.util.*
+
 
 class AddPlantActivity : AppCompatActivity() {
 
@@ -35,18 +44,21 @@ class AddPlantActivity : AppCompatActivity() {
         "changed" to "0",
         "form_build_id" to "",
         "form_id" to "node_plant_form",
-        "field_position[0][value]" to "POINT(0 0)",  // USER
-        "body[0][value]" to "TEST FOR 'MUNDRAUB NAVIGATOR'. WILL DELETE",  // USER
         "body[0][format]" to "simple_text",
         "field_plant_image[0][_weight]" to "0",
         "field_plant_image[0][fids]" to "",
         "field_plant_image[0][display]" to "1",
         "address-search" to "",
-        "field_plant_address[0][value]" to "Null Island!",  // USER
         "accept_rules" to "1",  // (USER)
         "advanced__active_tab" to "",
         "op" to "Speichern"
     )
+
+    fun locationToStr(location: Location) : String {
+        val gcd = Geocoder(this, Locale.getDefault())
+        val addresses: List<Address> = gcd.getFromLocation(location.latitude, location.longitude, 1)
+        return (0..addresses[0].maxAddressLineIndex).map { addresses[0].getAddressLine(it) }.joinToString("\n")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,10 +81,9 @@ class AddPlantActivity : AppCompatActivity() {
         val typeTIL = lin.children.last() as TextInputLayout
         typeTIL.hint = "Fruchtfund"
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
-        val vals = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub")) }
-        val adapter = ArrayAdapter(this, R.layout.list_item, vals)
-        val textField = typeTIL.findViewById<AutoCompleteTextView>(R.id.auto_text)
-        textField.setAdapter(adapter)
+        val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub")) }
+        val adapter = ArrayAdapter(this, R.layout.list_item, values)
+        typeTIL.auto_text.setAdapter(adapter)
 
         LayoutInflater.from(this).inflate(R.layout.chip_group_number, lin)
         val chipGroup = (lin.children.last() as LinearLayout).children.last() as ChipGroup
@@ -80,11 +91,23 @@ class AddPlantActivity : AppCompatActivity() {
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
         val descriptionTIL = lin.children.last() as TextInputLayout
         descriptionTIL.hint = "Beschreibung"
-        val edit = descriptionTIL.findViewById<TextInputEditText>(R.id.edit_text)
+        val edit = descriptionTIL.editText!!
         edit.inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_CLASS_TEXT
         edit.minLines = 3
         edit.maxLines = 3
         lin.children.forEach { Log.e("ch", it.toString()) }
+
+        LayoutInflater.from(this).inflate(R.layout.location_preview, lin)
+        val locationPicker = lin.children.last() as MaterialButton
+
+        var location : Location? = null
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location_ ->
+            if (location_ == null) return@addOnSuccessListener
+            location = location_
+            locationPicker.text = locationToStr(location!!)
+        }
+
+        locationPicker.setOnClickListener {  }
 
         val btn = Button(this)
         btn.text = "Hochladen!"
@@ -103,7 +126,7 @@ class AddPlantActivity : AppCompatActivity() {
                 get("https://mundraub.org/node/add/plant", cookies=r0.cookies) {
                     plantData["form_token"] = this.text.substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
                     plantData["body[0][value]"] = descriptionTIL.editText!!.text.toString()
-                    val ind = vals.indexOf( typeTIL.editText!!.text.toString() )
+                    val ind = values.indexOf( typeTIL.editText!!.text.toString() )
                     plantData["field_plant_category"] = if (ind != -1) keys[ind] else "12"  // other fruit
                     plantData["field_plant_count_trees"] = mapOf(
                         R.id.chip_0 to "0",
@@ -111,6 +134,12 @@ class AddPlantActivity : AppCompatActivity() {
                         R.id.chip_2 to "2",
                         R.id.chip_3 to "3"
                     )[chipGroup.checkedChipId] ?: "0"
+                    if (location != null) {
+                        plantData["field_position[0][value]"] = "POINT(${location!!.longitude} ${location!!.latitude})"
+                        plantData["field_plant_address[0][value]"] = locationToStr(location!!)
+
+                        Log.e("addr", plantData["field_plant_address[0][value]"]!!)
+                    }
 
                     Log.e("plantData", plantData.toString())
 
