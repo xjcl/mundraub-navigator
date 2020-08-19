@@ -678,6 +678,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mMap.isMyLocationEnabled = true  // show blue circle on map
     }
 
+    // Handle ActionBar option selection
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.title) {
+            "Add" -> {
+                Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, AddPlantActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // Create the ActionBar options menu
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val icon = ContextCompat.getDrawable(this, R.drawable.material_add_location)!!
+        icon.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+
+        menu.add(0, 0, 0, "Add").setIcon(icon).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        return true
+    }
+
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
