@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="6dp"
-        android:text="Anzahl"/>
+        android:text="@string/amnt"/>
 
     <com.google.android.material.chip.ChipGroup xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"

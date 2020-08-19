@@ -20,10 +20,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
@@ -165,8 +162,8 @@ class JanMapFragment : SupportMapFragment() {
 
         // This needs to happen in post so measuredHeight is available
         mapView.post {
-            val scrHeight = mapView.measuredHeight
             val scrWidth = mapView.measuredWidth
+            val scrHeight = mapView.measuredHeight
             val bmpSample = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
             Log.e("scrHeight", scrHeight.toString())
             Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
@@ -682,7 +679,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.title) {
             "Add" -> {
-                Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, AddPlantActivity::class.java)
                 startActivity(intent)
                 true
@@ -704,11 +700,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        supportActionBar!!.title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Navigator v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+        supportActionBar!!.title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Nav. v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
         supportActionBar!!.setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
-        supportActionBar!!.displayOptions = ActionBar.DISPLAY_SHOW_HOME or
-                ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
+        supportActionBar!!.displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -794,3 +789,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO wontfix
 //    - rarely used marker types: groups, actions, cider, saplings
 //    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
+
+/*
+Kleine Sachen über die ich noch nachgedacht habe:
+- Eventuell direkt auf der Karte die Marker dunkler machen die nicht saisonal sind
+- Direkter Download von Marker-Infos beim ersten Berühren. Da ist die Frage wie sehr es das Backend belastet
+
+Größere Features:
+- Marker als "Favoriten" makieren. Die werden dann am besten permanent auf dem Gerät gespeichert. Ich dachte zuerst an eine Liste aber ein Filter mit grauem Icon wie die anderen beiden wäre sogar intuitiver denke ich.
+- Marker-History. Die am besten automatisch bemerkt an welchen Markern man vorbei gelaufen ist. Daraus kann man dann Gamification machen und schauen ob man alle Sorten besuchen kann. Da braucht man auch ein Feature um fälschlich besuchte Marker wieder zu entfernen.
+
+Error message
+*/

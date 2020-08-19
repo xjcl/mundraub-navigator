@@ -1,5 +1,8 @@
 package xjcl.mundraub
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -7,13 +10,12 @@ import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ScrollView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.core.view.setPadding
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
@@ -54,14 +56,32 @@ class AddPlantActivity : AppCompatActivity() {
         "op" to "Speichern"
     )
 
-    fun locationToStr(location: Location) : String {
+    fun latlngToStr(latLng: LatLng) : String {
         val gcd = Geocoder(this, Locale.getDefault())
-        val addresses: List<Address> = gcd.getFromLocation(location.latitude, location.longitude, 1)
+        val addresses: List<Address> = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1)
+        if (addresses.isEmpty()) return "???"
         return (0..addresses[0].maxAddressLineIndex).map { addresses[0].getAddressLine(it) }.joinToString("\n")
+    }
+    fun LatLng(location : Location): LatLng = LatLng(location.latitude, location.longitude)
+
+    var location : LatLng = LatLng(0.0, 0.0)
+    lateinit var locationPicker : MaterialButton
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 42 && resultCode == Activity.RESULT_OK && data != null) {
+            val lat = data.getDoubleExtra("lat", 0.0)
+            val lng = data.getDoubleExtra("lng", 0.0)
+            location = LatLng(lat, lng)
+            if (::locationPicker.isInitialized)
+                locationPicker.text = latlngToStr(LatLng(lat, lng))
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        supportActionBar!!.title = getString(R.string.addNode)
 
         val lin = LinearLayout(this)
         lin.orientation = LinearLayout.VERTICAL
@@ -70,27 +90,35 @@ class AddPlantActivity : AppCompatActivity() {
         // TODO save user and password
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
         val userTIL = lin.children.last() as TextInputLayout
-        userTIL.hint = "Benutzername"
+        userTIL.hint = getString(R.string.user)
 
         // TODO hide
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
         val passTIL = lin.children.last() as TextInputLayout
-        passTIL.hint = "Passwort"
+        passTIL.hint = getString(R.string.pass)
 
         TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
         val typeTIL = lin.children.last() as TextInputLayout
-        typeTIL.hint = "Fruchtfund"
+        typeTIL.hint = getString(R.string.type)
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
         val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub")) }
         val adapter = ArrayAdapter(this, R.layout.list_item, values)
         typeTIL.auto_text.setAdapter(adapter)
+        fun updateType() : Unit {
+            val typeIndex = values.indexOf( typeTIL.editText!!.text.toString() )
+            if (typeIndex == -1) return
+            val img: Drawable = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.otherfruit)!!
+            locationPicker.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+        }
+        typeTIL.auto_text.setOnFocusChangeListener { _, _ -> updateType() }
+        typeTIL.auto_text.setOnItemClickListener { _, _, _, _ -> updateType() }
 
         LayoutInflater.from(this).inflate(R.layout.chip_group_number, lin)
         val chipGroup = (lin.children.last() as LinearLayout).children.last() as ChipGroup
 
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
         val descriptionTIL = lin.children.last() as TextInputLayout
-        descriptionTIL.hint = "Beschreibung"
+        descriptionTIL.hint = getString(R.string.desc)
         val edit = descriptionTIL.editText!!
         edit.inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_CLASS_TEXT
         edit.minLines = 3
@@ -98,53 +126,80 @@ class AddPlantActivity : AppCompatActivity() {
         lin.children.forEach { Log.e("ch", it.toString()) }
 
         LayoutInflater.from(this).inflate(R.layout.location_preview, lin)
-        val locationPicker = lin.children.last() as MaterialButton
+        locationPicker = lin.children.last() as MaterialButton
 
-        var location : Location? = null
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location_ ->
             if (location_ == null) return@addOnSuccessListener
-            location = location_
-            locationPicker.text = locationToStr(location!!)
+            location = LatLng(location_)
+            locationPicker.text = latlngToStr(location)
         }
 
-        locationPicker.setOnClickListener {  }
+        locationPicker.setOnClickListener {
+            val typeIndex = values.indexOf( typeTIL.editText!!.text.toString() )
+            val intent = Intent(this, LocationPicker::class.java)
+            intent.putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt() )
+            intent.putExtra("lat", location.latitude)
+            intent.putExtra("lng", location.longitude)
+            startActivityForResult(intent, 42)
+        }
 
         val btn = Button(this)
-        btn.text = "Hochladen!"
+        btn.text = getString(R.string.upld)
         btn.setOnClickListener {
 
-            Log.e("pos", "2")
-//            fun String.utf8(): String = java.net.URLEncoder.encode(this, "UTF-8")
-//            parameters.map {(k, v) -> "${k.utf8()}=${v.utf8()}"}.joinToString("&")
+            if (userTIL.editText!!.text.toString().isBlank() || passTIL.editText!!.text.toString().isBlank()) {
+                runOnUiThread { Toast.makeText(this@AddPlantActivity, "Bitte Logininfos ausfüllen", Toast.LENGTH_LONG).show() }
+                return@setOnClickListener
+            }
+
             loginData["name"] = userTIL.editText!!.text.toString()
             loginData["pass"] = passTIL.editText!!.text.toString()
 
             post("https://mundraub.org/user/login", data=loginData, allowRedirects=false) {
+                if (this.statusCode != 303) {
+                    runOnUiThread { Toast.makeText(this@AddPlantActivity, "Login fehlgeschlagen", Toast.LENGTH_LONG).show() }
+                    return@post
+                }
+
                 val r0 = this
                 Log.e("ResponseLogin0", r0.text)
 
                 get("https://mundraub.org/node/add/plant", cookies=r0.cookies) {
+                    val typeIndex = values.indexOf( typeTIL.editText!!.text.toString() )
+
+                    val errors = listOf(
+                        "Bitte Beschreibung ausfüllen" to descriptionTIL.editText!!.text.toString().isBlank(),
+                        "Bitte gültige Fruchtart eingeben" to (typeIndex == -1),
+                        "Bitte gültigen Ort eintragen" to ((location.latitude == 0.0 && location.longitude == 0.0) || latlngToStr(location) == "???")
+                    )
+                    errors.forEach { if (it.second) {
+                        runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_LONG).show() }
+                        return@get
+                    } }
+
                     plantData["form_token"] = this.text.substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
                     plantData["body[0][value]"] = descriptionTIL.editText!!.text.toString()
-                    val ind = values.indexOf( typeTIL.editText!!.text.toString() )
-                    plantData["field_plant_category"] = if (ind != -1) keys[ind] else "12"  // other fruit
+                    plantData["field_plant_category"] = keys[typeIndex]
                     plantData["field_plant_count_trees"] = mapOf(
                         R.id.chip_0 to "0",
                         R.id.chip_1 to "1",
                         R.id.chip_2 to "2",
                         R.id.chip_3 to "3"
                     )[chipGroup.checkedChipId] ?: "0"
-                    if (location != null) {
-                        plantData["field_position[0][value]"] = "POINT(${location!!.longitude} ${location!!.latitude})"
-                        plantData["field_plant_address[0][value]"] = locationToStr(location!!)
-
-                        Log.e("addr", plantData["field_plant_address[0][value]"]!!)
-                    }
+                    plantData["field_position[0][value]"] = "POINT(${location.longitude} ${location.latitude})"
+                    plantData["field_plant_address[0][value]"] = latlngToStr(location)
 
                     Log.e("plantData", plantData.toString())
 
-                    post("https://mundraub.org/node/add/plant", data=plantData, cookies=r0.cookies, allowRedirects=false) {
-                        //Log.e("ResponseLogin2", this.text)
+                    post("https://mundraub.org/node/add/plant", data=plantData, cookies=r0.cookies, allowRedirects=false) post2@ {
+                        if (this.statusCode != 303) {
+                            runOnUiThread { Toast.makeText(this@AddPlantActivity, "Login ok, Marker fehlgeschlagen", Toast.LENGTH_LONG).show() }
+                            return@post2
+                        }
+
+                        Log.e("ResponseLogin2", this.text)
+                        runOnUiThread { Toast.makeText(this@AddPlantActivity, "Erfolgreich hochgeladen!", Toast.LENGTH_LONG).show() }
+                        finish()
                     }
                 }
             }

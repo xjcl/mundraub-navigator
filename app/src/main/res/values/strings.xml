@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Mundraub Navigator</string>
     <string name="title_activity_maps">Mundraub Navigator</string>
+    <string name="title_activity_location_picker">Map</string>
 
     <string name="tid4" >Apple</string>
     <string name="tid5" >Pear</string>
@@ -52,6 +53,15 @@
     <string name="notInSeason">Not in season :(</string>
 
     <string name="onlyShowing">Showing:\u0020</string>
+
+    <string name="pickLoc">Pick location then press OK</string>
+    <string name="addNode">Create new marker</string>
+    <string name="user">Username</string>
+    <string name="pass">Password</string>
+    <string name="type">Type of find</string>
+    <string name="amnt">Amount</string>
+    <string name="desc">Description (preferably in German)</string>
+    <string name="upld">Upload!</string>
 
     <string name="tapForInfo">--- Tap to download info ---</string>
 </resources>

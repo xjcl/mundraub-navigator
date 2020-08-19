@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Mundraub Navigator</string>
     <string name="title_activity_maps">Mundraub Navigator</string>
+    <string name="title_activity_location_picker">Map</string>
 
     <string name="tid4" >Apfel</string>
     <string name="tid5" >Birne</string>
@@ -52,6 +53,15 @@
     <string name="notInSeason">Erntezeit: Nein</string>
 
     <string name="onlyShowing">Angezeigt:\u0020</string>
+
+    <string name="pickLoc">Bitte Ort wählen und auf OK</string>
+    <string name="addNode">Neuen Fundort hinzufügen</string>
+    <string name="user">Benutzername</string>
+    <string name="pass">Passwort</string>
+    <string name="type">Fruchtfund</string>
+    <string name="amnt">Anzahl</string>
+    <string name="desc">Beschreibung</string>
+    <string name="upld">Hochladen!</string>
 
     <string name="tapForInfo">--- Berühren für Details ---</string>
 </resources>
