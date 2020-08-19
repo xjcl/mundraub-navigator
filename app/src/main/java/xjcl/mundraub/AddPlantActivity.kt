@@ -23,6 +23,9 @@ class AddPlantActivity : AppCompatActivity() {
     // TODO: handle errors
     // TODO: handle status codes
 
+    // TODO: what if someone puts an emoji into Fruchtfund (Gboard keeps suggesting them)
+    // TODO: dynamic icon preview on Fruchtfund using marker
+
     val loginData = mutableMapOf(
         "form_id" to "user_login_form",
         "op" to "Anmelden"
@@ -32,7 +35,6 @@ class AddPlantActivity : AppCompatActivity() {
         "changed" to "0",
         "form_build_id" to "",
         "form_id" to "node_plant_form",
-        "field_plant_category" to "4",  // USER
         "field_position[0][value]" to "POINT(0 0)",  // USER
         "body[0][value]" to "TEST FOR 'MUNDRAUB NAVIGATOR'. WILL DELETE",  // USER
         "body[0][format]" to "simple_text",
@@ -66,8 +68,9 @@ class AddPlantActivity : AppCompatActivity() {
         TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
         val typeTIL = lin.children.last() as TextInputLayout
         typeTIL.hint = "Fruchtfund"
-        val items = listOf("4", "5", "6", "7") // TODO
-        val adapter = ArrayAdapter(this, R.layout.list_item, items)
+        val keys = treeIdToMarkerIcon.keys.map { it.toString() }
+        val vals = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub")) }
+        val adapter = ArrayAdapter(this, R.layout.list_item, vals)
         val textField = typeTIL.findViewById<AutoCompleteTextView>(R.id.auto_text)
         textField.setAdapter(adapter)
 
@@ -84,7 +87,7 @@ class AddPlantActivity : AppCompatActivity() {
         lin.children.forEach { Log.e("ch", it.toString()) }
 
         val btn = Button(this)
-        btn.text = "Add!"
+        btn.text = "Hochladen!"
         btn.setOnClickListener {
 
             Log.e("pos", "2")
@@ -100,7 +103,8 @@ class AddPlantActivity : AppCompatActivity() {
                 get("https://mundraub.org/node/add/plant", cookies=r0.cookies) {
                     plantData["form_token"] = this.text.substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
                     plantData["body[0][value]"] = descriptionTIL.editText!!.text.toString()
-                    plantData["field_plant_category"] = typeTIL.editText!!.text.toString()
+                    val ind = vals.indexOf( typeTIL.editText!!.text.toString() )
+                    plantData["field_plant_category"] = if (ind != -1) keys[ind] else "12"  // other fruit
                     plantData["field_plant_count_trees"] = mapOf(
                         R.id.chip_0 to "0",
                         R.id.chip_1 to "1",
@@ -111,7 +115,7 @@ class AddPlantActivity : AppCompatActivity() {
                     Log.e("plantData", plantData.toString())
 
                     post("https://mundraub.org/node/add/plant", data=plantData, cookies=r0.cookies, allowRedirects=false) {
-                        Log.e("ResponseLogin2", this.text)
+                        //Log.e("ResponseLogin2", this.text)
                     }
                 }
             }
