@@ -63,5 +63,13 @@
     <string name="desc">Description (preferably in German)</string>
     <string name="upld">Upload!</string>
 
+    <string name="errMsgLoginInfos">Please fill in login info</string>
+    <string name="errMsgLogin">Login failed</string>
+    <string name="errMsgDesc">Please add a description</string>
+    <string name="errMsgType">Please specify a valid fruit type</string>
+    <string name="errMsgLoc">Please specify a valid location</string>
+    <string name="errMsgAdd">Login ok, but adding marker failed</string>
+    <string name="errMsgSuccess">Upload successful!</string>
+
     <string name="tapForInfo">--- Tap to download info ---</string>
 </resources>

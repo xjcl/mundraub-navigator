@@ -1,6 +1,7 @@
 package xjcl.mundraub
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.location.Address
@@ -83,6 +84,8 @@ class AddPlantActivity : AppCompatActivity() {
 
         supportActionBar!!.title = getString(R.string.addNode)
 
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+
         val lin = LinearLayout(this)
         lin.orientation = LinearLayout.VERTICAL
         lin.setPadding(24)
@@ -91,11 +94,13 @@ class AddPlantActivity : AppCompatActivity() {
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
         val userTIL = lin.children.last() as TextInputLayout
         userTIL.hint = getString(R.string.user)
+        userTIL.editText!!.setText( sharedPref.getString("name", "") )
 
         // TODO hide
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
         val passTIL = lin.children.last() as TextInputLayout
         passTIL.hint = getString(R.string.pass)
+        passTIL.editText!!.setText( sharedPref.getString("pass", "") )
 
         TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
         val typeTIL = lin.children.last() as TextInputLayout
@@ -148,16 +153,22 @@ class AddPlantActivity : AppCompatActivity() {
         btn.setOnClickListener {
 
             if (userTIL.editText!!.text.toString().isBlank() || passTIL.editText!!.text.toString().isBlank()) {
-                runOnUiThread { Toast.makeText(this@AddPlantActivity, "Bitte Logininfos ausfüllen", Toast.LENGTH_LONG).show() }
+                runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLoginInfos), Toast.LENGTH_LONG).show() }
                 return@setOnClickListener
             }
 
             loginData["name"] = userTIL.editText!!.text.toString()
             loginData["pass"] = passTIL.editText!!.text.toString()
 
+            with (sharedPref.edit()) {
+                putString("name", loginData["name"])
+                putString("pass", loginData["pass"])
+                apply()
+            }
+
             post("https://mundraub.org/user/login", data=loginData, allowRedirects=false) {
                 if (this.statusCode != 303) {
-                    runOnUiThread { Toast.makeText(this@AddPlantActivity, "Login fehlgeschlagen", Toast.LENGTH_LONG).show() }
+                    runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_LONG).show() }
                     return@post
                 }
 
@@ -168,9 +179,9 @@ class AddPlantActivity : AppCompatActivity() {
                     val typeIndex = values.indexOf( typeTIL.editText!!.text.toString() )
 
                     val errors = listOf(
-                        "Bitte Beschreibung ausfüllen" to descriptionTIL.editText!!.text.toString().isBlank(),
-                        "Bitte gültige Fruchtart eingeben" to (typeIndex == -1),
-                        "Bitte gültigen Ort eintragen" to ((location.latitude == 0.0 && location.longitude == 0.0) || latlngToStr(location) == "???")
+                        getString(R.string.errMsgDesc) to descriptionTIL.editText!!.text.toString().isBlank(),
+                        getString(R.string.errMsgType) to (typeIndex == -1),
+                        getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) || latlngToStr(location) == "???")
                     )
                     errors.forEach { if (it.second) {
                         runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_LONG).show() }
@@ -193,12 +204,12 @@ class AddPlantActivity : AppCompatActivity() {
 
                     post("https://mundraub.org/node/add/plant", data=plantData, cookies=r0.cookies, allowRedirects=false) post2@ {
                         if (this.statusCode != 303) {
-                            runOnUiThread { Toast.makeText(this@AddPlantActivity, "Login ok, Marker fehlgeschlagen", Toast.LENGTH_LONG).show() }
+                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgAdd), Toast.LENGTH_LONG).show() }
                             return@post2
                         }
 
                         Log.e("ResponseLogin2", this.text)
-                        runOnUiThread { Toast.makeText(this@AddPlantActivity, "Erfolgreich hochgeladen!", Toast.LENGTH_LONG).show() }
+                        runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
                         finish()
                     }
                 }

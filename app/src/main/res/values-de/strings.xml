@@ -63,5 +63,13 @@
     <string name="desc">Beschreibung</string>
     <string name="upld">Hochladen!</string>
 
+    <string name="errMsgLoginInfos">Bitte Logininfos ausfüllen</string>
+    <string name="errMsgLogin">Login fehlgeschlagen</string>
+    <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>
+    <string name="errMsgType">Bitte gültige Fruchtart eingeben</string>
+    <string name="errMsgLoc">Bitte gültigen Ort eintragen</string>
+    <string name="errMsgAdd">Login ok, Marker fehlgeschlagen</string>
+    <string name="errMsgSuccess">Erfolgreich hochgeladen!</string>
+
     <string name="tapForInfo">--- Berühren für Details ---</string>
 </resources>
