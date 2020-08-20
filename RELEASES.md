@@ -1,4 +1,9 @@
 
+v9
+- Add form for uploading a node
+- Allow tap on labels to filter for marker groups
+- Add uploader and upload date to node window
+
 v8
 - Fix image download not working sometimes
 - Fix filtering bar covering Google logo

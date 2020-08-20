@@ -10,8 +10,8 @@ android {
         applicationId "xjcl.mundraub"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 8
-        versionName "8"
+        versionCode 9
+        versionName "9"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
