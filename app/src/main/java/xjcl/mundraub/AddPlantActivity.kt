@@ -32,11 +32,15 @@ class AddPlantActivity : AppCompatActivity() {
     //      this will let users know not to write too much text
     //      MF should NOT respond to touches
     // TODO: use filter bar for species selection?
-    // TODO: handle errors
-    // TODO: handle status codes
+    // TODO: handle GET error
 
     // TODO: what if someone puts an emoji into Fruchtfund (Gboard keeps suggesting them)
-    // TODO: dynamic icon preview on Fruchtfund using marker
+    // (TODO: dynamic icon preview on Fruchtfund using marker)
+    // TODO: image upload
+
+    // TODO: edit a node
+    // TODO: delete a node
+    // TODO: create an account
 
     val loginData = mutableMapOf(
         "form_id" to "user_login_form",
