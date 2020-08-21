@@ -23,7 +23,12 @@ import com.google.android.material.textfield.TextInputLayout
 import khttp.async.Companion.get
 import khttp.async.Companion.post
 import kotlinx.android.synthetic.main.text_input_autocomplete.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.concurrent.thread
 
 
 class AddPlantActivity : AppCompatActivity() {
@@ -61,25 +66,28 @@ class AddPlantActivity : AppCompatActivity() {
         "op" to "Speichern"
     )
 
-    fun latlngToStr(latLng: LatLng) : String {
-        val gcd = Geocoder(this, Locale.getDefault())
-        val addresses: List<Address> = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1)
-        if (addresses.isEmpty()) return "???"
-        return (0..addresses[0].maxAddressLineIndex).map { addresses[0].getAddressLine(it) }.joinToString("\n")
-    }
     fun LatLng(location : Location): LatLng = LatLng(location.latitude, location.longitude)
 
     var location : LatLng = LatLng(0.0, 0.0)
     lateinit var locationPicker : MaterialButton
 
+    fun updateLocationPicker(latLng: LatLng) {
+        if (!::locationPicker.isInitialized) return
+        locationPicker.text = "(loading...)"
+        thread {
+            location = latLng
+            val gcd = Geocoder(this@AddPlantActivity, Locale.getDefault())
+            val addresses: List<Address> = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            runOnUiThread { locationPicker.text = if (addresses.isEmpty()) "???" else
+                (0..addresses[0].maxAddressLineIndex).map { addresses[0].getAddressLine(it) }.joinToString("\n") }
+        }
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 42 && resultCode == Activity.RESULT_OK && data != null) {
             val lat = data.getDoubleExtra("lat", 0.0)
             val lng = data.getDoubleExtra("lng", 0.0)
-            location = LatLng(lat, lng)
-            if (::locationPicker.isInitialized)
-                locationPicker.text = latlngToStr(LatLng(lat, lng))
+            updateLocationPicker(LatLng(lat, lng))
         }
     }
 
@@ -136,11 +144,11 @@ class AddPlantActivity : AppCompatActivity() {
 
         LayoutInflater.from(this).inflate(R.layout.location_preview, lin)
         locationPicker = lin.children.last() as MaterialButton
+        locationPicker.text = "???"
 
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location_ ->
             if (location_ == null) return@addOnSuccessListener
-            location = LatLng(location_)
-            locationPicker.text = latlngToStr(location)
+            updateLocationPicker(LatLng(location_))
         }
 
         locationPicker.setOnClickListener {
@@ -185,7 +193,8 @@ class AddPlantActivity : AppCompatActivity() {
                     val errors = listOf(
                         getString(R.string.errMsgDesc) to descriptionTIL.editText!!.text.toString().isBlank(),
                         getString(R.string.errMsgType) to (typeIndex == -1),
-                        getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) || latlngToStr(location) == "???")
+                        getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0)
+                                || locationPicker.text.toString() == "???")
                     )
                     errors.forEach { if (it.second) {
                         runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_LONG).show() }
@@ -202,7 +211,7 @@ class AddPlantActivity : AppCompatActivity() {
                         R.id.chip_3 to "3"
                     )[chipGroup.checkedChipId] ?: "0"
                     plantData["field_position[0][value]"] = "POINT(${location.longitude} ${location.latitude})"
-                    plantData["field_plant_address[0][value]"] = latlngToStr(location)
+                    plantData["field_plant_address[0][value]"] = locationPicker.text.toString()
 
                     Log.e("plantData", plantData.toString())
 
