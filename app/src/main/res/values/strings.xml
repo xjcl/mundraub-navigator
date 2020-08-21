@@ -72,4 +72,5 @@
     <string name="errMsgSuccess">Upload successful!</string>
 
     <string name="tapForInfo">--- Tap to download info ---</string>
+    <string name="loading">(loading…)</string>
 </resources>

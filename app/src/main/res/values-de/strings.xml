@@ -72,4 +72,5 @@
     <string name="errMsgSuccess">Erfolgreich hochgeladen!</string>
 
     <string name="tapForInfo">--- Berühren für Details ---</string>
+    <string name="loading">(warte…)</string>
 </resources>

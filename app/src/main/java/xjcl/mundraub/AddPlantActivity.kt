@@ -73,7 +73,7 @@ class AddPlantActivity : AppCompatActivity() {
 
     fun updateLocationPicker(latLng: LatLng) {
         if (!::locationPicker.isInitialized) return
-        locationPicker.text = "(loading...)"
+        locationPicker.text = getString(R.string.loading)
         thread {
             location = latLng
             val gcd = Geocoder(this@AddPlantActivity, Locale.getDefault())
