@@ -93,8 +93,8 @@ class JanTarget : com.squareup.picasso.Target {
     override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
     override fun onBitmapFailed(errorDrawable: Drawable?) { }
     override fun onBitmapLoaded(bitmap: Bitmap?, from: LoadedFrom?) {
-        md!!.image = bitmap
-        marker!!.showInfoWindow()
+        md?.image = bitmap
+        marker?.showInfoWindow()
     }
 }
 val picassoBitmapTarget = JanTarget()
@@ -155,7 +155,7 @@ class JanMapFragment : SupportMapFragment() {
     // -> This moves Google controls over using screen and marker dimensions
     // -> 2% top-margin 1% top-padding 1% bottom-padding 2% bottom-margin => 94% height
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mapView = super.onCreateView(inflater, container, savedInstanceState)!!
+        mapView = super.onCreateView(inflater, container, savedInstanceState) ?: return null
 
         relView = RelativeLayout(this.context)
         relView.addView(mapView)
@@ -309,18 +309,21 @@ class JanMapFragment : SupportMapFragment() {
             }
 
             // filter to all species currently in season
-            ivs[98]!!.setOnClickListener {
-                val set = treeIdToSeason.keys.filter { isSeasonal(it, getCurMonth()) }.toSet()
-                handleClick(ivs[98]!!, 98) { set.contains(it) }  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
+            ivs[98]?.let {
+                it.setOnClickListener {
+                    val set = treeIdToSeason.keys.filter { isSeasonal(it, getCurMonth()) }.toSet()
+                    handleClick(it, 98) { set.contains(it) }  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
+                }
+                fillImageView(it, R.drawable._marker_season_filter_b, i)
+                linear.addView(it)
             }
-            fillImageView(ivs[98]!!, R.drawable._marker_season_filter_b, i)
-            linear.addView(ivs[98]!!)
 
             // reset filter (show all species)
-            ivs[99]!!.setOnClickListener { handleClick(ivs[99]!!, 99) { it < 90 } }
-            fillImageView(ivs[99]!!, R.drawable._marker_reset_filter_a, i + 1)
-            linear.addView(ivs[99]!!)
-
+            ivs[99]?.let {
+                it.setOnClickListener { handleClick(it, 99) { it < 90 } }
+                fillImageView(it, R.drawable._marker_reset_filter_a, i + 1)
+                linear.addView(it)
+            }
 
             val linearHolder = LinearLayout(this.context)
             linearHolder.addView(linearLabels)
@@ -343,7 +346,7 @@ class JanMapFragment : SupportMapFragment() {
 
 
             // *** FAB for Maps navigation ***
-            fab = FloatingActionButton(this.context!!)
+            fab = FloatingActionButton(context!!)
             fab.setImageBitmap( BitmapFactory.decodeResource(resources, R.drawable.material_directions) )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
@@ -689,7 +692,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val icon = ContextCompat.getDrawable(this, R.drawable.material_add_location)!!
+        val icon = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
         icon.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
 
         menu.add(0, 0, 0, "Add").setIcon(icon).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -700,10 +703,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        supportActionBar!!.title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Nav. v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
-        supportActionBar!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-        supportActionBar!!.setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
-        supportActionBar!!.displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
+        supportActionBar?.let {
+            it.title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Nav. v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+            it.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+            it.setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
+            it.displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
+        }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -757,6 +762,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // * TODO pokemon
 //    * favorite markers
 //        * in a cardview list  -> wait no on the main map!!
+//            * um we need a cardview of added markers first
 //        * store offline
 //    - detect when someone "visits" a marker
 //    - list of recently visited or starred markers
