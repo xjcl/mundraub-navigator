@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "xjcl.mundraub"
-        minSdkVersion 19
+        minSdkVersion 14
         targetSdkVersion 29
         versionCode 9
         versionName "9"
@@ -41,7 +41,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.27.0-eap13"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.27.0-eap13"
 
-    implementation 'khttp:khttp:1.0.0' // khttp as python-requests-like library
+    implementation 'com.github.kittinunf.fuel:fuel:2.2.0' // HTTP requests
 
     implementation 'com.google.android.gms:play-services-location:17.0.0'  // access location
 

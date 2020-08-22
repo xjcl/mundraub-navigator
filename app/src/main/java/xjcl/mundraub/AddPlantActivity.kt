@@ -3,7 +3,6 @@ package xjcl.mundraub
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -16,17 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.core.view.setPadding
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.Headers
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
-import khttp.async.Companion.get
-import khttp.async.Companion.post
 import kotlinx.android.synthetic.main.text_input_autocomplete.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
 import kotlin.concurrent.thread
@@ -167,11 +162,6 @@ class AddPlantActivity : AppCompatActivity() {
         btn.text = getString(R.string.upld)
         btn.setOnClickListener {
 
-            if (userTIL.editText?.text.toString().isBlank() || passTIL.editText?.text.toString().isBlank()) {
-                runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLoginInfos), Toast.LENGTH_LONG).show() }
-                return@setOnClickListener
-            }
-
             loginData["name"] = userTIL.editText?.text.toString()
             loginData["pass"] = passTIL.editText?.text.toString()
 
@@ -180,31 +170,40 @@ class AddPlantActivity : AppCompatActivity() {
                 putString("pass", loginData["pass"])
                 apply()
             }
+            val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
 
-            post("https://mundraub.org/user/login", data=loginData, allowRedirects=false) {
-                if (this.statusCode != 303) {
-                    runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_LONG).show() }
-                    return@post
+            val errors = listOf(
+                getString(R.string.errMsgLoginInfos) to (userTIL.editText?.text.toString().isBlank() || passTIL.editText?.text.toString().isBlank()),
+                getString(R.string.errMsgDesc) to descriptionTIL.editText?.text.toString().isBlank(),
+                getString(R.string.errMsgType) to (typeIndex == -1),
+                getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0)
+                        || locationPicker.text.toString() == "???")
+            )
+            errors.forEach { if (it.second) {
+                runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_LONG).show() }
+                return@setOnClickListener
+            } }
+
+            Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
+
+                when (response.statusCode) {
+                    -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }; return@responseString}
+                    303 -> {}
+                    else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_LONG).show() }; return@responseString}
                 }
 
-                val r0 = this
-                Log.e("ResponseLogin0", r0.text)
+                val cook = response.headers["Set-Cookie"].first()  // TODO: look at expiration date
 
-                get("https://mundraub.org/node/add/plant", cookies=r0.cookies) {
-                    val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
+                Fuel.get("https://mundraub.org/node/add/plant").header(Headers.COOKIE to cook).responseString { request, response, result ->
+                    Log.e("req1", "" + response.statusCode)
+                    Log.e("req1", "" + result.get())
 
-                    val errors = listOf(
-                        getString(R.string.errMsgDesc) to descriptionTIL.editText?.text.toString().isBlank(),
-                        getString(R.string.errMsgType) to (typeIndex == -1),
-                        getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0)
-                                || locationPicker.text.toString() == "???")
-                    )
-                    errors.forEach { if (it.second) {
-                        runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_LONG).show() }
-                        return@get
-                    } }
+                    when (response.statusCode ) {
+                        -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }; return@responseString}
+                        else -> {}
+                    }
 
-                    plantData["form_token"] = this.text.substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
+                    plantData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
                     plantData["body[0][value]"] = descriptionTIL.editText?.text.toString()
                     plantData["field_plant_category"] = keys[typeIndex]
                     plantData["field_plant_count_trees"] = mapOf(
@@ -218,16 +217,18 @@ class AddPlantActivity : AppCompatActivity() {
 
                     Log.e("plantData", plantData.toString())
 
-                    post("https://mundraub.org/node/add/plant", data=plantData, cookies=r0.cookies, allowRedirects=false) post2@ {
-                        if (this.statusCode != 303) {
-                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgAdd), Toast.LENGTH_LONG).show() }
-                            return@post2
-                        }
+                    Fuel.post("https://mundraub.org/node/add/plant", plantData.toList()).header(Headers.COOKIE to cook)
+                        .allowRedirects(false).responseString { request, response, result ->
 
-                        Log.e("ResponseLogin2", this.text)
-                        runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
-                        finish()
-                    }
+                            when (response.statusCode) {
+                                -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }; return@responseString}
+                                303 -> {}
+                                else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgAdd), Toast.LENGTH_LONG).show() }; return@responseString}
+                            }
+
+                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
+                            finish()  // TODO: also force updateMarkers here!
+                        }
                 }
             }
         }
