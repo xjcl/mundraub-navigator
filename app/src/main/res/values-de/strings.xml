@@ -63,7 +63,7 @@
     <string name="desc">Beschreibung</string>
     <string name="upld">Hochladen!</string>
 
-    <string name="errMsgNoInternet">Gerät ist offline</string>
+    <string name="errMsgNoInternet">Keine Verbindung</string>
     <string name="errMsgLoginInfos">Bitte Logininfos ausfüllen</string>
     <string name="errMsgLogin">Login fehlgeschlagen</string>
     <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>

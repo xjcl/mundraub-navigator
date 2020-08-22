@@ -63,7 +63,7 @@
     <string name="desc">Description (preferably in German)</string>
     <string name="upld">Upload!</string>
 
-    <string name="errMsgNoInternet">You are offline</string>
+    <string name="errMsgNoInternet">Couldn\'t connect</string>
     <string name="errMsgLoginInfos">Please fill in login info</string>
     <string name="errMsgLogin">Login failed</string>
     <string name="errMsgDesc">Please add a description</string>

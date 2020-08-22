@@ -377,7 +377,7 @@ class JanMapFragment : SupportMapFragment() {
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
-    private fun addMarkerFromFeature(feature: Feature): Marker {
+    private fun addMarkerFromFeature(feature: Feature) {
         val latlng = LatLng(feature.pos[0], feature.pos[1])
         val tid = feature.properties?.tid
         val type = when {
@@ -406,7 +406,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         markersData[latlng] = MarkerData(type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor,
             feature.properties?.nid, null, null, null, null)
 
-        return mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
+        runOnUiThread {
+            markers[latlng] = mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
+        }
     }
 
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
@@ -422,14 +424,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
         val featuresSet = HashSet<LatLng>( root.features.map { LatLng(it.pos[0], it.pos[1]) } )
         for (mark in markers.toMap()) {  // copy constructor
-            if (!featuresSet.contains(mark.key)) { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }
+            if (!featuresSet.contains(mark.key)) { runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) } }
         }
 
         // --- add newly downloaded markers not already in old set ---
         for (feature in root.features) {
             val latlng = LatLng(feature.pos[0], feature.pos[1])
             if (markers.contains(latlng)) continue
-            markers[latlng] = addMarkerFromFeature(feature)
+            addMarkerFromFeature(feature)
         }
     }
 
@@ -449,10 +451,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         thread {
             val jsonStr = try { URL(url).readText() } catch (ex: Exception) {
-                Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show()
+                runOnUiThread { Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }
                 return@thread
             }
-            runOnUiThread { addLocationMarkers(jsonStr) }
+            addLocationMarkers(jsonStr)
         }
     }
 
