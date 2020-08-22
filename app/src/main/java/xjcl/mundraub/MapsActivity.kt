@@ -44,16 +44,13 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.LoadedFrom
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
+import kotlin.concurrent.thread
 import kotlin.math.max
 
 
@@ -450,8 +447,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         Log.e("updateMarkers", "GET $url")
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val jsonStr = try { URL(url).readText() } catch (ex: Exception) { return@launch }
+        thread {
+            val jsonStr = try { URL(url).readText() } catch (ex: Exception) {
+                Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show()
+                return@thread
+            }
             runOnUiThread { addLocationMarkers(jsonStr) }
         }
     }
@@ -605,9 +605,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             val md = markersData[marker.position] ?: return@setOnInfoWindowClickListener
             if (md.description != null || md.nid == null) return@setOnInfoWindowClickListener
 
-            GlobalScope.launch(Dispatchers.IO) {
+            thread {
                 // --- Download number of finds and description ---
-                val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@launch }
+                val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@thread }
 
                 fun extractUnescaped(htmlStr : String, after : String, before : String) : String {
                     val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
@@ -624,7 +624,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
                 // --- Download image in lowest quality ---
                 val imageURL = htmlStr.substringAfter("srcset=\"", "").substringBefore(" ")
-                if (imageURL.isBlank() || md.image != null) return@launch
+                if (imageURL.isBlank() || md.image != null) return@thread
 
                 runOnUiThread {
                     Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
