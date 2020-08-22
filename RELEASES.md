@@ -1,4 +1,7 @@
 
+v10
+- Hotfix app crashes on upload form
+
 v9
 - Add form for uploading a node
 - Allow tap on labels to filter for marker groups
