@@ -609,7 +609,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
             thread {
                 // --- Download number of finds and description ---
-                val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) { return@thread }
+                val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) {
+                    runOnUiThread { Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }
+                    return@thread
+                }
 
                 fun extractUnescaped(htmlStr : String, after : String, before : String) : String {
                     val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
