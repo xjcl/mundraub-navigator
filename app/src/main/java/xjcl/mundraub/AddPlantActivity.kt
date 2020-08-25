@@ -140,6 +140,7 @@ class AddPlantActivity : AppCompatActivity() {
         LayoutInflater.from(this).inflate(R.layout.location_preview, lin)
         locationPicker = (lin.children.last() as MaterialButton).apply {
             text = "???"
+            minLines = 2
             setOnClickListener {
                 val typeIndex = values.indexOf(typeTIL.editText?.text.toString())
                 val intent = Intent(context, LocationPicker::class.java).putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt())
