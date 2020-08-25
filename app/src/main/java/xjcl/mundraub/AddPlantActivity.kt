@@ -3,6 +3,7 @@ package xjcl.mundraub
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -118,8 +119,8 @@ class AddPlantActivity : AppCompatActivity() {
         fun updateType() : Unit {
             val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
             if (typeIndex == -1) return
-            val img = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.otherfruit)!!
-            locationPicker.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+            val left = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.otherfruit)
+            locationPicker.setCompoundDrawablesWithIntrinsicBounds(left, null, null, null)
         }
         typeTIL.auto_text.setOnFocusChangeListener { _, _ -> updateType() }
         typeTIL.auto_text.setOnItemClickListener { _, _, _, _ -> updateType() }
@@ -140,7 +141,6 @@ class AddPlantActivity : AppCompatActivity() {
         LayoutInflater.from(this).inflate(R.layout.location_preview, lin)
         locationPicker = (lin.children.last() as MaterialButton).apply {
             text = "???"
-            minLines = 2
             setOnClickListener {
                 val typeIndex = values.indexOf(typeTIL.editText?.text.toString())
                 val intent = Intent(context, LocationPicker::class.java).putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt())
