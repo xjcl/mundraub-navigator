@@ -2,16 +2,16 @@ package xjcl.mundraub
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -25,46 +25,48 @@ var tid = 12
 // same strategy as in the main maps activity -- have to intercept the SupportMapFragment to draw a UI
 class MapFragmentPicker : SupportMapFragment() {
 
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mapView = super.onCreateView(inflater, container, savedInstanceState)!!
+        val mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
-        relView = RelativeLayout(this.context)
-        relView.addView(mapView)
-
-        val btn = Button(this.context)
-        btn.text = "OK"
-        btn.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-
-        btn.layoutParams = {
-            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            lp.setMargins(0, 0, 0, 40)
-            lp
-        }()
-        relView.addView(btn)
-        btn.setOnClickListener {
-            nMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // sneakily trigger onCameraMoveStarted
+        val root = RelativeLayout(context).apply {
+            layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
+            addView(mapView)
         }
 
         mapView.post {
-            val scrWidth = mapView.measuredWidth
-            val scrHeight = mapView.measuredHeight
+            val markerView = ImageView(context).apply {
+                setImageResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
+                measure(0, 0)
+                x = mapView.measuredWidth / 2F - measuredWidth / 2F
+                y = mapView.measuredHeight / 2F - measuredHeight  // anchor at bottom
+            }
 
-            val markerView = ImageView(this.context)
-            Log.e("tid", "$tid")
-            markerView.setImageResource( treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit )
-
-            markerView.measure(0, 0)
-
-            markerView.x = scrWidth/2F - markerView.measuredWidth/2F
-            markerView.y = scrHeight/2F - markerView.measuredHeight  // anchor at bottom
-            relView.addView(markerView)
+            root.addView(markerView)
         }
 
-        return relView
+        return root
     }
 }
 
 class LocationPicker : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
+
+    // Handle ActionBar option selection
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.title) {
+            "OK" -> {
+                nMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // sneakily trigger onCameraMoveStarted
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // Create the ActionBar options menu
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(0, 0, 0, "OK").setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        return true
+    }
 
     var listen = false
 
