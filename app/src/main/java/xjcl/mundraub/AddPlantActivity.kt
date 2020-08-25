@@ -95,29 +95,26 @@ class AddPlantActivity : AppCompatActivity() {
 
         val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
 
-        val lin = LinearLayout(this)
-        lin.orientation = LinearLayout.VERTICAL
-        lin.setPadding(24)
+        val lin = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(24) }
 
-        // TODO save user and password
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
-        val userTIL = lin.children.last() as TextInputLayout
-        userTIL.hint = getString(R.string.user)
-        userTIL.editText?.setText( sharedPref.getString("name", "") )
+        val userTIL = (lin.children.last() as TextInputLayout).apply {
+            hint = getString(R.string.user)
+            editText?.setText(sharedPref.getString("name", ""))
+        }
 
         // TODO hide
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
-        val passTIL = lin.children.last() as TextInputLayout
-        passTIL.hint = getString(R.string.pass)
-        passTIL.editText?.setText( sharedPref.getString("pass", "") )
+        val passTIL = (lin.children.last() as TextInputLayout).apply {
+            hint = getString(R.string.pass)
+            editText?.setText(sharedPref.getString("pass", ""))
+        }
 
         TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
-        val typeTIL = lin.children.last() as TextInputLayout
-        typeTIL.hint = getString(R.string.type)
+        val typeTIL = (lin.children.last() as TextInputLayout).apply { hint = getString(R.string.type) }
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
         val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub")) }
-        val adapter = ArrayAdapter(this, R.layout.list_item, values)
-        typeTIL.auto_text.setAdapter(adapter)
+        typeTIL.auto_text.setAdapter( ArrayAdapter(this, R.layout.list_item, values) )
         fun updateType() : Unit {
             val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
             if (typeIndex == -1) return
@@ -131,36 +128,31 @@ class AddPlantActivity : AppCompatActivity() {
         val chipGroup = (lin.children.last() as LinearLayout).children.last() as ChipGroup
 
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
-        val descriptionTIL = lin.children.last() as TextInputLayout
-        descriptionTIL.hint = getString(R.string.desc)
-        descriptionTIL.editText?.let {
-            it.inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_CLASS_TEXT
-            it.minLines = 3
-            it.maxLines = 3
+        val descriptionTIL = (lin.children.last() as TextInputLayout).apply {
+            hint = getString(R.string.desc)
+            editText?.apply {
+                inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_CLASS_TEXT
+                minLines = 3
+                maxLines = 3
+            }
         }
-        lin.children.forEach { Log.e("ch", it.toString()) }
 
         LayoutInflater.from(this).inflate(R.layout.location_preview, lin)
-        locationPicker = lin.children.last() as MaterialButton
-        locationPicker.text = "???"
-
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location_ ->
-            if (location_ == null) return@addOnSuccessListener
-            updateLocationPicker(LatLng(location_))
+        locationPicker = (lin.children.last() as MaterialButton).apply {
+            text = "???"
+            setOnClickListener {
+                val typeIndex = values.indexOf(typeTIL.editText?.text.toString())
+                val intent = Intent(context, LocationPicker::class.java).putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt())
+                    .putExtra("lat", location.latitude).putExtra("lng", location.longitude)
+                startActivityForResult(intent, 42)
+            }
         }
 
-        locationPicker.setOnClickListener {
-            val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
-            val intent = Intent(this, LocationPicker::class.java)
-            intent.putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt() )
-            intent.putExtra("lat", location.latitude)
-            intent.putExtra("lng", location.longitude)
-            startActivityForResult(intent, 42)
-        }
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { it?.let { location ->
+            updateLocationPicker(LatLng(location))
+        }}
 
-        val btn = Button(this)
-        btn.text = getString(R.string.upld)
-        btn.setOnClickListener {
+        Button(this).apply { text = getString(R.string.upld); lin.addView(this) }.setOnClickListener {
 
             loginData["name"] = userTIL.editText?.text.toString()
             loginData["pass"] = passTIL.editText?.text.toString()
@@ -173,11 +165,10 @@ class AddPlantActivity : AppCompatActivity() {
             val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
 
             val errors = listOf(
-                getString(R.string.errMsgLoginInfos) to (userTIL.editText?.text.toString().isBlank() || passTIL.editText?.text.toString().isBlank()),
+                getString(R.string.errMsgLoginInfos) to (loginData["name"]!!.isBlank() || loginData["pass"]!!.isBlank()),
                 getString(R.string.errMsgDesc) to descriptionTIL.editText?.text.toString().isBlank(),
                 getString(R.string.errMsgType) to (typeIndex == -1),
-                getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0)
-                        || locationPicker.text.toString() == "???")
+                getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) || locationPicker.text.toString() == "???")
             )
             errors.forEach { if (it.second) {
                 runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_SHORT).show() }
@@ -231,11 +222,7 @@ class AddPlantActivity : AppCompatActivity() {
                 }
             }
         }
-        lin.addView(btn)
 
-        val scroll = ScrollView(this)
-        scroll.addView(lin)
-
-        setContentView(scroll)
+        setContentView( ScrollView(this).apply{ addView(lin) } )
     }
 }

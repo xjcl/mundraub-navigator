@@ -2,16 +2,11 @@ package xjcl.mundraub
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.PorterDuff
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback

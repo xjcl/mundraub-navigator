@@ -154,7 +154,7 @@ class JanMapFragment : SupportMapFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mapView = super.onCreateView(inflater, container, savedInstanceState) ?: return null
 
-        relView = RelativeLayout(this.context)
+        relView = RelativeLayout(context)
         relView.addView(mapView)
 
         // This needs to happen in post so measuredHeight is available
@@ -167,21 +167,17 @@ class JanMapFragment : SupportMapFragment() {
 
             // *** info bar
             // TODO XXX clean this up a lot, remove duplication, var names, ...
-            val infoBar = LinearLayout(this.context)
+            val infoBar = LinearLayout(context)
             infoBar.orientation = LinearLayout.HORIZONTAL
             infoBar.gravity = Gravity.CENTER
+            infoBar.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt()) }
 
-            infoBar.layoutParams = {
-                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
-                lp
-            }()
-
-            val info = TextView(this.context)
+            val info = TextView(context)
             info.text = getString(R.string.onlyShowing)
             infoBar.addView(info)
 
-            val species = TextView(this.context)
+            val species = TextView(context)
             species.text = getString(resources.getIdentifier("tid99", "string", "xjcl.mundraub"))
             species.setTypeface(null, Typeface.BOLD)
             species.setTextColor(getFruitColor(resources, 99))
@@ -194,30 +190,31 @@ class JanMapFragment : SupportMapFragment() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
 
             // linearHolder needed so LinearLayout does not extend all the way to the edge
-            val infoBarHolder = LinearLayout(this.context)
-            infoBarHolder.orientation = LinearLayout.VERTICAL
-            infoBarHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            infoBarHolder.gravity = Gravity.CENTER
-            infoBarHolder.addView(infoBar)
+            val infoBarHolder = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                gravity = Gravity.CENTER
+                addView(infoBar)
+            }
 
             relView.addView(infoBarHolder)
 
 
             // *** species filter bar (LinearLayout)
             // species <80 (4-12 14-17 18-30 31-37)   groups 80-89  special 90-99
-            val linear = LinearLayout(this.context)
+            val linear = LinearLayout(context)
             linear.orientation = LinearLayout.VERTICAL
 
-            val linearLabels = LinearLayout(this.context)
+            val linearLabels = LinearLayout(context)
             linearLabels.orientation = LinearLayout.VERTICAL
 
             val ivs = HashMap<Int, ImageView>()
 
             for (entry in treeIdToMarkerIconSorted)
-                ivs[entry.key] = ImageView(this.context)
+                ivs[entry.key] = ImageView(context)
 
-            ivs[98] = ImageView(this.context)
-            ivs[99] = ImageView(this.context)
+            ivs[98] = ImageView(context)
+            ivs[99] = ImageView(context)
 
             // *** Height calculation for markers
             // Note that a straight-up division of (totalHeight / numSection) gives poor results
@@ -233,11 +230,8 @@ class JanMapFragment : SupportMapFragment() {
                 Log.e("bmpH", bmp.height.toString())
 
                 val bottom = if (res == R.drawable._marker_reset_filter_a) 0 else -bmp.height + markerHeight(i, i+1)
-                iv.layoutParams = {
-                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    lp.setMargins(0, 0, 0, bottom)
-                    lp
-                }()
+                iv.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    setMargins(0, 0, 0, bottom) }
             }
 
             // sadly .yBy() is not enough for this as the EndAction can get interrupted
@@ -262,7 +256,7 @@ class JanMapFragment : SupportMapFragment() {
             val groups = listOf(Group(80, 9, 4, 12), Group(81, 4, 14, 17), Group(82, 13, 18, 30), Group(83, 7, 31, 37))
             var cum = 0
             for (group in groups) {
-                val tv = TextView(this.context)
+                val tv = TextView(context)
                 tv.text = getString(resources.getIdentifier("tid${group.key}", "string", "xjcl.mundraub"))
 
                 tv.gravity = Gravity.CENTER
@@ -274,12 +268,9 @@ class JanMapFragment : SupportMapFragment() {
                 tv.height = markerHeight(cum, cum + group.size) - density.toInt()  // make room for ImageView divider
                 tv.width = tv.measuredHeight + 400  // 400 IQ
 
-                val tvHolder = RelativeLayout(this.context)
-                tvHolder.layoutParams = {
-                    val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                    lp.setMargins(-200, if (group == groups[0]) (4 * density).toInt() else 0, -200, 0)
-                    lp
-                }()
+                val tvHolder = RelativeLayout(context)
+                tvHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    setMargins(-200, if (group == groups[0]) (4 * density).toInt() else 0, -200, 0) }
                 tvHolder.addView(tv)
 
                 tv.setOnClickListener { handleClick(tv, group.key) { it in group.lo..group.hi } }
@@ -287,7 +278,7 @@ class JanMapFragment : SupportMapFragment() {
                 cum += group.size
                 linearLabels.addView(tvHolder)
 
-                val iv = ImageView(this.context)
+                val iv = ImageView(context)
                 iv.setImageResource(R.drawable.divider)  // has height of  = 1 * density
                 linearLabels.addView(iv)
 
@@ -306,23 +297,23 @@ class JanMapFragment : SupportMapFragment() {
             }
 
             // filter to all species currently in season
-            ivs[98]?.let {
-                it.setOnClickListener {
+            ivs[98]?.apply {
+                this.setOnClickListener {
                     val set = treeIdToSeason.keys.filter { isSeasonal(it, getCurMonth()) }.toSet()
-                    handleClick(it, 98) { set.contains(it) }  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
+                    handleClick(this, 98) { set.contains(it) }  // defaults to "," on new Androids and ", " on old ones -- I freaking quit.
                 }
-                fillImageView(it, R.drawable._marker_season_filter_b, i)
-                linear.addView(it)
+                fillImageView(this, R.drawable._marker_season_filter_b, i)
+                linear.addView(this)
             }
 
             // reset filter (show all species)
-            ivs[99]?.let {
-                it.setOnClickListener { handleClick(it, 99) { it < 90 } }
-                fillImageView(it, R.drawable._marker_reset_filter_a, i + 1)
-                linear.addView(it)
+            ivs[99]?.apply {
+                this.setOnClickListener { handleClick(this, 99) { it < 90 } }
+                fillImageView(this, R.drawable._marker_reset_filter_a, i + 1)
+                linear.addView(this)
             }
 
-            val linearHolder = LinearLayout(this.context)
+            val linearHolder = LinearLayout(context)
             linearHolder.addView(linearLabels)
             linearHolder.addView(linear)
             val pad = (.01 * scrHeight).toInt()
@@ -351,21 +342,19 @@ class JanMapFragment : SupportMapFragment() {
             //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
             //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
             fab.compatElevation = 6F
-            fab.layoutParams = {
-                val lp = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT)
-                lp.setMargins(0, 0, (.04 * scrHeight).toInt(), (.04 * scrHeight).toInt())
-                lp
-            }()
+            fab.layoutParams = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(0, 0, (.04 * scrHeight).toInt(), (.04 * scrHeight).toInt()) }
 
             fab.measure(0, 0)
             fabAnimationFromTo = scrWidth.toFloat() to scrWidth - (.04 * scrHeight).toFloat() - fab.measuredWidth
             fab.x = fabAnimationFromTo.first
 
-            // Why is Android so broken -_- Can't set gravity on FAB directly
-            val fabHolder = LinearLayout(this.context)
-            fabHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-            fabHolder.gravity = Gravity.END or Gravity.BOTTOM
-            fabHolder.addView(fab)
+            // TODO try to get rid of this intermediate class
+            val fabHolder = LinearLayout(context).apply {
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+                gravity = Gravity.END or Gravity.BOTTOM
+                addView(fab)
+            }
 
             relView.addView(fabHolder)
         }
@@ -708,11 +697,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        supportActionBar?.let {
-            it.title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Nav. v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
-            it.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-            it.setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
-            it.displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
+        supportActionBar?.apply {
+            title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Nav. v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+            setBackgroundDrawable(ColorDrawable(Color.WHITE))
+            setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
+            displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -744,6 +733,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - Test offline use
 
 
+// TODO login
+//    - edit node
+//    - delete node
+//    - report node
+//    - create account (need to allow it on backend first)
 
 // * TODO clusters
 //    - use Material design cluster icon with shadow
