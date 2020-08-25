@@ -293,7 +293,7 @@ class JanMapFragment : SupportMapFragment() {
 
                 totalLeftPadding = max(totalLeftPadding, (.04 * scrHeight).toInt() + bmpSample.width + tv.measuredHeight)
             }
-            if (::mMap.isInitialized) mMap.setPadding(totalLeftPadding, 0, 0, 0)
+            mMap.setPadding(totalLeftPadding, 0, 0, 0)
 
             // filter to 1 species
             var i = 0
@@ -800,6 +800,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 // TODO wontfix
 //    - rarely used marker types: groups, actions, cider, saplings
 //    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
+
+// TODO show seasonality in infobar
+
+// TODO make img/ and docs/ dir
+// TODO v11
 
 /*
 Kleine Sachen über die ich noch nachgedacht habe:

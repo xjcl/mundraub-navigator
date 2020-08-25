@@ -195,12 +195,11 @@ class AddPlantActivity : AppCompatActivity() {
                 val cook = response.headers["Set-Cookie"].first()  // TODO: look at expiration date
 
                 Fuel.get("https://mundraub.org/node/add/plant").header(Headers.COOKIE to cook).responseString { request, response, result ->
-                    Log.e("req1", "" + response.statusCode)
-                    Log.e("req1", "" + result.get())
 
                     when (response.statusCode ) {
                         -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
-                        else -> {}
+                        200 -> {}
+                        else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
                     }
 
                     plantData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
@@ -227,7 +226,7 @@ class AddPlantActivity : AppCompatActivity() {
                             }
 
                             runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_SHORT).show() }
-                            finish()  // TODO: also force updateMarkers here!
+                            finish()  // TODO: also force updateMarkers here! And maybe zoom to new Marker!
                         }
                 }
             }
