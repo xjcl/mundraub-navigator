@@ -25,7 +25,6 @@ var tid = 12
 // same strategy as in the main maps activity -- have to intercept the SupportMapFragment to draw a UI
 class MapFragmentPicker : SupportMapFragment() {
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val mapView = super.onCreateView(inflater, container, savedInstanceState)!!
 
@@ -49,15 +48,12 @@ class MapFragmentPicker : SupportMapFragment() {
     }
 }
 
-class LocationPicker : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener {
+class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
 
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.title) {
-            "OK" -> {
-                nMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // sneakily trigger onCameraMoveStarted
-                true
-            }
+            "OK" -> { returnLocation(); return true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -68,40 +64,32 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnCame
         return true
     }
 
-    var listen = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_picker)
-        supportActionBar!!.title = getString(R.string.pickLoc)
+        supportActionBar?.title = getString(R.string.pickLoc)
         tid = this.intent.getIntExtra("tid", 12)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as MapFragmentPicker
         mapFragment.getMapAsync(this)
     }
 
-    // hacky way to exit activity
-    override fun onCameraMoveStarted(reason : Int) {
-        if (reason != GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION || !listen) return
-        val output = Intent()
-        output.putExtra("lat", nMap.cameraPosition.target.latitude)
-        output.putExtra("lng", nMap.cameraPosition.target.longitude)
+    // exit activity
+    private fun returnLocation() {
+        val output = Intent().putExtra("lat", nMap.cameraPosition.target.latitude)
+            .putExtra("lng", nMap.cameraPosition.target.longitude)
         setResult(Activity.RESULT_OK, output)
         finish()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         nMap = googleMap
-        nMap.setOnCameraMoveStartedListener(this)
 
-        // TODO should start at currently selected location
         val lat = this.intent.getDoubleExtra("lat", 0.0)
         val lng = this.intent.getDoubleExtra("lng", 0.0)
         if (lat == 0.0 && lng == 0.0)
             nMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))
         else
             nMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 14F))
-
-        listen = true
     }
 }
