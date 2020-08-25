@@ -180,16 +180,16 @@ class AddPlantActivity : AppCompatActivity() {
                         || locationPicker.text.toString() == "???")
             )
             errors.forEach { if (it.second) {
-                runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_LONG).show() }
+                runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_SHORT).show() }
                 return@setOnClickListener
             } }
 
             Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
 
                 when (response.statusCode) {
-                    -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }; return@responseString}
+                    -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                     303 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_LONG).show() }; return@responseString}
+                    else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
                 }
 
                 val cook = response.headers["Set-Cookie"].first()  // TODO: look at expiration date
@@ -199,7 +199,7 @@ class AddPlantActivity : AppCompatActivity() {
                     Log.e("req1", "" + result.get())
 
                     when (response.statusCode ) {
-                        -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }; return@responseString}
+                        -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                         else -> {}
                     }
 
@@ -221,12 +221,12 @@ class AddPlantActivity : AppCompatActivity() {
                         .allowRedirects(false).responseString { request, response, result ->
 
                             when (response.statusCode) {
-                                -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_LONG).show() }; return@responseString}
+                                -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                                 303 -> {}
-                                else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgAdd), Toast.LENGTH_LONG).show() }; return@responseString}
+                                else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgAdd), Toast.LENGTH_SHORT).show() }; return@responseString}
                             }
 
-                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
+                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_SHORT).show() }
                             finish()  // TODO: also force updateMarkers here!
                         }
                 }
