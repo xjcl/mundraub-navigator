@@ -30,20 +30,6 @@ import kotlin.concurrent.thread
 
 class AddPlantActivity : AppCompatActivity() {
 
-    // TODO: MapFragment with preview of window :D
-    //      this will let users know not to write too much text
-    //      MF should NOT respond to touches
-    // TODO: use filter bar for species selection?
-    // TODO: handle GET error
-
-    // TODO: what if someone puts an emoji into Fruchtfund (Gboard keeps suggesting them)
-    // (TODO: dynamic icon preview on Fruchtfund using marker)
-    // TODO: image upload
-
-    // TODO: edit a node
-    // TODO: delete a node
-    // TODO: create an account
-
     val loginData = mutableMapOf(
         "form_id" to "user_login_form",
         "op" to "Anmelden"
@@ -80,6 +66,7 @@ class AddPlantActivity : AppCompatActivity() {
                 (0..addresses[0].maxAddressLineIndex).map { addresses[0].getAddressLine(it) }.joinToString("\n") }
         }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 42 && resultCode == Activity.RESULT_OK && data != null) {
@@ -87,6 +74,12 @@ class AddPlantActivity : AppCompatActivity() {
             val lng = data.getDoubleExtra("lng", 0.0)
             updateLocationPicker(LatLng(lat, lng))
         }
+    }
+
+    private fun exitToMain() {
+        val output = Intent().putExtra("lat", location.latitude).putExtra("lng", location.longitude)
+        setResult(Activity.RESULT_OK, output)
+        finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -218,7 +211,7 @@ class AddPlantActivity : AppCompatActivity() {
                             }
 
                             runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_SHORT).show() }
-                            finish()  // TODO: also force updateMarkers here! And maybe zoom to new Marker!
+                            exitToMain()  // TODO: also force updateMarkers here! And maybe zoom to new Marker!
                         }
                 }
             }
@@ -227,3 +220,19 @@ class AddPlantActivity : AppCompatActivity() {
         setContentView( ScrollView(this).apply{ addView(lin) } )
     }
 }
+
+// TODO: MapFragment with preview of window :D
+//      this will let users know not to write too much text
+//      MF should NOT respond to touches
+// TODO: use filter bar for species selection?
+// TODO: handle GET error
+
+// TODO: what if someone puts an emoji into Fruchtfund (Gboard keeps suggesting them)
+// (TODO: dynamic icon preview on Fruchtfund using marker)
+// TODO: image upload
+
+// TODO login
+//    - edit node
+//    - delete node
+//    - report node
+//    - create account (need to allow it on backend first)

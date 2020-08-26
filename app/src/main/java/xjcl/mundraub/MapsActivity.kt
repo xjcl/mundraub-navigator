@@ -664,12 +664,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mMap.isMyLocationEnabled = true  // show blue circle on map
     }
 
+    // if we add a marker, resume at its location
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 33 && resultCode == Activity.RESULT_OK && data != null) {
+            val lat = data.getDoubleExtra("lat", 0.0)
+            val lng = data.getDoubleExtra("lng", 0.0)
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F))
+            // TODO: possible to also open its window?
+        }
+    }
+
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.title) {
             "Add" -> {
                 val intent = Intent(this, AddPlantActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, 33)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -725,12 +736,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - Test offline use
 
 
-// TODO login
-//    - edit node
-//    - delete node
-//    - report node
-//    - create account (need to allow it on backend first)
-
 // * TODO clusters
 //    - use Material design cluster icon with shadow
 //        - should fix font centering issue too
@@ -761,14 +766,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - list of how common each marker type is
 
 // TODO UI
-//    * show uploader and date
-//    * filter by all nuts etc
 //    - all markers jump when pressing filter?
 //    * immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
-
-// TODO AppBar
-//    - one-tap menu in the AppBar (https://developer.android.com/training/appbar)
 
 // TODO marker availability
 //    - startup: load markers from last time
