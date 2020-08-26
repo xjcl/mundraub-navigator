@@ -701,7 +701,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         supportActionBar?.apply {
-            title = HtmlCompat.fromHtml("<font color=\"#94b422\">" + "Nav. v${BuildConfig.VERSION_NAME}!" + "</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+            val navStr = if (resources.displayMetrics.widthPixels  / resources.displayMetrics.density > 500) "Navigator" else "Nav."
+            title = HtmlCompat.fromHtml("<font color=\"#94b422\">${navStr} v${BuildConfig.VERSION_NAME}!</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
             setBackgroundDrawable(ColorDrawable(Color.WHITE))
             setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
             displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
