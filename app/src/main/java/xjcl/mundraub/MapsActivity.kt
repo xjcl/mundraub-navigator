@@ -671,7 +671,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             val lat = data.getDoubleExtra("lat", 0.0)
             val lng = data.getDoubleExtra("lng", 0.0)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F))
-            // TODO: possible to also open its window?
+            // TODO: possible to also open its window? and undo filtering?
         }
     }
 
@@ -720,7 +720,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     }
 }
 
-// TODO: show season information in info window (only a single row)
+// TODO: * show season information in info window (only a single row)
 
 // TODO publishing
 //    - write blog post about it
@@ -737,13 +737,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - Test offline use
 
 
-// * TODO clusters
+// TODO clusters
 //    - use Material design cluster icon with shadow
 //        - should fix font centering issue too
 //    - request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
-//    * apply darkened markers to map too
+//    - apply darkened markers to map too
 //    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
 //    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
 //         -> either remove drawer, shrink it (???) or put it on the x axis (bottom) (?)
