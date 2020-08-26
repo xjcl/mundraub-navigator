@@ -217,7 +217,7 @@ class AddPlantActivity : AppCompatActivity() {
             }
         }
 
-        setContentView( ScrollView(this).apply{ addView(lin) } )
+        setContentView( ScrollView(this).apply { addView(lin) } )
     }
 }
 

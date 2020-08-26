@@ -181,7 +181,7 @@ class JanMapFragment : SupportMapFragment() {
             infoBar.addView(info)
 
             val species = TextView(context)
-            species.text = getString(resources.getIdentifier("tid99", "string", "xjcl.mundraub"))
+            species.text = getString(R.string.tid99)
             species.setTypeface(null, Typeface.BOLD)
             species.setTextColor(getFruitColor(resources, 99))
             infoBar.addView(species)
@@ -720,6 +720,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     }
 }
 
+// TODO: show season information in info window (only a single row)
 
 // TODO publishing
 //    - write blog post about it
