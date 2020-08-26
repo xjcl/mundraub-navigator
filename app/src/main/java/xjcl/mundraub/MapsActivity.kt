@@ -170,8 +170,11 @@ class JanMapFragment : SupportMapFragment() {
             val infoBar = LinearLayout(context)
             infoBar.orientation = LinearLayout.HORIZONTAL
             infoBar.gravity = Gravity.CENTER
-            infoBar.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt()) }
+            infoBar.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
+                addRule(RelativeLayout.CENTER_IN_PARENT)
+                addRule(RelativeLayout.ALIGN_PARENT_TOP)
+            }
 
             val info = TextView(context)
             info.text = getString(R.string.onlyShowing)
@@ -189,15 +192,7 @@ class JanMapFragment : SupportMapFragment() {
             // https://developer.android.com/training/material/shadows-clipping
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
 
-            // linearHolder needed so LinearLayout does not extend all the way to the edge
-            val infoBarHolder = LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                gravity = Gravity.CENTER
-                addView(infoBar)
-            }
-
-            relView.addView(infoBarHolder)
+            relView.addView(infoBar)
 
 
             // *** species filter bar (LinearLayout)
@@ -268,7 +263,7 @@ class JanMapFragment : SupportMapFragment() {
                 tv.height = markerHeight(cum, cum + group.size) - density.toInt()  // make room for ImageView divider
                 tv.width = tv.measuredHeight + 400  // 400 IQ
 
-                val tvHolder = RelativeLayout(context)
+                val tvHolder = RelativeLayout(context)   // NEEDED else the touch regions are all wrong
                 tvHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                     setMargins(-200, if (group == groups[0]) (4 * density).toInt() else 0, -200, 0) }
                 tvHolder.addView(tv)
@@ -313,22 +308,19 @@ class JanMapFragment : SupportMapFragment() {
                 linear.addView(this)
             }
 
-            val linearHolder = LinearLayout(context)
-            linearHolder.addView(linearLabels)
-            linearHolder.addView(linear)
-            val pad = (.01 * scrHeight).toInt()
-            linearHolder.background = materialDesignBg(pad, pad, bmpSample.width / 2F + pad)
+            val linearHolder = LinearLayout(context).apply {
+                addView(linearLabels)
+                addView(linear)
+                val pad = (.01 * scrHeight).toInt()
+                background = materialDesignBg(pad, pad, bmpSample.width / 2F + pad)
+                // https://developer.android.com/training/material/shadows-clipping
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) elevation = 6F  // Default elevation of a FAB is 6
 
-            // https://developer.android.com/training/material/shadows-clipping
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) linearHolder.elevation = 6F  // Default elevation of a FAB is 6
-
-            /*linear.layoutParams = {
-                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                lp.setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
-                lp
-            }()*/  // setMargins doesn't work on older Androids... I'm going to murder someone at Google over this
-            linearHolder.x = (.02 * scrHeight).toFloat()
-            linearHolder.y = (.02 * scrHeight).toFloat()
+                // setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
+                // ^ setMargins doesn't work on older Androids... I'm going to murder someone at Google over this
+                x = .02F * scrHeight
+                y = .02F * scrHeight
+            }
 
             relView.addView(linearHolder)
 
