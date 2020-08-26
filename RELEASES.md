@@ -1,4 +1,8 @@
 
+v11
+- Display markers without blocking UI thread
+- Improved UI for upload form
+
 v10
 - Hotfix app crashes on upload form
 
