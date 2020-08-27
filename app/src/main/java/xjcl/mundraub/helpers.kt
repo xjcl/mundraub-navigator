@@ -15,19 +15,12 @@ fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize_: F
     val textBounds = Rect()
 
     val paint = Paint().apply {
-        textSize = textSize_ * activity.resources.displayMetrics.density / 3F
-        getTextBounds(text, 0, text.length, textBounds)
-        color = color_
-    }
+        textSize = textSize_ * activity.resources.displayMetrics.density / 3F; getTextBounds(text, 0, text.length, textBounds); color = color_ }
 
     // https://stackoverflow.com/a/9133305/2111778
     if (outline) {
         val stkPaint = Paint().apply {
-            style = Paint.Style.STROKE
-            strokeWidth = 2F * activity.resources.displayMetrics.density
-            textSize = paint.textSize
-            color = Color.DKGRAY
-        }
+            style = Paint.Style.STROKE; strokeWidth = 2F * activity.resources.displayMetrics.density; textSize = paint.textSize; color = Color.DKGRAY }
         canvas.drawText(text, canvas.width * xpos - textBounds.exactCenterX(), canvas.height/2F - textBounds.exactCenterY(), stkPaint)
     }
 
@@ -55,4 +48,3 @@ fun getFruitColor(resources : Resources, tid: Int?) : Int =
 fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitude, scalar * vec.longitude)
 fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)
 fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.latitude, vec1.longitude - vec2.longitude)
-

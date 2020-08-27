@@ -212,7 +212,7 @@ class AddPlantActivity : AppCompatActivity() {
 
                             Log.e("nid", result.get())
                             val nid = result.get().substringAfter("?nid=").substringBefore("\"")
-                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_SHORT).show() }
+                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
                             exitToMain(nid)  // TODO: also force updateMarkers here! And maybe zoom to new Marker!
                         }
                 }

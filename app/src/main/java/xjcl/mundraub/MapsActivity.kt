@@ -47,6 +47,9 @@ import kotlin.concurrent.thread
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
+    lateinit var mapFragment : JanMapFragment
+    var onCameraIdleEnabled : Boolean = true
+
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeature(feature: Feature) {
         val latlng = LatLng(feature.pos[0], feature.pos[1])
@@ -130,7 +133,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         }
     }
 
-    override fun onCameraIdle() = updateMarkers()
+    override fun onCameraIdle() = if (onCameraIdleEnabled) updateMarkers() else Unit
 
     fun markerOnClickListener(marker : Marker): Boolean {
         if (markersData[marker.position]?.type ?: "" == "cluster") return false
@@ -357,7 +360,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mMap.isMyLocationEnabled = true  // show blue circle on map
     }
 
-    // if we add a marker, resume at its location
+    // if we add a marker, resume at its location with open info window (= simulate click)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (!(requestCode == 33 && resultCode == Activity.RESULT_OK && data != null)) return
@@ -366,11 +369,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         val lng = data.getDoubleExtra("lng", 0.0)
         val nid = data.getStringExtra("nid") ?: ""
 
-        // TODO undo filtering  -> FilterBar class
+        onCameraIdleEnabled = false
+        mapFragment.handleFilterClick(null, 99) {true}
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
             override fun onFinish() = updateMarkers { runOnUiThread {
-                markers.values.filter { markersData[it.position]?.nid.toString() == nid }
-                .forEach { markerOnClickListener(it) }
+                onCameraIdleEnabled = true
+                markers.values.filter { markersData[it.position]?.nid.toString() == nid }.forEach { markerOnClickListener(it) }
             }}
             override fun onCancel() {}
         })
@@ -411,7 +415,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as JanMapFragment
+        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as JanMapFragment
         mapFragment.getMapAsync(this)
         // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true
@@ -422,7 +426,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     }
 }
 
-// TODO: * show season information in info window (only a single row)
+// TODO assets
+//    - use svg instead of xhdpi markers
 
 // TODO testing
 //    - Firebase Labs Robo Script
@@ -473,15 +478,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - list of how common each marker type is
 
 // TODO UI
+//    * show season information in info window (only a single row)
 //    - all markers jump when pressing filter?
 //    * immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
 
-// TODO marker availability
+// TODO marker persistence
 //    - startup: load markers from last time
 //    - keep markers near user location always
 //    - favorite markers that get permanently stored
-
 
 // TODO user profiles
 //    - allow login
@@ -489,15 +494,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - allow editing a node
 //    - allow reporting a problem with a node
 
+// TODO meta
+//    - make img/ and docs/ dir
+
 
 // TODO wontfix
 //    - rarely used marker types: groups, actions, cider, saplings
 //    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
-
-// TODO show seasonality in infobar
-
-// TODO make img/ and docs/ dir
-// TODO v11
 
 /*
 Kleine Sachen über die ich noch nachgedacht habe:
