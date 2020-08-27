@@ -2,7 +2,7 @@
 <table>
 <tr>
 <td width="35%">
-<img src="demo_2020-07-07.jpg" alt="Demo of the app">
+<img src="images/demo_2020-07-07.jpg" alt="Demo of the app">
 </td>
 <td rowspan="2"  valign="top">
 

@@ -21,4 +21,4 @@ app/release/app-release.aab
 *.keystore
 private_key.pepk
 
-mundraub_logo.svg
+scripts/all_markers_europe.json
