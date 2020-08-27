@@ -76,8 +76,8 @@ class AddPlantActivity : AppCompatActivity() {
         }
     }
 
-    private fun exitToMain() {
-        val output = Intent().putExtra("lat", location.latitude).putExtra("lng", location.longitude)
+    private fun exitToMain(nid : String) {
+        val output = Intent().putExtra("lat", location.latitude).putExtra("lng", location.longitude).putExtra("nid", nid)
         setResult(Activity.RESULT_OK, output)
         finish()
     }
@@ -210,8 +210,10 @@ class AddPlantActivity : AppCompatActivity() {
                                 else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgAdd), Toast.LENGTH_SHORT).show() }; return@responseString}
                             }
 
+                            Log.e("nid", result.get())
+                            val nid = result.get().substringAfter("?nid=").substringBefore("\"")
                             runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_SHORT).show() }
-                            exitToMain()  // TODO: also force updateMarkers here! And maybe zoom to new Marker!
+                            exitToMain(nid)  // TODO: also force updateMarkers here! And maybe zoom to new Marker!
                         }
                 }
             }

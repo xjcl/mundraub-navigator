@@ -33,8 +33,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
-import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
+import com.google.android.gms.maps.GoogleMap.*
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -65,8 +64,9 @@ data class MarkerData(val type : String, val title : String, val monthCodes : St
                       val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?,
                       var uploader : String?, var uploadDate : String?, var image : Bitmap?)
 
-val getCurMonth = { Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toDouble() / 32 }
-val isSeasonal = {tid : Int?, month : Double -> treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0}
+fun getCurMonth(): Double = Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toDouble() / 32
+fun isSeasonal(tid : Int?, month : Double) = treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0
+fun Any?.discard() = Unit
 
 lateinit var mMap: GoogleMap
 lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -355,6 +355,8 @@ class JanMapFragment : SupportMapFragment() {
     }
 }
 
+
+
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
@@ -417,7 +419,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     }
 
     // --- Update markers when user finished moving the map ---
-    private fun updateMarkers() {
+    private fun updateMarkers(callback : () -> Unit = {}) {
         val zoom = mMap.cameraPosition.zoom
         Log.e("updateMarkers", "zoom $zoom")
         if (zoom == 2F || zoom == 3F) return  // Bugfix, do not remove, see commit message
@@ -436,10 +438,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 return@thread
             }
             addLocationMarkers(jsonStr)
+            callback()
         }
     }
 
     override fun onCameraIdle() = updateMarkers()
+
+    fun markerOnClickListener(marker : Marker): Boolean {
+        if (markersData[marker.position]?.type ?: "" == "cluster") return false
+        marker.showInfoWindow()
+        // --- Click on FAB will give directions to Marker in Google Maps app ---
+        fab.setOnClickListener {
+            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                if (location == null) return@addOnSuccessListener
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "http://maps.google.com/maps?saddr=${location.latitude}, ${location.longitude}&daddr=${marker.position.latitude}, ${marker.position.longitude}"
+                )))
+            }
+        }
+        fab.animate().x(fabAnimationFromTo.second)
+        val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
+        return true
+    }
 
     // --- OnInternetConnected: Automatically update (download) markers ---
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -622,23 +643,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         }
 
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
-        mMap.setOnMarkerClickListener { marker ->
-            if (markersData[marker.position]?.type ?: "" == "cluster") return@setOnMarkerClickListener true
-            marker.showInfoWindow()
-            // --- Click on FAB will give directions to Marker in Google Maps app ---
-            fab.setOnClickListener {
-                fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-                    if (location == null) return@addOnSuccessListener
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                        "http://maps.google.com/maps?saddr=${location.latitude}, ${location.longitude}&daddr=${marker.position.latitude}, ${marker.position.longitude}"
-                    )))
-                }
-            }
-            fab.animate().x(fabAnimationFromTo.second)
-            val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
-            true
-        }
+        mMap.setOnMarkerClickListener { marker -> markerOnClickListener(marker) }
     }
 
     // --- When user rotates phone, re-download markers for the new screen size ---
@@ -667,12 +672,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     // if we add a marker, resume at its location
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 33 && resultCode == Activity.RESULT_OK && data != null) {
-            val lat = data.getDoubleExtra("lat", 0.0)
-            val lng = data.getDoubleExtra("lng", 0.0)
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F))
-            // TODO: possible to also open its window? and undo filtering?
-        }
+        if (!(requestCode == 33 && resultCode == Activity.RESULT_OK && data != null)) return
+
+        val lat = data.getDoubleExtra("lat", 0.0)
+        val lng = data.getDoubleExtra("lng", 0.0)
+        val nid = data.getStringExtra("nid") ?: ""
+
+        // TODO undo filtering  -> FilterBar class
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
+            override fun onFinish() = updateMarkers { runOnUiThread {
+                markers.values.filter { markersData[it.position]?.nid.toString() == nid }
+                .forEach { markerOnClickListener(it) }
+            }}
+            override fun onCancel() {}
+        })
     }
 
     // Handle ActionBar option selection
@@ -722,6 +735,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 }
 
 // TODO: * show season information in info window (only a single row)
+
+// TODO testing
+//    - Firebase Labs Robo Script
+//    - Firebase Labs credentials on site
 
 // TODO publishing
 //    - write blog post about it
