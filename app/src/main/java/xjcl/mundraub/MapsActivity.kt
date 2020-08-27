@@ -110,6 +110,44 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
     override fun onCameraIdle() = if (onCameraIdleEnabled) updateMarkers() else Unit
 
+    // --- Download detailed node description and stick it into marker info window ---
+    fun downloadMarkerData(marker : Marker) {
+        val md = markersData[marker.position] ?: return
+        if (md.description != null || md.nid == null) return
+
+        thread {
+            // --- Download number of finds and description ---
+            val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) {
+                runOnUiThread { Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
+                return@thread
+            }
+
+            fun extractUnescaped(htmlStr : String, after : String, before : String) : String {
+                val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
+                return HtmlCompat.fromHtml(extractEscaped, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
+            }
+
+            val number = extractUnescaped(htmlStr, "Anzahl: <span class=\"tag\">", "</span>")
+            val description = extractUnescaped(htmlStr, "<p>", "</p>")
+            md.uploader = extractUnescaped(htmlStr.substringAfter("typeof=\"schema:Person\""), ">", "</span>")
+            md.uploadDate = extractUnescaped(htmlStr.substringAfter("am <span>"), ", ", " - ")
+            md.description = "[$number] $description"
+
+            runOnUiThread { marker.showInfoWindow() }
+
+            // --- Download image in lowest quality ---
+            val imageURL = htmlStr.substringAfter("srcset=\"", "").substringBefore(" ")
+            if (imageURL.isBlank() || md.image != null) return@thread
+
+            runOnUiThread {
+                Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
+                picassoBitmapTarget.md = md
+                picassoBitmapTarget.marker = marker
+                Picasso.with(this@MapsActivity).load("https://mundraub.org/$imageURL").into(picassoBitmapTarget)
+            }
+        }
+    }
+
     fun markerOnClickListener(marker : Marker): Boolean {
         if (markersData[marker.position]?.type ?: "" == "cluster") return true
         marker.showInfoWindow()
@@ -125,6 +163,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         fab.animate().x(fabAnimationFromTo.second)
         val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
         mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
+        downloadMarkerData(marker)
         return true
     }
 
@@ -188,7 +227,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                     uploadDate.maxWidth = masterWidth
                     info.addView(uploadDate)
                 } else {
-                    description.text = this@MapsActivity.getString(R.string.tapForInfo)
+                    description.text = this@MapsActivity.getString(R.string.loading)
                 }
 
                 val title = TextView(this@MapsActivity)
@@ -233,44 +272,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         // --- Disappear the navigation button once window closes ---
         mMap.setOnInfoWindowCloseListener {
             fab.animate().x(fabAnimationFromTo.first)
-        }
-
-        // --- Download detailed node description when user taps ("clicks") on info window ---
-        mMap.setOnInfoWindowClickListener { marker ->
-            val md = markersData[marker.position] ?: return@setOnInfoWindowClickListener
-            if (md.description != null || md.nid == null) return@setOnInfoWindowClickListener
-
-            thread {
-                // --- Download number of finds and description ---
-                val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) {
-                    runOnUiThread { Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
-                    return@thread
-                }
-
-                fun extractUnescaped(htmlStr : String, after : String, before : String) : String {
-                    val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
-                    return HtmlCompat.fromHtml(extractEscaped, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
-                }
-
-                val number = extractUnescaped(htmlStr, "Anzahl: <span class=\"tag\">", "</span>")
-                val description = extractUnescaped(htmlStr, "<p>", "</p>")
-                md.uploader = extractUnescaped(htmlStr.substringAfter("typeof=\"schema:Person\""), ">", "</span>")
-                md.uploadDate = extractUnescaped(htmlStr.substringAfter("am <span>"), ", ", " - ")
-                md.description = "[$number] $description"
-
-                runOnUiThread { marker.showInfoWindow() }
-
-                // --- Download image in lowest quality ---
-                val imageURL = htmlStr.substringAfter("srcset=\"", "").substringBefore(" ")
-                if (imageURL.isBlank() || md.image != null) return@thread
-
-                runOnUiThread {
-                    Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
-                    picassoBitmapTarget.md = md
-                    picassoBitmapTarget.marker = marker
-                    Picasso.with(this@MapsActivity).load("https://mundraub.org/$imageURL").into(picassoBitmapTarget)
-                }
-            }
         }
 
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
@@ -323,11 +324,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.title) {
-            "Add" -> {
-                val intent = Intent(this, AddPlantActivity::class.java)
-                startActivityForResult(intent, 33)
-                true
-            }
+            "Add" -> { startActivityForResult(Intent(this, AddPlantActivity::class.java), 33); true }
             else -> super.onOptionsItemSelected(item)
         }
     }

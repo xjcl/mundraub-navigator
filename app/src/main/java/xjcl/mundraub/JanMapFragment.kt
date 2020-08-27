@@ -89,7 +89,7 @@ class JanMapFragment : SupportMapFragment() {
         return months
     }
 
-    fun createMonthsBar(tid : Int): LinearLayout {
+    private fun createMonthsBar(tid : Int): LinearLayout {
         if (!treeIdToSeason.contains(tid)) return LinearLayout(context)
         val fakeFeature = Feature(listOf(), Properties(0, tid), null)
         return createMonthsBar(featureToMarkerData(context!!, fakeFeature), false)
@@ -227,7 +227,6 @@ class JanMapFragment : SupportMapFragment() {
             Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
             // *** info bar
-            // TODO XXX clean this up a lot, remove duplication, var names, ...
             infoBar = LinearLayout(context)
             infoBar.orientation = LinearLayout.VERTICAL
             infoBar.gravity = Gravity.CENTER
