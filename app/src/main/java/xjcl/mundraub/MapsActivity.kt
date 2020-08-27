@@ -33,7 +33,6 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.*
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -53,35 +52,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeature(feature: Feature) {
         val latlng = LatLng(feature.pos[0], feature.pos[1])
-        val tid = feature.properties?.tid
-        val type = when {
-            feature.properties == null -> "cluster"       // Cluster of 2+ markers
-            treeIdToSeason[tid]?.first == 0.0 -> "other"  // Marker of unknown species with no season info
-            else -> "normal"                              // Marker of known species with season info
-        }
-
-        val title = getString(resources.getIdentifier("tid$tid", "string", packageName))
-        val fruitColor = getFruitColor(resources, tid)
-
-        val icon =
-            if (type == "cluster") // isCluster
-                BitmapDescriptorFactory.fromBitmap( bitmapWithText(R.drawable._cluster_c, this, feature.count.toString(), 45F) )
-            else // isTree
-                BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
-
-        // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
-        val monthCodes = (1..12).joinToString("") { when {
-             isSeasonal(tid, it + .25) &&  isSeasonal(tid, it + .75) -> "x"
-             isSeasonal(tid, it + .25) && !isSeasonal(tid, it + .75) -> "l"
-            !isSeasonal(tid, it + .25) &&  isSeasonal(tid, it + .75) -> "r"
-            else -> "_"
-        }}
-
-        markersData[latlng] = MarkerData(type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor,
-            feature.properties?.nid, null, null, null, null)
+        val md = featureToMarkerData(this, feature)
+        markersData[latlng] = md
 
         runOnUiThread {
-            markers[latlng] = mMap.addMarker(MarkerOptions().position(latlng).title(title).icon(icon).anchor(.5F, if (type == "cluster") .5F else 1F))
+            markers[latlng] = mMap.addMarker(MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F))
         }
     }
 
@@ -136,7 +111,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     override fun onCameraIdle() = if (onCameraIdleEnabled) updateMarkers() else Unit
 
     fun markerOnClickListener(marker : Marker): Boolean {
-        if (markersData[marker.position]?.type ?: "" == "cluster") return false
+        if (markersData[marker.position]?.type ?: "" == "cluster") return true
         marker.showInfoWindow()
         // --- Click on FAB will give directions to Marker in Google Maps app ---
         fab.setOnClickListener {
@@ -224,7 +199,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 info.addView(title)
 
                 // no month/season information in this case so return early
-                if (md.type == "cluster" || md.type == "other")
+                if (md.monthCodes.all { it == '_' })
                     return info
 
                 val seasonText = TextView(this@MapsActivity)
@@ -232,42 +207,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 seasonText.text = this@MapsActivity.getString(if (md.isSeasonal) R.string.inSeason else R.string.notInSeason)
                 info.addView(seasonText)
 
-                val months = LinearLayout(this@MapsActivity)
-                months.orientation = LinearLayout.HORIZONTAL
-                for (i in 1..12) {
-                    val circle = LinearLayout(this@MapsActivity)
-                    circle.orientation = LinearLayout.HORIZONTAL
-
-                    val circleLeft = ImageView(this@MapsActivity)
-                    val circleRight = ImageView(this@MapsActivity)
-
-                    val resLeft = if ("xl".contains(md.monthCodes[i-1])) R.drawable._dot_l1 else R.drawable._dot_l0
-                    val resRight = if ("xr".contains(md.monthCodes[i-1])) R.drawable._dot_r1 else R.drawable._dot_r0
-                    circleLeft.setImageResource(resLeft)
-                    circleRight.setImageResource(resRight)
-                    if ("xl".contains(md.monthCodes[i-1])) circleLeft.setColorFilter(md.fruitColor)
-                    if ("xr".contains(md.monthCodes[i-1])) circleRight.setColorFilter(md.fruitColor)
-                    // add vertical line for current time in year
-                    if (md.curMonth.toInt() == i)
-                        (if (md.curMonth % 1 < .5) circleLeft else circleRight).setImageBitmap(
-                            bitmapWithText( (if (md.curMonth % 1 < .5) resLeft else resRight), this@MapsActivity,
-                                "|", 50F, false,  2 * (md.curMonth % .5).toFloat(), if (md.isSeasonal) md.fruitColor else Color.GRAY) )
-
-                    circle.addView(circleLeft)
-                    circle.addView(circleRight)
-
-                    val letter = TextView(this@MapsActivity)
-                    letter.setTextColor(if (md.monthCodes[i-1] != '_') md.fruitColor else Color.GRAY)
-                    letter.gravity = Gravity.CENTER
-                    if (md.monthCodes[i-1] != '_') letter.setTypeface(null, Typeface.BOLD)
-                    letter.text = "JFMAMJJASOND"[i-1].toString()
-
-                    val month = LinearLayout(this@MapsActivity)
-                    month.orientation = LinearLayout.VERTICAL
-                    month.addView(circle)
-                    month.addView(letter)
-                    months.addView(month)
-                }
+                val months = mapFragment.createMonthsBar(md)
                 months.measure(0, 0)
                 Log.e("width change", masterWidth.toString() + " -> " + months.measuredWidth)
                 masterWidth = months.measuredWidth

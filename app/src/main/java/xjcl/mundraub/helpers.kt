@@ -1,6 +1,6 @@
 package xjcl.mundraub
 
-import android.app.Activity
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.Drawable
@@ -9,18 +9,18 @@ import android.graphics.drawable.shapes.RoundRectShape
 import com.google.android.gms.maps.model.LatLng
 
 // Helper function as adding text to a bitmap needs more code than one might expect
-fun bitmapWithText(resource: Int, activity: Activity, text: String, textSize_: Float, outline: Boolean = true, xpos: Float = .5F, color_: Int = Color.WHITE) : Bitmap {
-    val bitmap = BitmapFactory.decodeResource(activity.resources, resource, BitmapFactory.Options().apply { inMutable = true })
+fun bitmapWithText(resource: Int, context: Context, text: String, textSize_: Float, outline: Boolean = true, xpos: Float = .5F, color_: Int = Color.WHITE) : Bitmap {
+    val bitmap = BitmapFactory.decodeResource(context.resources, resource, BitmapFactory.Options().apply { inMutable = true })
     val canvas = Canvas(bitmap)
     val textBounds = Rect()
 
     val paint = Paint().apply {
-        textSize = textSize_ * activity.resources.displayMetrics.density / 3F; getTextBounds(text, 0, text.length, textBounds); color = color_ }
+        textSize = textSize_ * context.resources.displayMetrics.density / 3F; getTextBounds(text, 0, text.length, textBounds); color = color_ }
 
     // https://stackoverflow.com/a/9133305/2111778
     if (outline) {
         val stkPaint = Paint().apply {
-            style = Paint.Style.STROKE; strokeWidth = 2F * activity.resources.displayMetrics.density; textSize = paint.textSize; color = Color.DKGRAY }
+            style = Paint.Style.STROKE; strokeWidth = 2F * context.resources.displayMetrics.density; textSize = paint.textSize; color = Color.DKGRAY }
         canvas.drawText(text, canvas.width * xpos - textBounds.exactCenterX(), canvas.height/2F - textBounds.exactCenterY(), stkPaint)
     }
 

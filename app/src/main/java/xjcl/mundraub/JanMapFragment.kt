@@ -26,6 +26,7 @@ class JanMapFragment : SupportMapFragment() {
     private var density : Float = 0f
     private var scrHeight : Int = 0
     private lateinit var bmpSample : Bitmap
+    private lateinit var infoBar : LinearLayout
     private lateinit var species : TextView
 
     // sadly .yBy() is not enough for this as the EndAction can get interrupted
@@ -36,13 +37,62 @@ class JanMapFragment : SupportMapFragment() {
 
     fun handleFilterClick(iv : View?, key : Int, cond : (Int) -> Boolean) {
         Log.e("onClick", key.toString())
-        species.text = context!!.getString(context!!.resources.getIdentifier("tid${key}", "string", "xjcl.mundraub"))  // TODO replace by packageName
+        species.text = context!!.getString(context!!.resources.getIdentifier("tid${key}", "string", context!!.packageName))
         species.setTextColor(getFruitColor(context!!.resources, key))
         for (other in ivs)
             other.value.setColorFilter(Color.parseColor(if (cond(other.key) || other.key >= 90) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
         selectedSpeciesStr = ivs.filter { cond(it.key) }.map { it.key.toString() }.joinToString(",")
         iv?.let { animateJump(it) }
         mMap.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
+        infoBar.removeViewAt(1) // removes monthsBar
+        infoBar.addView(createMonthsBar(key))
+    }
+
+    fun createMonthsBar(md : MarkerData, withLetters : Boolean = true): LinearLayout {
+        val months = LinearLayout(context)
+        months.orientation = LinearLayout.HORIZONTAL
+        months.gravity = Gravity.CENTER
+        for (i in 1..12) {
+            val circle = LinearLayout(context)
+            circle.orientation = LinearLayout.HORIZONTAL
+
+            val circleLeft = ImageView(context)
+            val circleRight = ImageView(context)
+
+            val resLeft = if ("xl".contains(md.monthCodes[i - 1])) R.drawable._dot_l1 else R.drawable._dot_l0
+            val resRight = if ("xr".contains(md.monthCodes[i - 1])) R.drawable._dot_r1 else R.drawable._dot_r0
+            circleLeft.setImageResource(resLeft)
+            circleRight.setImageResource(resRight)
+            if ("xl".contains(md.monthCodes[i - 1])) circleLeft.setColorFilter(md.fruitColor)
+            if ("xr".contains(md.monthCodes[i - 1])) circleRight.setColorFilter(md.fruitColor)
+            // add vertical line for current time in year
+            if (md.curMonth.toInt() == i)
+                (if (md.curMonth % 1 < .5) circleLeft else circleRight).setImageBitmap(
+                    bitmapWithText((if (md.curMonth % 1 < .5) resLeft else resRight), context!!, "|", 50F, false,
+                        2 * (md.curMonth % .5).toFloat(), if (md.isSeasonal) md.fruitColor else Color.GRAY))
+
+            circle.addView(circleLeft)
+            circle.addView(circleRight)
+
+            val letter = TextView(context)
+            letter.setTextColor(if (md.monthCodes[i - 1] != '_') md.fruitColor else Color.GRAY)
+            letter.gravity = Gravity.CENTER
+            if (md.monthCodes[i - 1] != '_') letter.setTypeface(null, Typeface.BOLD)
+            letter.text = "JFMAMJJASOND"[i - 1].toString()
+
+            val month = LinearLayout(context)
+            month.orientation = LinearLayout.VERTICAL
+            month.addView(circle)
+            if (withLetters) month.addView(letter)
+            months.addView(month)
+        }
+        return months
+    }
+
+    fun createMonthsBar(tid : Int): LinearLayout {
+        if (!treeIdToSeason.contains(tid)) return LinearLayout(context)
+        val fakeFeature = Feature(listOf(), Properties(0, tid), null)
+        return createMonthsBar(featureToMarkerData(context!!, fakeFeature), false)
     }
 
     private fun createFilterBar() : LinearLayout {
@@ -86,7 +136,7 @@ class JanMapFragment : SupportMapFragment() {
         var cum = 0
         for (group in groups) {
             val tv = TextView(context)
-            tv.text = context!!.getString(context!!.resources.getIdentifier("tid${group.key}", "string", "xjcl.mundraub"))
+            tv.text = context!!.getString(context!!.resources.getIdentifier("tid${group.key}", "string", context!!.packageName))
 
             tv.gravity = Gravity.CENTER
             tv.rotation = 90F
@@ -178,8 +228,8 @@ class JanMapFragment : SupportMapFragment() {
 
             // *** info bar
             // TODO XXX clean this up a lot, remove duplication, var names, ...
-            val infoBar = LinearLayout(context)
-            infoBar.orientation = LinearLayout.HORIZONTAL
+            infoBar = LinearLayout(context)
+            infoBar.orientation = LinearLayout.VERTICAL
             infoBar.gravity = Gravity.CENTER
             infoBar.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
                 setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
@@ -187,15 +237,24 @@ class JanMapFragment : SupportMapFragment() {
                 addRule(RelativeLayout.ALIGN_PARENT_TOP)
             }
 
-            val info = TextView(context)
-            info.text = getString(R.string.onlyShowing)
-            infoBar.addView(info)
+            val infoSpecies = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER
 
-            species = TextView(context)
-            species.text = getString(R.string.tid99)
-            species.setTypeface(null, Typeface.BOLD)
-            species.setTextColor(getFruitColor(resources, 99))
-            infoBar.addView(species)
+                val info = TextView(context)
+                info.text = getString(R.string.onlyShowing)
+                this.addView(info)
+
+                species = TextView(context)
+                species.text = getString(R.string.tid99)
+                species.setTypeface(null, Typeface.BOLD)
+                species.setTextColor(getFruitColor(resources, 99))
+                this.addView(species)
+            }
+            infoBar.addView(infoSpecies)
+
+            val months = createMonthsBar(99)
+            infoBar.addView(months)
 
             infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
 

@@ -14,12 +14,12 @@ val treeIdToSeason = hashMapOf(
      9 to ( 8.0 to 11.5),
     10 to ( 7.0 to  9.0),
     11 to ( 6.5 to  8.5),
-    12 to ( 0.0 to  0.0),
+    //12 to ( 0.0 to  0.0),
 
     14 to ( 8.5 to 11.5),
     15 to ( 9.0 to 11.5),
     16 to ( 9.5 to 11.0),
-    17 to ( 0.0 to  0.0),
+    //17 to ( 0.0 to  0.0),
 
     18 to ( 8.0 to 11.0),
     19 to ( 6.0 to 10.0), // wild strawberry
@@ -33,7 +33,7 @@ val treeIdToSeason = hashMapOf(
     27 to ( 9.0 to 12.0),
     28 to ( 9.0 to 13.0),
     29 to ( 9.0 to 11.0), // https://www.kneipp.com/de_de/kneipp-magazin/sebastian-kneipp/lexikon-pflanzen-inhaltsstoffe/pflanzenlexikon/weissdorn/
-    30 to ( 0.0 to  0.0),
+    //30 to ( 0.0 to  0.0),
 
     // https://www.miss.at/pflanzkalender-2018-wann-man-welches-gemuese-pflanzen-kann/?cn-reloaded=1
     31 to ( 3.5 to  6.0),
@@ -41,8 +41,8 @@ val treeIdToSeason = hashMapOf(
     33 to ( 7.0 to 10.0), // https://praxistipps.focus.de/minze-ernten-der-beste-zeitpunkt_107154
     34 to ( 5.0 to 11.0),
     35 to ( 3.0 to  7.0),
-    36 to ( 6.0 to  9.0),
-    37 to ( 0.0 to  0.0)
+    36 to ( 6.0 to  9.0)
+    //37 to ( 0.0 to  0.0)
 )
 
 val treeIdToMarkerIcon = hashMapOf(
