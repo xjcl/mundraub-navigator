@@ -1,4 +1,9 @@
 
+v12
+- Automatic download of node detail when marker tapped
+- Constantly show seasonal months in info bar
+- Open marker info window after adding node
+
 v11
 - Display markers without blocking UI thread
 - Improved UI for upload form
