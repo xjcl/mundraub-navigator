@@ -26,6 +26,9 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.text_input_autocomplete.view.*
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -102,6 +105,10 @@ class PlantForm : AppCompatActivity() {
 
         val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
 
+        ensureCookie(this)
+        val cook2 = sharedPref.getString("cookie", null)
+        if (cook2 == null) { finish(); return }
+
         val lin = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(24) }
 
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
@@ -110,7 +117,6 @@ class PlantForm : AppCompatActivity() {
             editText?.setText(sharedPref.getString("name", ""))
         }
 
-        // TODO hide
         TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
         val passTIL = (lin.children.last() as TextInputLayout).apply {
             hint = getString(R.string.pass)
@@ -201,8 +207,8 @@ class PlantForm : AppCompatActivity() {
         val intentNid = intent.getIntExtra("nid", -1)
         if (userTIL.editText?.text.toString().isNotBlank() && passTIL.editText?.text.toString().isNotBlank() && intentNid > -1) {
             submitUrl = "https://mundraub.org/node/${intentNid}/edit"
-            loginData["name"] = userTIL.editText?.text.toString()
-            loginData["pass"] = passTIL.editText?.text.toString()
+//            loginData["name"] = userTIL.editText?.text.toString()
+//            loginData["pass"] = passTIL.editText?.text.toString()
 
             Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
 

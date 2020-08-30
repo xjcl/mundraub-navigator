@@ -1,14 +1,15 @@
 <resources>
     <string name="app_name">Mundraub Navigator</string>
     <string name="title_activity_maps">Mundraub Navigator</string>
-    <string name="title_activity_location_picker">Map</string>
+    <string name="title_activity_location_picker">Pick location then press OK</string>
+    <string name="title_activity_login">Log in to Mundraub</string>
 
-    <string name="tid4" >Apple</string>
-    <string name="tid5" >Pear</string>
-    <string name="tid6" >Cherry</string>
-    <string name="tid7" >Mirabelle</string>
-    <string name="tid8" >Plum</string>
-    <string name="tid9" >Quince</string>
+    <string name="tid4">Apple</string>
+    <string name="tid5">Pear</string>
+    <string name="tid6">Cherry</string>
+    <string name="tid7">Mirabelle</string>
+    <string name="tid8">Plum</string>
+    <string name="tid9">Quince</string>
     <string name="tid10">Apricot</string>
     <string name="tid11">Mulberry</string>
     <string name="tid12">Other fruit</string>
@@ -54,7 +55,6 @@
 
     <string name="onlyShowing">Showing:\u0020</string>
 
-    <string name="pickLoc">Pick location then press OK</string>
     <string name="addNode">Create new marker</string>
     <string name="user">Username</string>
     <string name="pass">Password</string>
@@ -62,6 +62,7 @@
     <string name="amnt">Amount</string>
     <string name="desc">Description (preferably in German)</string>
     <string name="upld">Upload!</string>
+    <string name="lgin">Log in!</string>
 
     <string name="errMsgNoInternet">Couldn\'t connect</string>
     <string name="errMsgLoginInfos">Please fill in login info</string>
@@ -75,4 +76,5 @@
 
     <string name="tapForInfo">--- Tap to download info ---</string>
     <string name="loading">(loading…)</string>
+    <string name="login_info">Adding and editing markers requires a Mundraub account. Account creation is currently only possible on Mundraub.org</string>
 </resources>

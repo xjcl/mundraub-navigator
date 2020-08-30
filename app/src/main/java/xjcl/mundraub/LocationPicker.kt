@@ -62,7 +62,6 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_picker)
-        supportActionBar?.title = getString(R.string.pickLoc)
         tid = this.intent.getIntExtra("tid", 12)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as MapFragmentPicker
