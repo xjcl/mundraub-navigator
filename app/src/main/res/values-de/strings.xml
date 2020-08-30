@@ -75,7 +75,8 @@
     <string name="errMsgAdd">Login ok, Marker fehlgeschlagen</string>
     <string name="errMsgSuccess">Erfolgreich hochgeladen!</string>
 
+    <string name="loggedInAs">Eingeloggt als: %1$s</string>
     <string name="tapForInfo">--- Berühren für Details ---</string>
     <string name="loading">(warte…)</string>
-    <string name="login_info">Hinzufügen und Bearbeiten von Markern erfordert Login mit einem Mundraub-Account. Account-Erstellung ist momentan nur auf Mundraub.org möglich</string>
+    <string name="login_info">Hinzufügen und Bearbeiten von Markern erfordert Login mit einem Mundraub-Account. Account-Erstellung ist momentan nur auf Mundraub.org möglich.</string>
 </resources>

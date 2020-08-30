@@ -95,8 +95,6 @@ class PlantForm : AppCompatActivity() {
         finish()
     }
 
-    // TODO migrate old settings!!
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -127,6 +125,7 @@ class PlantForm : AppCompatActivity() {
         val cook = sharedPref.getString("cookie", null)
         if (cook == null) { finish(); return }
 
+        // TODO use XML instead of dynamic creation
         val density = resources.displayMetrics.density
         val lin = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding((12 * density).toInt()) }
 

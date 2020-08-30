@@ -75,7 +75,8 @@
     <string name="errMsgAdd">Login ok, but adding marker failed</string>
     <string name="errMsgSuccess">Upload successful!</string>
 
+    <string name="loggedInAs">Logged in as: %1$s</string>
     <string name="tapForInfo">--- Tap to download info ---</string>
     <string name="loading">(loading…)</string>
-    <string name="login_info">Adding and editing markers requires a Mundraub account. Account creation is currently only possible on Mundraub.org</string>
+    <string name="login_info">Adding and editing markers requires a Mundraub account. Account creation is currently only possible on Mundraub.org.</string>
 </resources>

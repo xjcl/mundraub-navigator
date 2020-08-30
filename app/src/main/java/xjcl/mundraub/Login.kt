@@ -2,6 +2,7 @@ package xjcl.mundraub
 
 import android.content.Context
 import android.os.Bundle
+import android.transition.Visibility
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -20,7 +21,14 @@ class Login : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        this.name_inner.setText( sharedPref.getString("name", "") ?: "" )
+        val name = sharedPref.getString("name", "") ?: ""
+
+        if (hasLoginCookie(this) && name.isNotBlank()) {
+            this.top_info.visibility = View.VISIBLE
+            this.top_info.setText( getString(R.string.loggedInAs, name) )
+        }
+
+        this.name_inner.setText( name )
         this.pass_inner.setText( sharedPref.getString("pass", "") ?: "" )
     }
 
