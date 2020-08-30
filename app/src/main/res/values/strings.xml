@@ -65,6 +65,7 @@
 
     <string name="errMsgNoInternet">Couldn\'t connect</string>
     <string name="errMsgLoginInfos">Please fill in login info</string>
+    <string name="errMsgAccess">No access to this resource</string>
     <string name="errMsgLogin">Login failed</string>
     <string name="errMsgDesc">Please add a description</string>
     <string name="errMsgType">Please specify a valid fruit type</string>

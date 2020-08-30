@@ -31,7 +31,7 @@
         <activity
             android:name=".LocationPicker"
             android:label="@string/title_activity_location_picker"></activity>
-        <activity android:name=".AddPlantActivity" />
+        <activity android:name=".PlantForm" />
         <activity
             android:name=".MapsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

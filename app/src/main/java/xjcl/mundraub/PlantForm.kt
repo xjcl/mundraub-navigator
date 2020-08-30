@@ -13,10 +13,13 @@ import android.view.LayoutInflater
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.view.children
 import androidx.core.view.setPadding
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers
+import com.github.kittinunf.result.Result
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.ChipGroup
@@ -27,7 +30,7 @@ import java.util.*
 import kotlin.concurrent.thread
 
 
-class AddPlantActivity : AppCompatActivity() {
+class PlantForm : AppCompatActivity() {
 
     val loginData = mutableMapOf(
         "form_id" to "user_login_form",
@@ -35,9 +38,9 @@ class AddPlantActivity : AppCompatActivity() {
     )
 
     val plantData = mutableMapOf(
+        "form_id" to "node_plant_form",
         "changed" to "0",
         "form_build_id" to "",
-        "form_id" to "node_plant_form",
         "body[0][format]" to "simple_text",
         "field_plant_image[0][_weight]" to "0",
         "field_plant_image[0][fids]" to "",
@@ -48,6 +51,15 @@ class AddPlantActivity : AppCompatActivity() {
         "op" to "Speichern"
     )
 
+    val chipMap = mapOf(
+        R.id.chip_0 to "0",
+        R.id.chip_1 to "1",
+        R.id.chip_2 to "2",
+        R.id.chip_3 to "3"
+    )
+
+    var submitUrl = "https://mundraub.org/node/add/plant"
+
     fun LatLng(location : Location): LatLng = LatLng(location.latitude, location.longitude)
 
     var location : LatLng = LatLng(0.0, 0.0)
@@ -56,9 +68,9 @@ class AddPlantActivity : AppCompatActivity() {
     fun updateLocationPicker(latLng: LatLng) {
         if (!::locationPicker.isInitialized) return
         locationPicker.text = getString(R.string.loading)
+        location = latLng
         thread {
-            location = latLng
-            val gcd = Geocoder(this@AddPlantActivity, Locale.getDefault())
+            val gcd = Geocoder(this@PlantForm, Locale.getDefault())
             val addresses: List<Address> = try { gcd.getFromLocation(latLng.latitude, latLng.longitude, 1) }
                 catch (ex : IOException) { listOf() }
             runOnUiThread { locationPicker.text = if (addresses.isEmpty()) "???" else
@@ -76,6 +88,7 @@ class AddPlantActivity : AppCompatActivity() {
     }
 
     private fun exitToMain(nid : String) {
+        Log.e("exitToMain", "exit to main at $location with $nid")
         val output = Intent().putExtra("lat", location.latitude).putExtra("lng", location.longitude).putExtra("nid", nid)
         setResult(Activity.RESULT_OK, output)
         finish()
@@ -84,6 +97,7 @@ class AddPlantActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // TODO add/edit marker
         supportActionBar?.title = getString(R.string.addNode)
 
         val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
@@ -105,6 +119,7 @@ class AddPlantActivity : AppCompatActivity() {
 
         TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
         val typeTIL = (lin.children.last() as TextInputLayout).apply { hint = getString(R.string.type) }
+        // TODO make this a proper map and call getInverse() on it
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
         val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub")) }
         typeTIL.auto_text.setAdapter( ArrayAdapter(this, R.layout.list_item, values) )
@@ -141,9 +156,92 @@ class AddPlantActivity : AppCompatActivity() {
             }
         }
 
+        // ----
+
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { it?.let { location ->
             updateLocationPicker(LatLng(location))
         }}
+
+        fun doSubmit(result : Result<String, FuelError>, cook : String) {
+            plantData["changed"] = result.get().substringAfter("name=\"changed\" value=\"").substringBefore("\"")
+            //plantData["form_build_id"] = result.get().substringAfter("name=\"form_build_id\" value=\"").substringBefore("\"")
+            plantData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
+            plantData["body[0][value]"] = descriptionTIL.editText?.text.toString()
+            plantData["field_plant_category"] = keys[values.indexOf( typeTIL.editText?.text.toString() )]
+            plantData["field_plant_count_trees"] = chipMap[chipGroup.checkedChipId] ?: "0"
+            plantData["field_position[0][value]"] = "POINT(${location.longitude} ${location.latitude})"
+            plantData["field_plant_address[0][value]"] = locationPicker.text.toString()
+
+            Log.e("plantData", plantData.toString())
+
+            Fuel.post(submitUrl, plantData.toList()).header(Headers.COOKIE to cook)
+                .allowRedirects(false).responseString { request, response, result ->
+
+                    Log.e("nid", result.get())
+
+                    when (response.statusCode) {
+                        -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                        303 -> {}
+                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAdd), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    }
+
+                    val nid_ = result.get().substringAfter("?nid=", "").substringBefore("\"")
+                    val nid = if (nid_.isNotEmpty()) nid_ else result.get().substringAfter("node/").substringBefore("\"")
+                    runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
+                    exitToMain(nid)
+                }
+        }
+
+        // TODO This will be reworked with a separate login page and cookie handling once necessary changes on the backend are made
+
+        // TODO write down data
+        // TODO make upload pass correctly
+        // TODO if nid in intent
+        // TODO add image round-trip
+        val intentNid = intent.getIntExtra("nid", -1)
+        if (userTIL.editText?.text.toString().isNotBlank() && passTIL.editText?.text.toString().isNotBlank() && intentNid > -1) {
+            submitUrl = "https://mundraub.org/node/${intentNid}/edit"
+            loginData["name"] = userTIL.editText?.text.toString()
+            loginData["pass"] = passTIL.editText?.text.toString()
+
+            Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
+
+                when (response.statusCode) {
+                    -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
+                    303 -> {}
+                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; finish()}
+                }
+
+                val cook = response.headers["Set-Cookie"].first()  // TODO: look at expiration date
+
+                Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
+
+                    when (response.statusCode ) {
+                        -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
+                        200 -> {}
+                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; finish()}
+                    }
+
+                    val description_ = result.get().substringAfter("body[0][value]").substringAfter(">").substringBefore("<")
+                    val description = HtmlCompat.fromHtml(description_, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+
+                    val type_ = result.get().substringAfter("field_plant_category").substringBefore("\" selected=\"selected\"").takeLast(2)
+                    val type = if (type_[0] == '"') type_.takeLast(1) else type_
+
+                    val count = result.get().substringAfter("field_plant_count_trees").substringBefore("\"  selected=\"selected\"").takeLast(1)
+                    val locationList = result.get().substringAfter("POINT (").substringBefore(")").split(' ')
+                    plantData["form_id"] = "node_plant_edit_form"
+                    plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"").substringBefore("\"")
+
+                    typeTIL.postDelayed({
+                        typeTIL.auto_text_input.editText?.setText( values[keys.indexOf(type)] ); updateType()
+                        descriptionTIL.editText?.setText(description)
+                        chipGroup.check(chipMap.getInverse(count) ?: R.id.chip_0)
+                        updateLocationPicker( LatLng(locationList[1].toDouble(), locationList[0].toDouble()) )
+                    }, 30)
+                }
+            }
+        }
 
         Button(this).apply { text = getString(R.string.upld); lin.addView(this) }.setOnClickListener {
 
@@ -164,56 +262,28 @@ class AddPlantActivity : AppCompatActivity() {
                 getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) || locationPicker.text.toString() == "???")
             )
             errors.forEach { if (it.second) {
-                runOnUiThread { Toast.makeText(this@AddPlantActivity, it.first, Toast.LENGTH_SHORT).show() }
+                runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }
                 return@setOnClickListener
             } }
 
             Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
 
                 when (response.statusCode) {
-                    -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                     303 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; return@responseString}
                 }
 
                 val cook = response.headers["Set-Cookie"].first()  // TODO: look at expiration date
 
-                Fuel.get("https://mundraub.org/node/add/plant").header(Headers.COOKIE to cook).responseString { request, response, result ->
-
-                    when (response.statusCode ) {
-                        -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
+                    when (response.statusCode) {
+                        -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                         200 -> {}
-                        else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
+                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
                     }
 
-                    plantData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
-                    plantData["body[0][value]"] = descriptionTIL.editText?.text.toString()
-                    plantData["field_plant_category"] = keys[typeIndex]
-                    plantData["field_plant_count_trees"] = mapOf(
-                        R.id.chip_0 to "0",
-                        R.id.chip_1 to "1",
-                        R.id.chip_2 to "2",
-                        R.id.chip_3 to "3"
-                    )[chipGroup.checkedChipId] ?: "0"
-                    plantData["field_position[0][value]"] = "POINT(${location.longitude} ${location.latitude})"
-                    plantData["field_plant_address[0][value]"] = locationPicker.text.toString()
-
-                    Log.e("plantData", plantData.toString())
-
-                    Fuel.post("https://mundraub.org/node/add/plant", plantData.toList()).header(Headers.COOKIE to cook)
-                        .allowRedirects(false).responseString { request, response, result ->
-
-                            when (response.statusCode) {
-                                -1 -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
-                                303 -> {}
-                                else -> {runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgAdd), Toast.LENGTH_SHORT).show() }; return@responseString}
-                            }
-
-                            Log.e("nid", result.get())
-                            val nid = result.get().substringAfter("?nid=").substringBefore("\"")
-                            runOnUiThread { Toast.makeText(this@AddPlantActivity, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
-                            exitToMain(nid)
-                        }
+                    doSubmit(result, cook)
                 }
             }
         }

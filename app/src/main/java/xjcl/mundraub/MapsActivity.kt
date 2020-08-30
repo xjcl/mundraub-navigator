@@ -73,7 +73,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
         val featuresSet = HashSet<LatLng>( root.features.map { LatLng(it.pos[0], it.pos[1]) } )
         for (mark in markers.toMap()) {  // copy constructor
-            if (!featuresSet.contains(mark.key)) { runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) } }
+            if (!featuresSet.contains(mark.key)) runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }
         }
 
         // --- add newly downloaded markers not already in old set ---
@@ -274,6 +274,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             fab.animate().x(fabAnimationFromTo.first)
         }
 
+        mMap.setOnInfoWindowLongClickListener {
+            markersData[it.position]?.let { md ->
+                startActivityForResult(Intent(this, PlantForm::class.java).putExtra("nid", md.nid), 33)
+        }}
+
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
         mMap.setOnMarkerClickListener { marker -> markerOnClickListener(marker) }
     }
@@ -301,7 +306,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
         mMap.isMyLocationEnabled = true  // show blue circle on map
     }
 
-    // if we add a marker, resume at its location with open info window (= simulate click)
+    // if we add or edit a marker, resume at its location with open info window (= simulate click)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (!(requestCode == 33 && resultCode == Activity.RESULT_OK && data != null)) return
@@ -312,9 +317,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
         onCameraIdleEnabled = false
         mapFragment.handleFilterClick(null, 99) {true}
+        // invalidate cache (in case we update marker)
+        for (mark in markers.toMap()) {  // copy constructor
+            if (markersData[mark.key]?.nid.toString() == nid) runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }
+        }
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
             override fun onFinish() = updateMarkers { runOnUiThread {
                 onCameraIdleEnabled = true
+                // simulate click on just-uploaded/updated marker
                 markers.values.filter { markersData[it.position]?.nid.toString() == nid }.forEach { markerOnClickListener(it) }
             }}
             override fun onCancel() {}
@@ -324,7 +334,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.title) {
-            "Add" -> { startActivityForResult(Intent(this, AddPlantActivity::class.java), 33); true }
+            "Add" -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -383,6 +393,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 //    - Test both supported languages (EN/DE)
 //    - Test rotation
 //    - Test offline use
+//    - Test with special characters: HTML-escaped (<>&) and German (ae, oe, ue)
 
 
 // TODO clusters
