@@ -16,9 +16,26 @@ class Login : AppCompatActivity() {
         "op" to "Anmelden"
     )
 
+    // migrate the user's old settings (new in v13) -- can delete this a few weeks out
+    private fun migrateSettings() {
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPrefOld = this.getSharedPreferences("AddPlantActivity", Context.MODE_PRIVATE)
+        val newName = sharedPref.getString("name", "") ?: ""
+        val newPass = sharedPref.getString("pass", "") ?: ""
+        val oldName = sharedPrefOld.getString("name", newName) ?: newName
+        val oldPass = sharedPrefOld.getString("pass", newPass) ?: newPass
+        with (sharedPref.edit()) {
+            putString("name", oldName)
+            putString("pass", oldPass)
+            apply()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        migrateSettings()
 
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         val name = sharedPref.getString("name", "") ?: ""

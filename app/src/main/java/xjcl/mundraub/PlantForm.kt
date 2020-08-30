@@ -98,23 +98,8 @@ class PlantForm : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // TODO add/edit marker
-        supportActionBar?.title = getString(R.string.addNode)
-
-        // TODO test this, seems not to be working
-        // migrate the user's old settings (new in v13) -- can delete this a few weeks out
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val sharedPrefOld = this.getPreferences(Context.MODE_PRIVATE)
-        Log.e("spo", "b "+sharedPrefOld.getString("name", "") ?: "")
-        val newName = sharedPref.getString("name", "") ?: ""
-        val newPass = sharedPref.getString("pass", "") ?: ""
-        val oldName = sharedPrefOld.getString("name", newName) ?: newName
-        val oldPass = sharedPrefOld.getString("pass", newPass) ?: newPass
-        with (sharedPref.edit()) {
-            putString("name", oldName)
-            putString("pass", oldPass)
-            apply()
-        }
+        val intentNid = intent.getIntExtra("nid", -1)
+        supportActionBar?.title = if (intentNid > -1) getString(R.string.editNode) else getString(R.string.addNode)
 
         if (hasLoginCookie(this, loginIfMissing = true))
             doCreate()

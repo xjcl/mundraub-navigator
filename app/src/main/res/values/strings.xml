@@ -56,6 +56,7 @@
     <string name="onlyShowing">Showing:\u0020</string>
 
     <string name="addNode">Create new marker</string>
+    <string name="editNode">Edit existing marker</string>
     <string name="user">Username</string>
     <string name="pass">Password</string>
     <string name="type">Type of find</string>

@@ -56,6 +56,7 @@
     <string name="onlyShowing">Angezeigt:\u0020</string>
 
     <string name="addNode">Neuen Fundort hinzufügen</string>
+    <string name="editNode">Fundort bearbeiten</string>
     <string name="user">Benutzername</string>
     <string name="pass">Passwort</string>
     <string name="type">Fruchtfund</string>
