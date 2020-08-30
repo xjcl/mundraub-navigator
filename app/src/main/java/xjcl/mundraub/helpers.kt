@@ -8,7 +8,9 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
+import android.text.Spanned
 import android.util.Log
+import androidx.core.text.HtmlCompat
 import com.google.android.gms.maps.model.LatLng
 import java.text.SimpleDateFormat
 import java.util.*
@@ -46,6 +48,9 @@ fun materialDesignBg(padX: Int, padY: Int, c: Float): Drawable {
     }
 }
 
+fun primaryColorTitle(text : String) : Spanned =
+    HtmlCompat.fromHtml("<font color=\"#94b422\">${text}</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+
 fun getFruitColor(resources : Resources, tid: Int?) : Int =
     BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
         .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
@@ -56,15 +61,15 @@ fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.
 
 fun <K, V> Map<K, V>.getInverse(value: V) = entries.firstOrNull { it.value == value }?.key
 
-fun ensureCookie(activity : Activity) {
+fun hasLoginCookie(activity : Activity, loginIfMissing : Boolean = false) : Boolean {
     // TODO XXX test with single-digit days!!
 
-    val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
+    val sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE)
     val cook = sharedPref.getString("cookie", null)
     if (cook == null) {
-        Log.e("cook", "no cookie")
-        activity.startActivityForResult(Intent(activity, Login::class.java), 55)
-        return
+        Log.e("cook", "no cook")
+        if (loginIfMissing) activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+        return false
     }
 
     val stringDate = cook.substringAfter("expires=").substringBefore("; Max-Age")
@@ -73,9 +78,10 @@ fun ensureCookie(activity : Activity) {
 
     if (Date() > expiration) {
         Log.e("cook", "this cook is expired")
-        activity.startActivityForResult(Intent(activity, Login::class.java), 55)
-        return
+        if (loginIfMissing) activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+        return false
     }
 
     Log.e("cook", "use cook")
+    return true
 }

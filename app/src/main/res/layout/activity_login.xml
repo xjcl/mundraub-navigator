@@ -19,7 +19,7 @@
         android:background="?android:attr/dividerHorizontal"/>
 
     <View
-        android:layout_height="2dp"
+        android:layout_height="1dp"
         android:layout_width="match_parent"
         android:background="#505050"/>
 
@@ -68,6 +68,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="onButtonClick"
             android:text="@string/lgin" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

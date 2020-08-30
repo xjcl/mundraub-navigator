@@ -35,11 +35,6 @@ import kotlin.concurrent.thread
 
 class PlantForm : AppCompatActivity() {
 
-    val loginData = mutableMapOf(
-        "form_id" to "user_login_form",
-        "op" to "Anmelden"
-    )
-
     val plantData = mutableMapOf(
         "form_id" to "node_plant_form",
         "changed" to "0",
@@ -88,6 +83,9 @@ class PlantForm : AppCompatActivity() {
             val lng = data.getDoubleExtra("lng", 0.0)
             updateLocationPicker(LatLng(lat, lng))
         }
+        if (requestCode == 55) {
+            if (hasLoginCookie(this)) doCreate() else finish()
+        }
     }
 
     private fun exitToMain(nid : String) {
@@ -97,31 +95,40 @@ class PlantForm : AppCompatActivity() {
         finish()
     }
 
+    // TODO migrate old settings!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // TODO add/edit marker
         supportActionBar?.title = getString(R.string.addNode)
 
-        val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
-
-        ensureCookie(this)
-        val cook2 = sharedPref.getString("cookie", null)
-        if (cook2 == null) { finish(); return }
-
-        val lin = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(24) }
-
-        TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
-        val userTIL = (lin.children.last() as TextInputLayout).apply {
-            hint = getString(R.string.user)
-            editText?.setText(sharedPref.getString("name", ""))
+        // TODO test this, seems not to be working
+        // migrate the user's old settings (new in v13) -- can delete this a few weeks out
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPrefOld = this.getPreferences(Context.MODE_PRIVATE)
+        Log.e("spo", "b "+sharedPrefOld.getString("name", "") ?: "")
+        val newName = sharedPref.getString("name", "") ?: ""
+        val newPass = sharedPref.getString("pass", "") ?: ""
+        val oldName = sharedPrefOld.getString("name", newName) ?: newName
+        val oldPass = sharedPrefOld.getString("pass", newPass) ?: newPass
+        with (sharedPref.edit()) {
+            putString("name", oldName)
+            putString("pass", oldPass)
+            apply()
         }
 
-        TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
-        val passTIL = (lin.children.last() as TextInputLayout).apply {
-            hint = getString(R.string.pass)
-            editText?.setText(sharedPref.getString("pass", ""))
-        }
+        if (hasLoginCookie(this, loginIfMissing = true))
+            doCreate()
+    }
+
+    private fun doCreate() {
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val cook = sharedPref.getString("cookie", null)
+        if (cook == null) { finish(); return }
+
+        val density = resources.displayMetrics.density
+        val lin = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding((12 * density).toInt()) }
 
         TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
         val typeTIL = (lin.children.last() as TextInputLayout).apply { hint = getString(R.string.type) }
@@ -198,71 +205,43 @@ class PlantForm : AppCompatActivity() {
                 }
         }
 
-        // TODO This will be reworked with a separate login page and cookie handling once necessary changes on the backend are made
-
-        // TODO write down data
-        // TODO make upload pass correctly
-        // TODO if nid in intent
-        // TODO add image round-trip
         val intentNid = intent.getIntExtra("nid", -1)
-        if (userTIL.editText?.text.toString().isNotBlank() && passTIL.editText?.text.toString().isNotBlank() && intentNid > -1) {
+        if (intentNid > -1) {
             submitUrl = "https://mundraub.org/node/${intentNid}/edit"
-//            loginData["name"] = userTIL.editText?.text.toString()
-//            loginData["pass"] = passTIL.editText?.text.toString()
 
-            Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
+            Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
 
-                when (response.statusCode) {
+                when (response.statusCode ) {
                     -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
-                    303 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; finish()}
+                    200 -> {}
+                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; finish()}
                 }
 
-                val cook = response.headers["Set-Cookie"].first()  // TODO: look at expiration date
+                val description_ = result.get().substringAfter("body[0][value]").substringAfter(">").substringBefore("<")
+                val description = HtmlCompat.fromHtml(description_, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
 
-                Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
+                val type_ = result.get().substringAfter("field_plant_category").substringBefore("\" selected=\"selected\"").takeLast(2)
+                val type = if (type_[0] == '"') type_.takeLast(1) else type_
 
-                    when (response.statusCode ) {
-                        -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
-                        200 -> {}
-                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; finish()}
-                    }
+                val count = result.get().substringAfter("field_plant_count_trees").substringBefore("\"  selected=\"selected\"").takeLast(1)
+                val locationList = result.get().substringAfter("POINT (").substringBefore(")").split(' ')
+                plantData["form_id"] = "node_plant_edit_form"
+                plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"").substringBefore("\"")
 
-                    val description_ = result.get().substringAfter("body[0][value]").substringAfter(">").substringBefore("<")
-                    val description = HtmlCompat.fromHtml(description_, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
-
-                    val type_ = result.get().substringAfter("field_plant_category").substringBefore("\" selected=\"selected\"").takeLast(2)
-                    val type = if (type_[0] == '"') type_.takeLast(1) else type_
-
-                    val count = result.get().substringAfter("field_plant_count_trees").substringBefore("\"  selected=\"selected\"").takeLast(1)
-                    val locationList = result.get().substringAfter("POINT (").substringBefore(")").split(' ')
-                    plantData["form_id"] = "node_plant_edit_form"
-                    plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"").substringBefore("\"")
-
-                    typeTIL.postDelayed({
-                        typeTIL.auto_text_input.editText?.setText( values[keys.indexOf(type)] ); updateType()
-                        descriptionTIL.editText?.setText(description)
-                        chipGroup.check(chipMap.getInverse(count) ?: R.id.chip_0)
-                        updateLocationPicker( LatLng(locationList[1].toDouble(), locationList[0].toDouble()) )
-                    }, 30)
-                }
+                typeTIL.postDelayed({
+                    typeTIL.auto_text_input.editText?.setText( values[keys.indexOf(type)] ); updateType()
+                    descriptionTIL.editText?.setText(description)
+                    chipGroup.check(chipMap.getInverse(count) ?: R.id.chip_0)
+                    updateLocationPicker( LatLng(locationList[1].toDouble(), locationList[0].toDouble()) )
+                }, 30)
             }
         }
 
         Button(this).apply { text = getString(R.string.upld); lin.addView(this) }.setOnClickListener {
 
-            loginData["name"] = userTIL.editText?.text.toString()
-            loginData["pass"] = passTIL.editText?.text.toString()
-
-            with (sharedPref.edit()) {
-                putString("name", loginData["name"])
-                putString("pass", loginData["pass"])
-                apply()
-            }
             val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
 
             val errors = listOf(
-                getString(R.string.errMsgLoginInfos) to (loginData["name"]!!.isBlank() || loginData["pass"]!!.isBlank()),
                 getString(R.string.errMsgDesc) to descriptionTIL.editText?.text.toString().isBlank(),
                 getString(R.string.errMsgType) to (typeIndex == -1),
                 getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) || locationPicker.text.toString() == "???")
@@ -270,27 +249,16 @@ class PlantForm : AppCompatActivity() {
             errors.forEach { if (it.second) {
                 runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }
                 return@setOnClickListener
-            } }
+            }}
 
-            Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
-
+            Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
                 when (response.statusCode) {
                     -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
-                    303 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    200 -> {}
+                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
                 }
 
-                val cook = response.headers["Set-Cookie"].first()  // TODO: look at expiration date
-
-                Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
-                    when (response.statusCode) {
-                        -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
-                        200 -> {}
-                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
-                    }
-
-                    doSubmit(result, cook)
-                }
+                doSubmit(result, cook)
             }
         }
 

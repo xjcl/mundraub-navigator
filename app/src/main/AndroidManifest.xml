@@ -34,7 +34,7 @@
             android:label="@string/title_activity_location_picker" />
         <activity android:name=".PlantForm" />
         <activity
-            android:name=".MapsActivity"
+            android:name=".Main"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_maps"
             android:screenOrientation="portrait">

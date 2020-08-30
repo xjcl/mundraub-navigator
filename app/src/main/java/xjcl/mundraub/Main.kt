@@ -44,7 +44,7 @@ import kotlin.collections.HashSet
 import kotlin.concurrent.thread
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
+class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     lateinit var mapFragment : JanMapFragment
     var onCameraIdleEnabled : Boolean = true
@@ -143,7 +143,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
                 picassoBitmapTarget.md = md
                 picassoBitmapTarget.marker = marker
-                Picasso.with(this@MapsActivity).load("https://mundraub.org/$imageURL").into(picassoBitmapTarget)
+                Picasso.with(this@Main).load("https://mundraub.org/$imageURL").into(picassoBitmapTarget)
             }
         }
     }
@@ -172,7 +172,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
     private fun setUpNetworking() {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = runOnUiThread { this@MapsActivity.updateMarkers() }
+            override fun onAvailable(network: Network) = runOnUiThread { this@Main.updateMarkers() }
         })
     }
 
@@ -193,44 +193,44 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
             override fun getInfoWindow(arg0: Marker): View? = null
 
             override fun getInfoContents(marker: Marker): View {
-                val md = markersData[marker.position] ?: return TextView(this@MapsActivity)
+                val md = markersData[marker.position] ?: return TextView(this@Main)
 
                 // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
                 val density = resources.displayMetrics.density
                 var masterWidth = (12 * 13 * density).toInt()
 
-                val info = LinearLayout(this@MapsActivity)
+                val info = LinearLayout(this@Main)
                 info.orientation = LinearLayout.VERTICAL
 
-                val photo = ImageView(this@MapsActivity)
+                val photo = ImageView(this@Main)
                 photo.setImageBitmap(scaleToWidth(md.image, masterWidth))
                 if (md.image != null) info.addView(photo)
 
-                val description = TextView(this@MapsActivity)
+                val description = TextView(this@Main)
                 description.width = masterWidth
                 description.textSize = 12F
                 if (md.type != "cluster") info.addView(description)
                 if (md.description != null) {
                     description.text = md.description
 
-                    val uploader = TextView(this@MapsActivity)
+                    val uploader = TextView(this@Main)
                     uploader.textSize = 12F
                     uploader.text = md.uploader
                     uploader.gravity = Gravity.RIGHT
                     uploader.maxWidth = masterWidth
                     info.addView(uploader)
 
-                    val uploadDate = TextView(this@MapsActivity)
+                    val uploadDate = TextView(this@Main)
                     uploadDate.textSize = 12F
                     uploadDate.text = md.uploadDate
                     uploadDate.gravity = Gravity.RIGHT
                     uploadDate.maxWidth = masterWidth
                     info.addView(uploadDate)
                 } else {
-                    description.text = this@MapsActivity.getString(R.string.loading)
+                    description.text = this@Main.getString(R.string.loading)
                 }
 
-                val title = TextView(this@MapsActivity)
+                val title = TextView(this@Main)
                 title.setTextColor(md.fruitColor)
                 title.gravity = Gravity.CENTER
                 title.setTypeface(null, Typeface.BOLD)
@@ -241,9 +241,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 if (md.monthCodes.all { it == '_' })
                     return info
 
-                val seasonText = TextView(this@MapsActivity)
+                val seasonText = TextView(this@Main)
                 seasonText.setTextColor(Color.BLACK)
-                seasonText.text = this@MapsActivity.getString(if (md.isSeasonal) R.string.inSeason else R.string.notInSeason)
+                seasonText.text = this@Main.getString(if (md.isSeasonal) R.string.inSeason else R.string.notInSeason)
                 info.addView(seasonText)
 
                 val months = mapFragment.createMonthsBar(md)
@@ -253,8 +253,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
                 description.width = masterWidth
                 photo.setImageBitmap(scaleToWidth(md.image, masterWidth))
 
-                val day = RelativeLayout(this@MapsActivity)
-                val tv = TextView(this@MapsActivity)
+                val day = RelativeLayout(this@Main)
+                val tv = TextView(this@Main)
                 tv.text = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
                 tv.setTextColor(if (md.isSeasonal) md.fruitColor else Color.GRAY)
                 tv.setTypeface(null, Typeface.BOLD)
@@ -333,28 +333,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListen
 
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.title) {
-            "Add" -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
+        return when (item.itemId) {
+            1 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
+            0 -> { startActivity(Intent(this, Login::class.java)); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val icon = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
-        icon.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+        val icon1 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
+        icon1.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+        val icon0 = ContextCompat.getDrawable(this, R.drawable.material_login) ?: return true
+        icon0.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
 
-        menu.add(0, 0, 0, "Add").setIcon(icon).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(1, 1, 1, "Add").setIcon(icon1).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(0, 0, 0, primaryColorTitle("Login")).setIcon(icon0).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
 
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        setContentView(R.layout.activity_main)
         supportActionBar?.apply {
             val navStr = if (resources.displayMetrics.widthPixels  / resources.displayMetrics.density > 500) "Navigator" else "Nav."
-            title = HtmlCompat.fromHtml("<font color=\"#94b422\">${navStr} v${BuildConfig.VERSION_NAME}!</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
+            title = primaryColorTitle("$navStr v${BuildConfig.VERSION_NAME}")
             setBackgroundDrawable(ColorDrawable(Color.WHITE))
             setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
             displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO

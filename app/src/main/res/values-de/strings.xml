@@ -68,6 +68,7 @@
     <string name="errMsgLoginInfos">Bitte Logininfos ausfüllen</string>
     <string name="errMsgAccess">Fehlende Rechte für diese Aktion</string>
     <string name="errMsgLogin">Login fehlgeschlagen</string>
+    <string name="errMsgLoginSuccess">Login erfolgreich!</string>
     <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>
     <string name="errMsgType">Bitte gültige Fruchtart eingeben</string>
     <string name="errMsgLoc">Bitte gültigen Ort eintragen</string>
