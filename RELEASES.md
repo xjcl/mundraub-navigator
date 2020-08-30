@@ -1,4 +1,8 @@
 
+v13
+- Edit marker by long-pressing info window
+- Log-in as separate cookie-storing form
+
 v12
 - Automatic download of node detail when marker tapped
 - Constantly show seasonal months in info bar
