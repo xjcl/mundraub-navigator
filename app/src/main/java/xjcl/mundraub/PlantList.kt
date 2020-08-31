@@ -1,0 +1,156 @@
+package xjcl.mundraub
+
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.Headers
+import kotlinx.android.synthetic.main.activity_plant_list.*
+import kotlinx.android.synthetic.main.activity_plant_list_item.view.*
+import java.util.*
+import kotlin.collections.ArrayList
+
+
+class CardInfo(val nid: Int, val tid: Int, val addr: String, val type: String)
+
+class RVAdapter (val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.PersonViewHolder>() {
+    class PersonViewHolder (val v: View) : RecyclerView.ViewHolder(v)
+
+    // card created
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PersonViewHolder {
+        val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.activity_plant_list_item, viewGroup, false)
+        return PersonViewHolder(v)
+    }
+
+    // card scrolls into view or data changed
+    override fun onBindViewHolder(personViewHolder: PersonViewHolder, i: Int) {
+        personViewHolder.v.apply {
+            card_title.text = cardInfos[i].type
+            card_subtitle.text = cardInfos[i].addr
+            card_marker.setImageResource( treeIdToMarkerIcon[cardInfos[i].tid] ?: R.drawable.otherfruit )
+            setOnClickListener {
+                (context as Activity).startActivityForResult(Intent(context, PlantForm::class.java).putExtra("nid", cardInfos[i].nid), 33)
+            }
+        }
+    }
+
+    override fun getItemCount(): Int = cardInfos.size
+}
+
+
+class PlantList : AppCompatActivity() {
+    // I hate this code but Android
+    private fun setGermanStringsToTreeId() {
+        val conf = resources.configuration
+        val localeBackup: Locale = conf.locale
+        conf.locale = Locale.GERMAN
+        resources.updateConfiguration(conf, null) // second arg null means don't change
+
+        val values = treeIdToMarkerIcon.keys.toList()
+        val keys = values.map { key -> resources.getString(resources.getIdentifier("tid${key}", "string", packageName)) }
+
+        conf.locale = localeBackup
+        resources.updateConfiguration(conf, null)
+
+        germanStringsToTreeId = keys.zip(values).toMap()
+    }
+
+    private lateinit var germanStringsToTreeId : Map<String, Int>
+    private lateinit var cookie : String
+    private lateinit var uid : String
+    private var pagesLoaded = 0
+    private var allPagesLoaded = false
+    private val cardInfos = ArrayList<CardInfo>()
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.e("onActivityResult", "onActivityResult")
+        // TODO change just one item, do not recreate whole activity
+        if (requestCode == 33 && resultCode == Activity.RESULT_OK) recreate()
+        if (requestCode == 55) {
+            if (hasLoginCookie(this)) doCreate() else finish()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_plant_list)
+        setGermanStringsToTreeId()
+
+        if (hasLoginCookie(this, loginIfMissing = true))
+            doCreate()
+    }
+
+    private fun loadNextPage() {
+        if (allPagesLoaded || !::uid.isInitialized) return
+        val url = "https://mundraub.org/user/$uid/plants?page=$pagesLoaded"  // Pear
+        Log.e("loadNextPage", url)
+        Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
+
+            when (response.statusCode ) {
+                -1 -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                200 -> {}
+                else -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; return@responseString}
+            }
+            pagesLoaded += 1
+
+            // TODO icon for finds
+            var unprocessed = result.get()
+            var i = -1
+            while (i++ >= -1) {
+                unprocessed = unprocessed.substringAfter("nid=", "")
+                if (unprocessed.isBlank()) break
+
+                val nid = unprocessed.substringBefore("\"").toInt()
+                val type = unprocessed.substringAfter("boxlink\">").substringBefore("<")
+                val addrRaw = unprocessed.substringAfter("</a>").substringBefore("</div></div>")
+
+                val matches = ">.*?<".toRegex().findAll(addrRaw)
+                val addr = matches.map { it.value.substring(1, it.value.length - 1) }.joinToString(" ").let { unescapeHtml(it) }
+                Log.e("pl***", " $type **** $addr")
+
+                val tid = germanStringsToTreeId[type] ?: 12
+
+                val card = CardInfo(nid, tid, addr, resources.getString(resources.getIdentifier("tid${tid}", "string", packageName)))
+                cardInfos.add(card)
+            }
+            allPagesLoaded = i == 0
+            runOnUiThread { recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - i, i)
+                recycler_info.visibility = View.GONE; recycler_info_divider.visibility = View.GONE }
+        }
+    }
+
+    private fun doCreate() {
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val cook = sharedPref.getString("cookie", null)
+        if (cook == null) { finish(); return }
+        cookie = cook
+
+        recycler_view.layoutManager = LinearLayoutManager(this)
+        recycler_view.adapter = RVAdapter(cardInfos)
+        recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE)
+                    loadNextPage()
+            }
+        })
+
+        Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+            // TODO store this in sharedPrefs object (after login, and here for compat reasons)
+            uid = result.get().substringAfter("/user/").substringBefore("\"")
+            loadNextPage()
+        }
+    }
+}
+
+// TODO really should use svg or at least xxxhdpi instead of xhdpi for this

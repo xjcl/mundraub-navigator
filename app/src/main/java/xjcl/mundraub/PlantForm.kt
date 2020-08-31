@@ -6,10 +6,12 @@ import android.content.Intent
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -26,9 +28,6 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.text_input_autocomplete.view.*
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -113,13 +112,15 @@ class PlantForm : AppCompatActivity() {
         // TODO use XML instead of dynamic creation
         val density = resources.displayMetrics.density
         val lin = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding((12 * density).toInt()) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) lin.focusable = View.FOCUSABLE
+        lin.isFocusableInTouchMode = true
 
         TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
         val typeTIL = (lin.children.last() as TextInputLayout).apply { hint = getString(R.string.type) }
         // TODO make this a proper map and call getInverse() on it
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
-        val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", "xjcl.mundraub")) }
-        typeTIL.auto_text.setAdapter( ArrayAdapter(this, R.layout.list_item, values) )
+        val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", packageName)) }
+        typeTIL.auto_text.setAdapter( ArrayAdapter(this, R.layout.activity_plant_form_item, values) )
         fun updateType() : Unit {
             val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
             if (typeIndex == -1) return
@@ -249,6 +250,8 @@ class PlantForm : AppCompatActivity() {
         setContentView( ScrollView(this).apply { addView(lin) } )
     }
 }
+
+// TODO add delete button if edit view (needs confirm menu tho)
 
 // TODO: MapFragment with preview of window :D
 //      this will let users know not to write too much text

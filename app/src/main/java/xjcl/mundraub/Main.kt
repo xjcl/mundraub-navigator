@@ -27,7 +27,6 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.text.HtmlCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -124,7 +123,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
             fun extractUnescaped(htmlStr : String, after : String, before : String) : String {
                 val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
-                return HtmlCompat.fromHtml(extractEscaped, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
+                return unescapeHtml(extractEscaped)
             }
 
             val number = extractUnescaped(htmlStr, "Anzahl: <span class=\"tag\">", "</span>")
@@ -334,21 +333,25 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            1 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
-            0 -> { startActivity(Intent(this, Login::class.java)); true }
+            9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
+            8 -> { startActivity(Intent(this, Login::class.java)); true }
+            7 -> { startActivity(Intent(this, PlantList::class.java)); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val icon1 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
-        icon1.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
-        val icon0 = ContextCompat.getDrawable(this, R.drawable.material_login) ?: return true
-        icon0.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+        val icon9 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
+        icon9.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+        val icon8 = ContextCompat.getDrawable(this, R.drawable.material_login) ?: return true
+        icon8.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+        val icon7 = ContextCompat.getDrawable(this, R.drawable.material_list) ?: return true
+        icon7.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
 
-        menu.add(1, 1, 1, "Add").setIcon(icon1).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(0, 0, 0, primaryColorTitle("Login")).setIcon(icon0).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(7, 7, 7, "List").setIcon(icon7).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(8, 8, 8, "Login").setIcon(icon8).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(9, 9, 9, "Add").setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
 

@@ -3,6 +3,7 @@
     <string name="title_activity_maps">Mundraub Navigator</string>
     <string name="title_activity_location_picker">Bitte Ort wählen und auf OK</string>
     <string name="title_activity_login">Login bei Mundraub</string>
+    <string name="title_activity_plant_list">Meine Fundorte</string>
 
     <string name="tid4" >Apfel</string>
     <string name="tid5" >Birne</string>
@@ -20,8 +21,8 @@
     <string name="tid17">Andere Nüsse</string>
 
     <string name="tid18">Brombeere</string>
-    <string name="tid19">Wilde Erdbeere</string>
-    <string name="tid20">Blaubeere</string>
+    <string name="tid19">Walderdbeere</string>
+    <string name="tid20">Heidelbeere</string>
     <string name="tid21">Holunder</string>
     <string name="tid22">Himbeere</string>
     <string name="tid23">Johannisbeere</string>
@@ -38,7 +39,7 @@
     <string name="tid33">Minze</string>
     <string name="tid34">Rosmarin</string>
     <string name="tid35">Waldmeister</string>
-    <string name="tid36">Thymina</string>
+    <string name="tid36">Thymian</string>
     <string name="tid37">Andere Kräuter</string>
 
     <string name="tid80">Obstbäume</string>
@@ -80,4 +81,5 @@
     <string name="tapForInfo">--- Berühren für Details ---</string>
     <string name="loading">(warte…)</string>
     <string name="login_info">Hinzufügen und Bearbeiten von Markern erfordert Login mit einem Mundraub-Account. Account-Erstellung ist momentan nur auf Mundraub.org möglich.</string>
+    <string name="empty_info">Du hast entweder noch keine Fundorte beigetragen oder es gibt keine Verbindung mit dem Internet.</string>
 </resources>
