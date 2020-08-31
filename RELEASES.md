@@ -1,4 +1,7 @@
 
+v14
+- Add list of user discoveries
+
 v13
 - Edit marker by long-pressing info window
 - Log-in as separate cookie-storing form
