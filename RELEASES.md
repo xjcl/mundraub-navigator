@@ -1,4 +1,9 @@
 
+v15
+- Add delete functionality
+- Add report form
+- Add register form
+
 v14
 - Add list of user discoveries
 
