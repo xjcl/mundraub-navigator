@@ -124,8 +124,9 @@ class PlantList : AppCompatActivity() {
                 cardInfos.add(card)
             }
             allPagesLoaded = i == 0
-            runOnUiThread { recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - i, i)
-                recycler_info.visibility = View.GONE; recycler_info_divider.visibility = View.GONE }
+            if (i > 0)
+                runOnUiThread { recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - i, i)
+                    recycler_info.visibility = View.GONE; recycler_info_divider.visibility = View.GONE }
         }
     }
 

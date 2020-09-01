@@ -74,12 +74,16 @@
     <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>
     <string name="errMsgType">Bitte gültige Fruchtart eingeben</string>
     <string name="errMsgLoc">Bitte gültigen Ort eintragen</string>
-    <string name="errMsgAdd">Login ok, Marker fehlgeschlagen</string>
+    <string name="errMsgOpFail">Operation fehlgeschlagen</string>
     <string name="errMsgSuccess">Erfolgreich hochgeladen!</string>
+    <string name="errMsgDeleteSuccess">Erfolgreich gelöscht!</string>
 
     <string name="loggedInAs">Eingeloggt als: %1$s</string>
     <string name="tapForInfo">--- Berühren für Details ---</string>
     <string name="loading">(warte…)</string>
     <string name="login_info">Hinzufügen und Bearbeiten von Markern erfordert Login mit einem Mundraub-Account. Account-Erstellung ist momentan nur auf Mundraub.org möglich.</string>
     <string name="empty_info">Du hast entweder noch keine Fundorte beigetragen oder es gibt keine Verbindung mit dem Internet.</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="reallyDelete">Wirklich löschen?</string>
 </resources>

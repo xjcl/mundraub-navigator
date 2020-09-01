@@ -1,8 +1,11 @@
 package xjcl.mundraub
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -11,6 +14,8 @@ import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -48,6 +53,12 @@ class PlantForm : AppCompatActivity() {
         "op" to "Speichern"
     )
 
+    val deleteData = mutableMapOf(
+        "confirm" to "1",
+        "form_id" to "node_plant_delete_form",
+        "op" to "Löschen"
+    )
+
     val chipMap = mapOf(
         R.id.chip_0 to "0",
         R.id.chip_1 to "1",
@@ -56,6 +67,8 @@ class PlantForm : AppCompatActivity() {
     )
 
     var submitUrl = "https://mundraub.org/node/add/plant"
+    var intentNid = -1
+    lateinit var cookie : String
 
     fun LatLng(location : Location): LatLng = LatLng(location.latitude, location.longitude)
 
@@ -87,17 +100,78 @@ class PlantForm : AppCompatActivity() {
         }
     }
 
-    private fun exitToMain(nid : String) {
+    private fun finishSuccess(nid : String = "") {
         Log.e("exitToMain", "exit to main at $location with $nid")
         val output = Intent().putExtra("lat", location.latitude).putExtra("lng", location.longitude).putExtra("nid", nid)
         setResult(Activity.RESULT_OK, output)
         finish()
     }
 
+    // TODO delete button
+    // TODO translate strings
+    private fun plantDeleteDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Really delete?")
+            .setPositiveButton("Yes") { _, _ -> plantDelete() }
+            .setNegativeButton("No") { _, _ -> }
+        builder.create().show()
+    }
+
+    //    https://mundraub.org/node/89335/delete
+    private fun plantDelete() {
+        // TODO add dialog
+
+        val deleteUrl = "https://mundraub.org/node/$intentNid/delete"
+        Log.e("plantDelete", deleteUrl)
+        Fuel.get(deleteUrl).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+
+            deleteData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
+
+            Log.e("plantDelete", " ${result.get()}")
+            Log.e("plantDelete", " $deleteData")
+
+            Fuel.post(deleteUrl, deleteData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result2 ->
+
+                Log.e("plantDelete", result2.get())
+                when (response.statusCode) {
+                    -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    303 -> {}
+                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }; return@responseString}
+                }
+
+                runOnUiThread {
+                    Toast.makeText(this@PlantForm, getString(R.string.errMsgDeleteSuccess), Toast.LENGTH_SHORT).show()
+                    finishSuccess()
+                }
+            }
+        }
+    }
+
+    // Handle ActionBar option selection
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            9 -> { plantDeleteDialog(); true }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // Create the ActionBar options menu
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (intentNid == -1) return true
+        val icon9 = ContextCompat.getDrawable(this, R.drawable.material_delete) ?: return true
+        icon9.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        menu.add(9, 9, 9, "Delete").setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        return true
+    }
+
+    /**
+     * ADD Form if intentNid == -1 or not specified
+     * EDIT Form if intentNid > -1
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val intentNid = intent.getIntExtra("nid", -1)
+        intentNid = intent.getIntExtra("nid", -1)
         supportActionBar?.title = if (intentNid > -1) getString(R.string.editNode) else getString(R.string.addNode)
 
         if (hasLoginCookie(this, loginIfMissing = true))
@@ -108,6 +182,7 @@ class PlantForm : AppCompatActivity() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         val cook = sharedPref.getString("cookie", null)
         if (cook == null) { finish(); return }
+        cookie = cook
 
         // TODO use XML instead of dynamic creation
         val density = resources.displayMetrics.density
@@ -160,7 +235,7 @@ class PlantForm : AppCompatActivity() {
             updateLocationPicker(LatLng(location))
         }}
 
-        fun doSubmit(result : Result<String, FuelError>, cook : String) {
+        fun plantSubmit(result : Result<String, FuelError>) {
             plantData["changed"] = result.get().substringAfter("name=\"changed\" value=\"").substringBefore("\"")
             //plantData["form_build_id"] = result.get().substringAfter("name=\"form_build_id\" value=\"").substringBefore("\"")
             plantData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
@@ -172,7 +247,7 @@ class PlantForm : AppCompatActivity() {
 
             Log.e("plantData", plantData.toString())
 
-            Fuel.post(submitUrl, plantData.toList()).header(Headers.COOKIE to cook)
+            Fuel.post(submitUrl, plantData.toList()).header(Headers.COOKIE to cookie)
                 .allowRedirects(false).responseString { request, response, result ->
 
                     Log.e("nid", result.get())
@@ -180,23 +255,22 @@ class PlantForm : AppCompatActivity() {
                     when (response.statusCode) {
                         -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                         303 -> {}
-                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAdd), Toast.LENGTH_SHORT).show() }; return@responseString}
+                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }; return@responseString}
                     }
 
                     val nid_ = result.get().substringAfter("?nid=", "").substringBefore("\"")
                     val nid = if (nid_.isNotEmpty()) nid_ else result.get().substringAfter("node/").substringBefore("\"")
                     runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
-                    exitToMain(nid)
+                    finishSuccess(nid)
                 }
         }
 
-        val intentNid = intent.getIntExtra("nid", -1)
         if (intentNid > -1) {
             submitUrl = "https://mundraub.org/node/${intentNid}/edit"
 
             Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
 
-                when (response.statusCode ) {
+                when (response.statusCode) {
                     -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
                     200 -> {}
                     else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; finish()}
@@ -243,7 +317,7 @@ class PlantForm : AppCompatActivity() {
                     else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
                 }
 
-                doSubmit(result, cook)
+                plantSubmit(result)
             }
         }
 
