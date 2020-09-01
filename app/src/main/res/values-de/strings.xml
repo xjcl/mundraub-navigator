@@ -58,6 +58,7 @@
 
     <string name="addNode">Neuen Fundort hinzufügen</string>
     <string name="editNode">Fundort bearbeiten</string>
+    <string name="email">E-Mail-Adresse</string>
     <string name="user">Benutzername</string>
     <string name="pass">Passwort</string>
     <string name="type">Fruchtfund</string>
@@ -65,12 +66,16 @@
     <string name="desc">Beschreibung</string>
     <string name="upld">Hochladen!</string>
     <string name="lgin">Login!</string>
+    <string name="reg">Registrieren</string>
 
     <string name="errMsgNoInternet">Keine Verbindung</string>
-    <string name="errMsgLoginInfos">Bitte Logininfos ausfüllen</string>
+    <string name="errMsgLoginInfo">Bitte Logindaten ausfüllen</string>
+    <string name="errMsgRegisterInfo">Bitte Registrationsdaten ausfüllen</string>
     <string name="errMsgAccess">Fehlende Rechte für diese Aktion</string>
     <string name="errMsgLogin">Login fehlgeschlagen</string>
     <string name="errMsgLoginSuccess">Login erfolgreich!</string>
+    <string name="errMsgRegister">Registration fehlgeschlagen, Benutzername oder E-Mail-Adresse fehlerhaft oder schon vergeben.</string>
+    <string name="errMsgRegisterSuccess">Registration erfolgreich! Schau in dein E-Mail-Postfach um dein Passwort zu setzen.</string>
     <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>
     <string name="errMsgType">Bitte gültige Fruchtart eingeben</string>
     <string name="errMsgLoc">Bitte gültigen Ort eintragen</string>

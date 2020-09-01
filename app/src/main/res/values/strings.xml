@@ -58,6 +58,7 @@
 
     <string name="addNode">Create new marker</string>
     <string name="editNode">Edit existing marker</string>
+    <string name="email">Email</string>
     <string name="user">Username</string>
     <string name="pass">Password</string>
     <string name="type">Type of find</string>
@@ -65,12 +66,16 @@
     <string name="desc">Description (preferably in German)</string>
     <string name="upld">Upload!</string>
     <string name="lgin">Log in!</string>
+    <string name="reg">Register</string>
 
     <string name="errMsgNoInternet">Couldn\'t connect</string>
-    <string name="errMsgLoginInfos">Please fill in login info</string>
+    <string name="errMsgLoginInfo">Please fill in login info</string>
+    <string name="errMsgRegisterInfo">Please fill in registration info</string>
     <string name="errMsgAccess">No access to this resource</string>
     <string name="errMsgLogin">Login failed</string>
     <string name="errMsgLoginSuccess">Login successful!</string>
+    <string name="errMsgRegister">Registration failed, username or e-mail invalid or already in use.</string>
+    <string name="errMsgRegisterSuccess">Registration successful! Check your e-mail to set password.</string>
     <string name="errMsgDesc">Please add a description</string>
     <string name="errMsgType">Please specify a valid fruit type</string>
     <string name="errMsgLoc">Please specify a valid location</string>

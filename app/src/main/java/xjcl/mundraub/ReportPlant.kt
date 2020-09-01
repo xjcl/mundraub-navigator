@@ -40,6 +40,7 @@ class ReportPlant : AppCompatActivity() {
     }
 
     fun reportPlant(view : View) {
+        if (this.report_text_inner.text.toString().isBlank()) return
 
         val url = "https://mundraub.org/node/$intentNid?destination=/map?nid=$intentNid"
         Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->

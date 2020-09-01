@@ -1,8 +1,8 @@
 package xjcl.mundraub
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.transition.Visibility
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -49,11 +49,11 @@ class Login : AppCompatActivity() {
         this.pass_inner.setText( sharedPref.getString("pass", "") ?: "" )
     }
 
-    fun onButtonClick(view : View) {
+    fun onLoginClick(view : View) {
         loginData["name"] = this.name_inner.text.toString()
         loginData["pass"] = this.pass_inner.text.toString()
         if (loginData["name"]!!.isBlank() || loginData["pass"]!!.isBlank())
-            { Toast.makeText(this, getString(R.string.errMsgLoginInfos), Toast.LENGTH_SHORT).show(); return }
+            { Toast.makeText(this, getString(R.string.errMsgLoginInfo), Toast.LENGTH_SHORT).show(); return }
 
         Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
 
@@ -77,6 +77,11 @@ class Login : AppCompatActivity() {
             runOnUiThread { Toast.makeText(this, getString(R.string.errMsgLoginSuccess), Toast.LENGTH_SHORT).show() }
             finish()
         }
+    }
+
+    fun onRegisterClick(view : View) {
+        startActivityForResult(Intent(this, Register::class.java), 56)
+        finish()
     }
 }
 // TODO: "currently logged in, this is just for changing accounts" message

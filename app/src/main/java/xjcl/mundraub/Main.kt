@@ -321,6 +321,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
      *  Login 55
      *      @param None
      *      @return None, this writes to the sharedPreferences object
+     *  Register 56
+     *      @param None
+     *      @return None, no details stored, user sets password later anyway
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -334,6 +337,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         onCameraIdleEnabled = false
         mapFragment.handleFilterClick(null, 99) {true}
         // invalidate cache (in case we update marker)
+        // TODO this is not called if we return from the CardView rather than the marker info window
         for (mark in markers.toMap()) {  // copy constructor
             if (markersData[mark.key]?.nid.toString() == nid) runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }
         }

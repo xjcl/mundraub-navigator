@@ -3,47 +3,24 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:orientation="vertical"
-    tools:context=".Login">
-
-    <TextView
-        android:text="@string/login_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/top_info"
-        android:padding="12dp"
-        android:background="?android:attr/dividerHorizontal"/>
-
-    <View
-        android:layout_height="1dp"
-        android:layout_width="match_parent"
-        android:background="#707070"/>
-
     <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:padding="12dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:context=".Login">
 
         <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/name"
-            android:hint="@string/user"
+            android:id="@+id/reg_email"
+            android:hint="@string/email"
             android:layout_marginBottom="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/name_inner"
+                android:id="@+id/reg_email_inner"
                 android:gravity="top"
                 android:inputType="text"
                 android:layout_width="match_parent"
@@ -52,35 +29,26 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/pass"
-            android:hint="@string/pass"
+            android:id="@+id/reg_user"
+            android:hint="@string/user"
             android:layout_marginBottom="12dp"
-            app:passwordToggleEnabled="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/pass_inner"
+                android:id="@+id/reg_user_inner"
                 android:gravity="top"
-                android:inputType="textPassword"
+                android:inputType="text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onLoginClick"
-            android:text="@string/lgin" />
-
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onRegisterClick"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:text="@string/reg" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
-</androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>
