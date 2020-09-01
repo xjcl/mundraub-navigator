@@ -29,6 +29,11 @@ class Login : AppCompatActivity() {
             putString("pass", oldPass)
             apply()
         }
+        with (sharedPrefOld.edit()) {
+            remove("name")
+            remove("pass")
+            apply()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
