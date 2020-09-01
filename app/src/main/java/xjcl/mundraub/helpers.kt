@@ -51,6 +51,9 @@ fun materialDesignBg(padX: Int, padY: Int, c: Float): Drawable {
 fun primaryColorTitle(text : String) : Spanned =
     HtmlCompat.fromHtml("<font color=\"#94b422\">${text}</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
 
+fun scrapeFormToken(s: String) : String =
+    s.substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
+
 fun getFruitColor(resources : Resources, tid: Int?) : Int =
     BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
         .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)

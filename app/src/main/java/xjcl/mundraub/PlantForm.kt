@@ -59,12 +59,7 @@ class PlantForm : AppCompatActivity() {
         "op" to "Löschen"
     )
 
-    val chipMap = mapOf(
-        R.id.chip_0 to "0",
-        R.id.chip_1 to "1",
-        R.id.chip_2 to "2",
-        R.id.chip_3 to "3"
-    )
+    val chipMap = mapOf(R.id.chip_0 to "0", R.id.chip_1 to "1", R.id.chip_2 to "2", R.id.chip_3 to "3")
 
     var submitUrl = "https://mundraub.org/node/add/plant"
     var intentNid = -1
@@ -119,20 +114,19 @@ class PlantForm : AppCompatActivity() {
 
     //    https://mundraub.org/node/89335/delete
     private fun plantDelete() {
-        // TODO add dialog
 
         val deleteUrl = "https://mundraub.org/node/$intentNid/delete"
         Log.e("plantDelete", deleteUrl)
         Fuel.get(deleteUrl).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
 
-            deleteData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
+            deleteData["form_token"] = scrapeFormToken(result.get())
 
             Log.e("plantDelete", " ${result.get()}")
             Log.e("plantDelete", " $deleteData")
 
-            Fuel.post(deleteUrl, deleteData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result2 ->
+            Fuel.post(deleteUrl, deleteData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
 
-                Log.e("plantDelete", result2.get())
+                Log.e("plantDelete", result.get())
                 when (response.statusCode) {
                     -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                     303 -> {}
@@ -238,7 +232,7 @@ class PlantForm : AppCompatActivity() {
         fun plantSubmit(result : Result<String, FuelError>) {
             plantData["changed"] = result.get().substringAfter("name=\"changed\" value=\"").substringBefore("\"")
             //plantData["form_build_id"] = result.get().substringAfter("name=\"form_build_id\" value=\"").substringBefore("\"")
-            plantData["form_token"] = result.get().substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
+            plantData["form_token"] = scrapeFormToken(result.get())
             plantData["body[0][value]"] = descriptionTIL.editText?.text.toString()
             plantData["field_plant_category"] = keys[values.indexOf( typeTIL.editText?.text.toString() )]
             plantData["field_plant_count_trees"] = chipMap[chipGroup.checkedChipId] ?: "0"
@@ -273,7 +267,11 @@ class PlantForm : AppCompatActivity() {
                 when (response.statusCode) {
                     -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
                     200 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; finish()}
+                    else -> {
+                        // No access to this resource -> try ReportPlant form instead
+                        startActivityForResult(Intent(this, ReportPlant::class.java).putExtra("nid", intentNid), 35)
+                        finish()
+                    }
                 }
 
                 val description_ = result.get().substringAfter("body[0][value]").substringAfter(">").substringBefore("<")

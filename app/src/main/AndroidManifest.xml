@@ -14,7 +14,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PlantList"
+        <activity
+            android:name=".ReportPlant"
+            android:label="@string/title_activity_report_plant"/>
+        <activity
+            android:name=".PlantList"
             android:label="@string/title_activity_plant_list" />
         <activity
             android:name=".Login"

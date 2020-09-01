@@ -4,6 +4,7 @@
     <string name="title_activity_location_picker">Pick location then press OK</string>
     <string name="title_activity_login">Log in to Mundraub</string>
     <string name="title_activity_plant_list">My discoveries</string>
+    <string name="title_activity_report_plant">Report location</string>
 
     <string name="tid4">Apple</string>
     <string name="tid5">Pear</string>
@@ -53,7 +54,6 @@
 
     <string name="inSeason">In season!! :D</string>
     <string name="notInSeason">Not in season :(</string>
-
     <string name="onlyShowing">Showing:\u0020</string>
 
     <string name="addNode">Create new marker</string>
@@ -77,6 +77,13 @@
     <string name="errMsgOpFail">Operation failed</string>
     <string name="errMsgSuccess">Upload successful!</string>
     <string name="errMsgDeleteSuccess">Successfully deleted!</string>
+    <string name="errMsgReportSuccess">Successfully reported!</string>
+
+    <string name="report0">Location is private property</string>
+    <string name="report1">Location is nature reserve</string>
+    <string name="report2">Location is incorrectly placed</string>
+    <string name="report3">Location does not exist (anymore)</string>
+    <string name="report4">Other reason</string>
 
     <string name="loggedInAs">Logged in as: %1$s</string>
     <string name="tapForInfo">--- Tap to download info ---</string>

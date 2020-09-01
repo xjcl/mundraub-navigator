@@ -305,9 +305,26 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mMap.isMyLocationEnabled = true  // show blue circle on map
     }
 
-    // if we add or edit a marker, resume at its location with open info window (= simulate click)
+    /**
+     * Master table of Activity Request codes (startActivityForResult)
+     *  PlantForm 33
+     *      Add/Edit marker
+     *      @param nid (-1 for Add, actual nid for Edit)
+     *      @return lat/lng+nid of new marker in Add case
+     *  ReportPlant 35
+     *      if not my plant, then ability to report, else forward to editing (PlantForm 33)
+     *      @param nid
+     *      @return None
+     *  LocationPicker 42
+     *      @param tid (icon to use) + lat/lng (position to start view)
+     *      @return lat/lng (position user inputted)
+     *  Login 55
+     *      @param None
+     *      @return None, this writes to the sharedPreferences object
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        // if we add or edit a marker, resume at its location with open info window (= simulate click)
         if (!(requestCode == 33 && resultCode == Activity.RESULT_OK && data != null)) return
 
         val lat = data.getDoubleExtra("lat", 0.0)

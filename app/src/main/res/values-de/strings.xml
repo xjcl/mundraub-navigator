@@ -4,6 +4,7 @@
     <string name="title_activity_location_picker">Bitte Ort wählen und auf OK</string>
     <string name="title_activity_login">Login bei Mundraub</string>
     <string name="title_activity_plant_list">Meine Fundorte</string>
+    <string name="title_activity_report_plant">Fundort melden</string>
 
     <string name="tid4" >Apfel</string>
     <string name="tid5" >Birne</string>
@@ -53,7 +54,6 @@
 
     <string name="inSeason">Erntezeit: Ja!</string>
     <string name="notInSeason">Erntezeit: Nein</string>
-
     <string name="onlyShowing">Angezeigt:\u0020</string>
 
     <string name="addNode">Neuen Fundort hinzufügen</string>
@@ -77,6 +77,13 @@
     <string name="errMsgOpFail">Operation fehlgeschlagen</string>
     <string name="errMsgSuccess">Erfolgreich hochgeladen!</string>
     <string name="errMsgDeleteSuccess">Erfolgreich gelöscht!</string>
+    <string name="errMsgReportSuccess">Erfolgreich gemeldet!</string>
+
+    <string name="report0">Fundort ist Privatbesitz</string>
+    <string name="report1">Fundort befindet sich in Naturschutzgebiet</string>
+    <string name="report2">Fundort ist ungenau platziert</string>
+    <string name="report3">Fundort existiert nicht mehr</string>
+    <string name="report4">Andere Gründe</string>
 
     <string name="loggedInAs">Eingeloggt als: %1$s</string>
     <string name="tapForInfo">--- Berühren für Details ---</string>
