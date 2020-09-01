@@ -58,6 +58,11 @@ fun getFruitColor(resources : Resources, tid: Int?) : Int =
     BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
         .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
 
+fun invalidateMarker(activity: Activity, nid: String) =  // MUST BE RUN ON UI THREAD
+    markers.toMap().forEach { mark ->  // copy constructor
+        if (markersData[mark.key]?.nid.toString() == nid)
+            activity.runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }}
+
 fun unescapeHtml(s : String) = HtmlCompat.fromHtml(s, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
 
 fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitude, scalar * vec.longitude)

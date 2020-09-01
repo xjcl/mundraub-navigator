@@ -133,6 +133,7 @@ class PlantForm : AppCompatActivity() {
                     else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }; return@responseString}
                 }
 
+                invalidateMarker(this, intentNid.toString())
                 runOnUiThread {
                     Toast.makeText(this@PlantForm, getString(R.string.errMsgDeleteSuccess), Toast.LENGTH_SHORT).show()
                     finishSuccess()
@@ -251,6 +252,8 @@ class PlantForm : AppCompatActivity() {
                         303 -> {}
                         else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }; return@responseString}
                     }
+
+                    if (intentNid > -1) invalidateMarker(this, intentNid.toString())
 
                     val nid_ = result.get().substringAfter("?nid=", "").substringBefore("\"")
                     val nid = if (nid_.isNotEmpty()) nid_ else result.get().substringAfter("node/").substringBefore("\"")

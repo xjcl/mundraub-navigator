@@ -319,28 +319,24 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
      *      @param tid (icon to use) + lat/lng (position to start view)
      *      @return lat/lng (position user inputted)
      *  Login 55
-     *      @param None
-     *      @return None, this writes to the sharedPreferences object
+     *      No I/O, this writes to the sharedPreferences object
      *  Register 56
-     *      @param None
-     *      @return None, no details stored, user sets password later anyway
+     *      No I/O, no details stored, user sets password later anyway
+     *  PlantList 60
+     *      Used to reload markers if edited through the list
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // if we add or edit a marker, resume at its location with open info window (= simulate click)
+        if (requestCode == 60) { mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) ); return }  // might have modifed markers
         if (!(requestCode == 33 && resultCode == Activity.RESULT_OK && data != null)) return
 
+        // if we add or edit a marker, resume at its location with open info window (= simulate click)
         val lat = data.getDoubleExtra("lat", 0.0)
         val lng = data.getDoubleExtra("lng", 0.0)
         val nid = data.getStringExtra("nid") ?: ""
 
         onCameraIdleEnabled = false
         mapFragment.handleFilterClick(null, 99) {true}
-        // invalidate cache (in case we update marker)
-        // TODO this is not called if we return from the CardView rather than the marker info window
-        for (mark in markers.toMap()) {  // copy constructor
-            if (markersData[mark.key]?.nid.toString() == nid) runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }
-        }
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
             override fun onFinish() = updateMarkers { runOnUiThread {
                 onCameraIdleEnabled = true
@@ -356,7 +352,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         return when (item.itemId) {
             9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
             8 -> { startActivity(Intent(this, Login::class.java)); true }
-            7 -> { startActivity(Intent(this, PlantList::class.java)); true }
+            7 -> { startActivityForResult(Intent(this, PlantList::class.java), 60); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
