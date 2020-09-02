@@ -9,29 +9,23 @@ import android.graphics.PorterDuff
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import android.os.Build
 import android.os.Bundle
-import android.text.InputType
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
-import androidx.core.view.children
-import androidx.core.view.setPadding
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.result.Result
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.ChipGroup
-import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.text_input_autocomplete.view.*
+import kotlinx.android.synthetic.main.activity_plant_form.*
+import kotlinx.android.synthetic.main.chip_group_number.*
 import java.io.IOException
 import java.util.*
 import kotlin.concurrent.thread
@@ -179,63 +173,43 @@ class PlantForm : AppCompatActivity() {
         if (cook == null) { finish(); return }
         cookie = cook
 
-        // TODO use XML instead of dynamic creation
-        val density = resources.displayMetrics.density
-        val lin = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding((12 * density).toInt()) }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) lin.focusable = View.FOCUSABLE
-        lin.isFocusableInTouchMode = true
+        setContentView( R.layout.activity_plant_form )
 
-        TextInputLayout.inflate(this, R.layout.text_input_autocomplete, lin)
-        val typeTIL = (lin.children.last() as TextInputLayout).apply { hint = getString(R.string.type) }
         // TODO make this a proper map and call getInverse() on it
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
         val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", packageName)) }
-        typeTIL.auto_text.setAdapter( ArrayAdapter(this, R.layout.activity_plant_form_item, values) )
-        fun updateType() : Unit {
-            val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
+        typeTIED.setAdapter( ArrayAdapter(this, R.layout.activity_plant_form_item, values) )
+        fun updateType() {
+            val typeIndex = values.indexOf( typeTIED.text.toString() )
             if (typeIndex == -1) return
             val left = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.otherfruit)
             locationPicker.setCompoundDrawablesWithIntrinsicBounds(left, null, null, null)
         }
-        typeTIL.auto_text.setOnFocusChangeListener { _, _ -> updateType() }
-        typeTIL.auto_text.setOnItemClickListener { _, _, _, _ -> updateType() }
+        typeTIED.setOnFocusChangeListener { _, _ -> updateType() }
+        typeTIED.setOnItemClickListener { _, _, _, _ -> updateType() }
 
-        LayoutInflater.from(this).inflate(R.layout.chip_group_number, lin)
-        val chipGroup = (lin.children.last() as LinearLayout).children.last() as ChipGroup
-
-        TextInputLayout.inflate(this, R.layout.text_input_layout, lin)
-        val descriptionTIL = (lin.children.last() as TextInputLayout).apply {
-            hint = getString(R.string.desc)
-            editText?.apply {
-                inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_CLASS_TEXT
-                minLines = 3
-                maxLines = 3
-            }
-        }
-
-        LayoutInflater.from(this).inflate(R.layout.location_preview, lin)
-        locationPicker = (lin.children.last() as MaterialButton).apply {
+        locationPicker = button_loc.apply {
             text = "???"
             setOnClickListener {
-                val typeIndex = values.indexOf(typeTIL.editText?.text.toString())
+                val typeIndex = values.indexOf(typeTIED.text.toString())
                 val intent = Intent(context, LocationPicker::class.java).putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt())
                     .putExtra("lat", location.latitude).putExtra("lng", location.longitude)
                 startActivityForResult(intent, 42)
             }
         }
 
-        // ----
-
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { it?.let { location ->
             updateLocationPicker(LatLng(location))
         }}
+
+        // ----
 
         fun plantSubmit(result : Result<String, FuelError>) {
             plantData["changed"] = result.get().substringAfter("name=\"changed\" value=\"").substringBefore("\"")
             //plantData["form_build_id"] = result.get().substringAfter("name=\"form_build_id\" value=\"").substringBefore("\"")
             plantData["form_token"] = scrapeFormToken(result.get())
-            plantData["body[0][value]"] = descriptionTIL.editText?.text.toString()
-            plantData["field_plant_category"] = keys[values.indexOf( typeTIL.editText?.text.toString() )]
+            plantData["body[0][value]"] = descriptionTIED.text.toString()
+            plantData["field_plant_category"] = keys[values.indexOf( typeTIED.text.toString() )]
             plantData["field_plant_count_trees"] = chipMap[chipGroup.checkedChipId] ?: "0"
             plantData["field_position[0][value]"] = "POINT(${location.longitude} ${location.latitude})"
             plantData["field_plant_address[0][value]"] = locationPicker.text.toString()
@@ -289,20 +263,20 @@ class PlantForm : AppCompatActivity() {
                 plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"").substringBefore("\"")
 
                 typeTIL.postDelayed({
-                    typeTIL.auto_text_input.editText?.setText( values[keys.indexOf(type)] ); updateType()
-                    descriptionTIL.editText?.setText(description)
+                    typeTIED.setText( values[keys.indexOf(type)] ); updateType()
+                    descriptionTIED.setText(description)
                     chipGroup.check(chipMap.getInverse(count) ?: R.id.chip_0)
                     updateLocationPicker( LatLng(locationList[1].toDouble(), locationList[0].toDouble()) )
                 }, 30)
             }
         }
 
-        Button(this).apply { text = getString(R.string.upld); lin.addView(this) }.setOnClickListener {
+        upld_button.setOnClickListener {
 
-            val typeIndex = values.indexOf( typeTIL.editText?.text.toString() )
+            val typeIndex = values.indexOf( typeTIED.text.toString() )
 
             val errors = listOf(
-                getString(R.string.errMsgDesc) to descriptionTIL.editText?.text.toString().isBlank(),
+                getString(R.string.errMsgDesc) to descriptionTIED.text.toString().isBlank(),
                 getString(R.string.errMsgType) to (typeIndex == -1),
                 getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) || locationPicker.text.toString() == "???")
             )
@@ -321,25 +295,14 @@ class PlantForm : AppCompatActivity() {
                 plantSubmit(result)
             }
         }
-
-        setContentView( ScrollView(this).apply { addView(lin) } )
     }
 }
-
-// TODO add delete button if edit view (needs confirm menu tho)
 
 // TODO: MapFragment with preview of window :D
 //      this will let users know not to write too much text
 //      MF should NOT respond to touches
 // TODO: use filter bar for species selection?
-// TODO: handle GET error
-
 // TODO: what if someone puts an emoji into Fruchtfund (Gboard keeps suggesting them)
-// (TODO: dynamic icon preview on Fruchtfund using marker)
-// TODO: image upload
 
-// TODO login
-//    - edit node
-//    - delete node
-//    - report node
-//    - create account (need to allow it on backend first)
+// TODO: add icons to fruitTIL
+// TODO: image upload
