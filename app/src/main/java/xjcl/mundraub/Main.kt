@@ -171,7 +171,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     private fun setUpNetworking() {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = runOnUiThread { this@Main.updateMarkers() }
+            override fun onAvailable(network: Network) = runOnUiThread { mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) ) }
         })
     }
 
