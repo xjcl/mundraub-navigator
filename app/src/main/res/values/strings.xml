@@ -93,9 +93,10 @@
     <string name="loggedInAs">Logged in as: %1$s</string>
     <string name="tapForInfo">--- Tap to download info ---</string>
     <string name="loading">(loading…)</string>
-    <string name="login_info">Adding and editing markers requires a Mundraub account. Account creation is currently only possible on Mundraub.org.</string>
+    <string name="login_info">Adding, editing and reporting markers requires a Mundraub account.</string>
     <string name="empty_info">You haven\'t submitted any places yet, or there is no connection to the internet.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="reallyDelete">Really delete?</string>
+    <string name="reallyLogout">Really logout?</string>
 </resources>

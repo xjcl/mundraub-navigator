@@ -96,19 +96,15 @@ class PlantForm : AppCompatActivity() {
         finish()
     }
 
-    // TODO delete button
-    // TODO translate strings
     private fun plantDeleteDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("Really delete?")
+        builder.setMessage(R.string.reallyDelete)
             .setPositiveButton("Yes") { _, _ -> plantDelete() }
             .setNegativeButton("No") { _, _ -> }
         builder.create().show()
     }
 
-    //    https://mundraub.org/node/89335/delete
     private fun plantDelete() {
-
         val deleteUrl = "https://mundraub.org/node/$intentNid/delete"
         Log.e("plantDelete", deleteUrl)
         Fuel.get(deleteUrl).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->

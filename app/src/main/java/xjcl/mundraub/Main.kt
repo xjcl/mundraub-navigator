@@ -351,7 +351,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
-            8 -> { startActivity(Intent(this, Login::class.java)); true }
             7 -> { startActivityForResult(Intent(this, PlantList::class.java), 60); true }
             else -> super.onOptionsItemSelected(item)
         }
@@ -361,13 +360,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val icon9 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
         icon9.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
-        val icon8 = ContextCompat.getDrawable(this, R.drawable.material_login) ?: return true
-        icon8.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
         val icon7 = ContextCompat.getDrawable(this, R.drawable.material_list) ?: return true
         icon7.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
 
         menu.add(7, 7, 7, "List").setIcon(icon7).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(8, 8, 8, "Login").setIcon(icon8).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         menu.add(9, 9, 9, "Add").setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }

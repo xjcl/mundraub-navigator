@@ -1,15 +1,17 @@
 package xjcl.mundraub
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kittinunf.fuel.Fuel
@@ -79,6 +81,39 @@ class PlantList : AppCompatActivity() {
         if (requestCode == 55) {
             if (hasLoginCookie(this)) doCreate() else finish()
         }
+    }
+
+    private fun logout() {
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            remove("cookie")
+            remove("name")
+            remove("pass")
+            apply()
+        }
+        recreate()
+    }
+
+    private fun logoutDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(R.string.reallyLogout)
+            .setPositiveButton("Yes") { _, _ -> logout() }
+            .setNegativeButton("No") { _, _ -> }
+        builder.create().show()
+    }
+
+    // Handle ActionBar option selection
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            8 -> { logoutDialog(); true }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // Create the ActionBar options menu
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(8, 8, 8, "Logout").setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+        return true
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
