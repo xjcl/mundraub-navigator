@@ -1,3 +1,6 @@
+v16
+- Add logout option
+- Minor UI and bug fixes
 
 v15
 - Add delete functionality
