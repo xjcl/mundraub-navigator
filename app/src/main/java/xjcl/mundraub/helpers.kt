@@ -82,6 +82,7 @@ fun hasLoginCookie(activity : Activity, loginIfMissing : Boolean = false) : Bool
         return false
     }
 
+    Log.e("cook", "trying cookie $cook")
     val stringDate = cook.substringAfter("expires=").substringBefore("; Max-Age")
     val parser =  SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz", Locale.US)
     val expiration = parser.parse(stringDate) ?: Date(0)

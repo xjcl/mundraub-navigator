@@ -21,4 +21,5 @@ app/release/app-release.aab
 *.keystore
 private_key.pepk
 
-scripts/all_markers_europe.json
+scripts/all_markers*
+__pycache__/

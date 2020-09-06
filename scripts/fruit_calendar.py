@@ -2,13 +2,13 @@
 season = dict()
 fruitname = dict()
 
-for line in open('app/src/main/java/xjcl/mundraub/MapsActivity.kt'):
+for line in open('../app/src/main/java/xjcl/mundraub/const.kt'):
     line = line.strip()
-    if 'to (' in line:
+    if 'to (' in line and '//' not in line:
         key = line[:line.index(' ')]
         season[key] = line[line.index('('):line.index(')')+1]
 
-for line in open('app/src/main/res/values-de/strings.xml'):
+for line in open('../app/src/main/res/values-de/strings.xml'):
     if 'tid' in line:
         line = line[line.index('tid')+3:]
         key = line[:line.index('"')]
