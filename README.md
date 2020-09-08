@@ -15,10 +15,10 @@ Go foraging, find fresh fruit, discover your local neighborhood, reduce food was
 Features:
 - Find local fruit trees and shrubs in DACH countries
     - includes mini-calendar with seasonality information
+- Use your Mundraub account to add, edit and report markers
 - Google Maps integration for directions to markers
 - Stays usable even when losing internet connection
 - Languages: 🇺🇸/🇩🇪
-- Not yet supported: User accounts (adding/editing markers)
 
 <a href='https://play.google.com/store/apps/details?id=xjcl.mundraub&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="200px"/></a>
 
@@ -43,7 +43,5 @@ Add your `google_maps_key` in a file called `app/src/debug/res/values/google_map
     </resources>
 
 Then just build it in Android Studio.
-
-[Discord server](https://discord.gg/M9Scjre)
 
 [Dieses README gibt es auch auf Deutsch](README-de.md)

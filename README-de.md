@@ -15,10 +15,10 @@ Begebe dich auf ein Abenteuer, finde frische Früchte, entdecke dein Viertel, be
 Features:
 - Finde lokale Obstbäume, -sträucher, Kräuter und Nüsse
     - inklusive Mini-Kalendar mit Erntezeit-Information
+- Benutze deinen Mundraub-Account zum Fundorte hinzufügen/bearbeiten/melden
 - GPS-Navigation mittels Google-Maps-Integration
 - Bleibt auch in Funklöchern nutzbar
 - Sprachen: 🇺🇸/🇩🇪
-- Noch nicht unterstützt: Nutzer-Accounts (Marker hinzufügen/bearbeiten)
 
 <a href='https://play.google.com/store/apps/details?id=xjcl.mundraub&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Jetzt bei Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/de_badge_web_generic.png' width="200px"/></a>
 
@@ -33,7 +33,5 @@ Mundraub hat einen visuellen Bug der Marker in der Mitte statt der Spitze/unten 
 ## Ist die App offiziell?
 
 Ich bin mit Kai von Mundraub in Kontakt, er mag die App und hat mir Erlaubnis für Namen und Grafiken erteilt. Aber an der Entwicklung direkt bin nur ich beteiligt.
-
-[Discord-Server](https://discord.gg/M9Scjre)
 
 [This README in English](README.md)
