@@ -1,3 +1,7 @@
+v17
+- Fix inaccurate login cookie expiration
+- Fix marker-related concurrency bug
+
 v16
 - Add logout option
 - Minor UI and bug fixes
