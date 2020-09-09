@@ -39,7 +39,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.serialization.json.Json
 import java.net.URL
 import java.util.*
-import kotlin.collections.HashSet
 import kotlin.concurrent.thread
 
 
@@ -52,34 +51,46 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     private fun addMarkerFromFeature(feature: Feature) {
         val latlng = LatLng(feature.pos[0], feature.pos[1])
         val md = featureToMarkerData(this, feature)
-        markersData[latlng] = md
+        val mo = MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F)
 
         runOnUiThread {
-            markers[latlng] = mMap.addMarker(MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F))
+            val mark = mMap.addMarker(mo)
+
+            markerContext.execute {
+                markers[latlng] = mark
+                markersData[latlng] = md
+            }
         }
     }
 
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
+    // Note that the HashMap 'markers' is only modified in the markerContext to avoid concurrency issues
     private fun addLocationMarkers(jsonStrPre: String) {
-        Log.e("addLocationMarkers", markers.size.toString() + " " + jsonStrPre)
-        val jsonStr = if (jsonStrPre == "null") "{\"features\":[]}" else jsonStrPre
+        markerContext.execute {
+            Log.e("addLocationMarkers", "ENTER " + markers.size.toString() + " " + jsonStrPre)
+            val jsonStr = if (jsonStrPre == "null") "{\"features\":[]}" else jsonStrPre
 
-        // --- parse newly downloaded markers ---
-        // API inconsistently either returns String or double/int... -> strip away double quotes
-        val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr) { it.value.substring(1, it.value.length - 1) }
-        val root = Json.parse(Root.serializer(), jsonStrClean)
+            // --- parse newly downloaded markers ---
+            // API inconsistently either returns String or double/int... -> strip away double quotes
+            val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr) { it.value.substring(1, it.value.length - 1) }
+            val root = Json.parse(Root.serializer(), jsonStrClean)
 
-        // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
-        val featuresSet = HashSet<LatLng>( root.features.map { LatLng(it.pos[0], it.pos[1]) } )
-        for (mark in markers.toMap()) {  // copy constructor
-            if (!featuresSet.contains(mark.key)) runOnUiThread { mark.value.remove(); markers.remove(mark.key); markersData.remove(mark.key) }
-        }
+            // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
+            val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
+            for (mark in markers.toMap()) {  // copy constructor
+                if (featuresSet.contains(mark.key)) continue
+                runOnUiThread { mark.value.remove() }
+                markers.remove(mark.key)
+                markersData.remove(mark.key)
+            }
 
-        // --- add newly downloaded markers not already in old set ---
-        for (feature in root.features) {
-            val latlng = LatLng(feature.pos[0], feature.pos[1])
-            if (markers.contains(latlng)) continue
-            addMarkerFromFeature(feature)
+            // --- add newly downloaded markers not already in old set ---
+            for (feature in root.features) {
+                val latlng = LatLng(feature.pos[0], feature.pos[1])
+                if (markers.contains(latlng)) continue
+                addMarkerFromFeature(feature)
+            }
+            Log.e("addLocationMarkers", "EXIT " + markers.size.toString())
         }
     }
 
@@ -107,7 +118,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
     }
 
-    override fun onCameraIdle() = if (onCameraIdleEnabled) updateMarkers() else Unit
+    override fun onCameraIdle() {
+        if (onCameraIdleEnabled) updateMarkers()
+    }
 
     // --- Download detailed node description and stick it into marker info window ---
     fun downloadMarkerData(marker : Marker) {
@@ -338,11 +351,17 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         onCameraIdleEnabled = false
         mapFragment.handleFilterClick(null, 99) {true}
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
-            override fun onFinish() = updateMarkers { runOnUiThread {
+            override fun onFinish() = updateMarkers {
+                // The problem here is that addMarkerFromFeature does not wait for the UI thread to finish (and I found no good way
+                //  to do this) so instead we dirtily just *sleep* here
+                Thread.sleep(250)
                 onCameraIdleEnabled = true
+
                 // simulate click on just-uploaded/updated marker
-                markers.values.filter { markersData[it.position]?.nid.toString() == nid }.forEach { markerOnClickListener(it) }
-            }}
+                markerContext.execute {
+                    markers.filter { markersData[it.key]?.nid.toString() == nid }.forEach { runOnUiThread { markerOnClickListener(it.value) }}
+                }
+            }
             override fun onCancel() {}
         })
     }
