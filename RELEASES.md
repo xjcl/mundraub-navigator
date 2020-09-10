@@ -1,3 +1,6 @@
+v18
+- Fix Android 4.x crash in v17
+
 v17
 - Fix inaccurate login cookie expiration
 - Fix marker-related concurrency bug
