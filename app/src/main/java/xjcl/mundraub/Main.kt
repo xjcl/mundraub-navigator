@@ -393,7 +393,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar?.apply {
-            val navStr = if (resources.displayMetrics.widthPixels  / resources.displayMetrics.density > 500) "Navigator" else "Nav."
+            val trueWidth = resources.displayMetrics.widthPixels / resources.displayMetrics.density
+            Log.e("trueWidth", trueWidth.toString())
+            val navStr = if (trueWidth > 500) "Navigator" else if (trueWidth > 400) "Nav." else ""
             title = primaryColorTitle("$navStr v${BuildConfig.VERSION_NAME}")
             setBackgroundDrawable(ColorDrawable(Color.WHITE))
             setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border

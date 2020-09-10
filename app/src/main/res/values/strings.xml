@@ -3,6 +3,7 @@
     <string name="title_activity_maps">Mundraub Navigator</string>
     <string name="title_activity_location_picker">Pick location then press OK</string>
     <string name="title_activity_login">Log in to Mundraub</string>
+    <string name="title_activity_register">Create your account</string>
     <string name="title_activity_plant_list">My discoveries</string>
     <string name="title_activity_report_plant">Report location</string>
 
@@ -74,8 +75,8 @@
     <string name="errMsgAccess">No access to this resource</string>
     <string name="errMsgLogin">Login failed</string>
     <string name="errMsgLoginSuccess">Login successful!</string>
-    <string name="errMsgRegister">Registration failed, username or e-mail invalid or already in use.</string>
-    <string name="errMsgRegisterSuccess">Registration successful! Check your e-mail to set password.</string>
+    <string name="errMsgRegister">Registration failed, username or email invalid or already in use.</string>
+    <string name="errMsgRegisterSuccess">Registration successful! You can use your account if you respond to our confirmation email.</string>
     <string name="errMsgDesc">Please add a description</string>
     <string name="errMsgType">Please specify a valid fruit type</string>
     <string name="errMsgLoc">Please specify a valid location</string>
@@ -95,6 +96,7 @@
     <string name="loading">(loading…)</string>
     <string name="login_info">Adding, editing and reporting markers requires a Mundraub account.</string>
     <string name="empty_info">You haven\'t submitted any places yet, or there is no connection to the internet.</string>
+    <string name="register_info">Your username can contain the following special characters: _.-\'@</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="reallyDelete">Really delete?</string>

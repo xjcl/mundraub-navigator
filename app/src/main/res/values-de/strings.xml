@@ -3,6 +3,7 @@
     <string name="title_activity_maps">Mundraub Navigator</string>
     <string name="title_activity_location_picker">Bitte Ort wählen und auf OK</string>
     <string name="title_activity_login">Login bei Mundraub</string>
+    <string name="title_activity_register">Neues Nutzerkonto anlegen</string>
     <string name="title_activity_plant_list">Meine Fundorte</string>
     <string name="title_activity_report_plant">Fundort melden</string>
 
@@ -75,7 +76,7 @@
     <string name="errMsgLogin">Login fehlgeschlagen</string>
     <string name="errMsgLoginSuccess">Login erfolgreich!</string>
     <string name="errMsgRegister">Registration fehlgeschlagen, Benutzername oder E-Mail-Adresse fehlerhaft oder schon vergeben.</string>
-    <string name="errMsgRegisterSuccess">Registration erfolgreich! Schau in dein E-Mail-Postfach um dein Passwort zu setzen.</string>
+    <string name="errMsgRegisterSuccess">Registration erfolgreich! Nach Bestätigung unserer E-Mail kannst du deinen Account nutzen.</string>
     <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>
     <string name="errMsgType">Bitte gültige Fruchtart eingeben</string>
     <string name="errMsgLoc">Bitte gültigen Ort eintragen</string>
@@ -95,6 +96,7 @@
     <string name="loading">(warte…)</string>
     <string name="login_info">Hinzufügen, Bearbeiten und Melden von Markern erfordert Login mit einem Mundraub-Account.</string>
     <string name="empty_info">Du hast entweder noch keine Fundorte beigetragen oder es gibt keine Verbindung mit dem Internet.</string>
+    <string name="register_info">Folgende Sonderzeichen sind im Benutzernamen erlaubt: _.-\'@</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="reallyDelete">Wirklich löschen?</string>
