@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.URL
 import java.util.*
@@ -73,7 +74,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             // --- parse newly downloaded markers ---
             // API inconsistently either returns String or double/int... -> strip away double quotes
             val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr) { it.value.substring(1, it.value.length - 1) }
-            val root = Json.parse(Root.serializer(), jsonStrClean)
+            val root = Json.decodeFromString<Root>(jsonStrClean)
 
             // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
             val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
