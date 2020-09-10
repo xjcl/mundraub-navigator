@@ -274,7 +274,8 @@ class PlantForm : AppCompatActivity() {
             val errors = listOf(
                 getString(R.string.errMsgDesc) to descriptionTIED.text.toString().isBlank(),
                 getString(R.string.errMsgType) to (typeIndex == -1),
-                getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) || locationPicker.text.toString() == "???")
+                getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) ||
+                        locationPicker.text.toString() == "???" || locationPicker.text.toString() == getString(R.string.loading))
             )
             errors.forEach { if (it.second) {
                 runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }
