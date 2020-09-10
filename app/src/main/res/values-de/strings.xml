@@ -75,7 +75,6 @@
     <string name="errMsgAccess">Fehlende Rechte für diese Aktion</string>
     <string name="errMsgLogin">Login fehlgeschlagen</string>
     <string name="errMsgLoginSuccess">Login erfolgreich!</string>
-    <string name="errMsgRegister">Registration fehlgeschlagen, Benutzername oder E-Mail-Adresse fehlerhaft oder schon vergeben.</string>
     <string name="errMsgRegisterSuccess">Registration erfolgreich! Nach Bestätigung unserer E-Mail kannst du deinen Account nutzen.</string>
     <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>
     <string name="errMsgType">Bitte gültige Fruchtart eingeben</string>

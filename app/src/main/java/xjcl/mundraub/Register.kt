@@ -37,7 +37,7 @@ class Register : AppCompatActivity() {
         registerData["name"] = this.reg_user_inner.text.toString()
         registerData["pass[pass1]"] = this.reg_pass_inner.text.toString()
         registerData["pass[pass2]"] = registerData["pass[pass1]"] ?: ""
-        if (registerData["mail"].isNullOrBlank() || registerData["name"].isNullOrBlank())
+        if (registerData["mail"].isNullOrBlank() || registerData["name"].isNullOrBlank() || registerData["pass[pass1]"].isNullOrBlank())
             {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgRegisterInfo), Toast.LENGTH_SHORT).show() }; return}
 
         Fuel.post("https://mundraub.org/user/register", registerData.toList()).allowRedirects(false).responseString { request, response, result ->

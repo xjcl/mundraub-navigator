@@ -75,7 +75,6 @@
     <string name="errMsgAccess">No access to this resource</string>
     <string name="errMsgLogin">Login failed</string>
     <string name="errMsgLoginSuccess">Login successful!</string>
-    <string name="errMsgRegister">Registration failed, username or email invalid or already in use.</string>
     <string name="errMsgRegisterSuccess">Registration successful! You can use your account if you respond to our confirmation email.</string>
     <string name="errMsgDesc">Please add a description</string>
     <string name="errMsgType">Please specify a valid fruit type</string>
