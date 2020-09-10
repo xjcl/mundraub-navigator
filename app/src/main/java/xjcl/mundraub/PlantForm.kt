@@ -99,8 +99,8 @@ class PlantForm : AppCompatActivity() {
     private fun plantDeleteDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage(R.string.reallyDelete)
-            .setPositiveButton("Yes") { _, _ -> plantDelete() }
-            .setNegativeButton("No") { _, _ -> }
+            .setPositiveButton(R.string.yes) { _, _ -> plantDelete() }
+            .setNegativeButton(R.string.no) { _, _ -> }
         builder.create().show()
     }
 

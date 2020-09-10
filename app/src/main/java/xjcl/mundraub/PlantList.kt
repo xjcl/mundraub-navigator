@@ -97,8 +97,8 @@ class PlantList : AppCompatActivity() {
     private fun logoutDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage(R.string.reallyLogout)
-            .setPositiveButton("Yes") { _, _ -> logout() }
-            .setNegativeButton("No") { _, _ -> }
+            .setPositiveButton(R.string.yes) { _, _ -> logout() }
+            .setNegativeButton(R.string.no) { _, _ -> }
         builder.create().show()
     }
 
