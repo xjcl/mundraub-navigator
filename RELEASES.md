@@ -1,3 +1,6 @@
+v19
+- Repair register form by adding password
+
 v18
 - Fix Android 4.x crash in v17
 
