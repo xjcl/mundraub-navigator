@@ -44,9 +44,9 @@ class ReportPlant : AppCompatActivity() {
         Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
 
             when (response.statusCode) {
-                -1 -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                 200 -> {}
-                else -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; return@responseString}
+                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }
             }
 
             reportData["form_token"] = scrapeFormToken(result.get().substringAfter("edit-report-node-form-form-token"))
@@ -60,9 +60,9 @@ class ReportPlant : AppCompatActivity() {
 
                 Log.e("reportPlant", result.get())
                 when (response.statusCode) {
-                    -1 -> {runOnUiThread { Toast.makeText(this@ReportPlant, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    -1 -> return@responseString runOnUiThread { Toast.makeText(this@ReportPlant, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                     303 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@ReportPlant, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    else -> return@responseString runOnUiThread { Toast.makeText(this@ReportPlant, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }
                 }
 
                 runOnUiThread {

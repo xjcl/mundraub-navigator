@@ -128,9 +128,9 @@ class PlantList : AppCompatActivity() {
         Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
 
             when (response.statusCode ) {
-                -1 -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                 200 -> {}
-                else -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }; return@responseString}
+                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }
             }
             pagesLoaded += 1
 

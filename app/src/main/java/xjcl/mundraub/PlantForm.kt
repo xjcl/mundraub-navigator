@@ -116,9 +116,9 @@ class PlantForm : AppCompatActivity() {
 
                 Log.e("plantDelete", result.get())
                 when (response.statusCode) {
-                    -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                     303 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    else -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }
                 }
 
                 invalidateMarker(this, intentNid.toString())
@@ -213,9 +213,9 @@ class PlantForm : AppCompatActivity() {
                     Log.e("nid", result.get())
 
                     when (response.statusCode) {
-                        -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                        -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                         303 -> {}
-                        else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }; return@responseString}
+                        else -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }
                     }
 
                     if (intentNid > -1) invalidateMarker(this, intentNid.toString())
@@ -233,7 +233,7 @@ class PlantForm : AppCompatActivity() {
             Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { request, response, result ->
 
                 when (response.statusCode) {
-                    -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
+                    -1 -> runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
                     200 -> {}
                     else -> {
                         // No access to this resource -> try ReportPlant form instead
@@ -273,15 +273,14 @@ class PlantForm : AppCompatActivity() {
                         locationPicker.text.toString() == "???" || locationPicker.text.toString() == getString(R.string.loading))
             )
             errors.filter { it.second }.forEach {
-                runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }
-                return@setOnClickListener
+                return@setOnClickListener runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }
             }
 
             Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { request, response, result ->
                 when (response.statusCode) {
-                    -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                     200 -> {}
-                    else -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
+                    else -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }
                 }
 
                 plantSubmit(result)

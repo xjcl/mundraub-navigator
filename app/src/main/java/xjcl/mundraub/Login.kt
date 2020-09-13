@@ -60,9 +60,9 @@ class Login : AppCompatActivity() {
         Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
 
             when (response.statusCode) {
-                -1 -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
+                -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                 303 -> {}
-                else -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }; return@responseString}
+                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }
             }
 
             val cook = response.headers["Set-Cookie"].first()
