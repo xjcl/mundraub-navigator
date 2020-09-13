@@ -1,5 +1,6 @@
 package xjcl.mundraub
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -59,6 +60,14 @@ class Register : AppCompatActivity() {
                     }
                     return@responseString
                 }
+            }
+
+            // store name+pass locally for Login attempts
+            val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+            with (sharedPref.edit()) {
+                putString("name", registerData["name"])
+                putString("pass", registerData["pass[pass1]"])
+                apply()
             }
 
             runOnUiThread {
