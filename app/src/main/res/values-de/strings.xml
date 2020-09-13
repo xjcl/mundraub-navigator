@@ -94,7 +94,7 @@
     <string name="tapForInfo">--- Berühren für Details ---</string>
     <string name="loading">(warte…)</string>
     <string name="login_info">Hinzufügen, Bearbeiten und Melden von Markern erfordert Login mit einem Mundraub-Account.</string>
-    <string name="empty_info">Du hast entweder noch keine Fundorte beigetragen oder es gibt keine Verbindung mit dem Internet.</string>
+    <string name="empty_info">Du hast noch keine Fundorte beigetragen.</string>
     <string name="register_info">Folgende Sonderzeichen sind im Benutzernamen erlaubt: _.-\'@</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>

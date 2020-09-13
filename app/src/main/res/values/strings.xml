@@ -94,7 +94,7 @@
     <string name="tapForInfo">--- Tap to download info ---</string>
     <string name="loading">(loading…)</string>
     <string name="login_info">Adding, editing and reporting markers requires a Mundraub account.</string>
-    <string name="empty_info">You haven\'t submitted any places yet, or there is no connection to the internet.</string>
+    <string name="empty_info">You haven\'t submitted any places yet.</string>
     <string name="register_info">Your username can contain the following special characters: _.-\'@</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

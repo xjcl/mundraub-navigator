@@ -123,7 +123,7 @@ class PlantList : AppCompatActivity() {
 
     private fun loadNextPage() {
         if (allPagesLoaded || !::uid.isInitialized) return
-        val url = "https://mundraub.org/user/$uid/plants?page=$pagesLoaded"  // Pear
+        val url = "https://mundraub.org/user/$uid/plants?page=$pagesLoaded"
         Log.e("loadNextPage", url)
         Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
 
@@ -132,9 +132,9 @@ class PlantList : AppCompatActivity() {
                 200 -> {}
                 else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }
             }
+            runOnUiThread { recycler_info.text = getString(R.string.empty_info) }
             pagesLoaded += 1
 
-            // TODO icon for finds
             var unprocessed = result.get()
             var i = -1
             while (i++ >= -1) {
@@ -147,7 +147,7 @@ class PlantList : AppCompatActivity() {
 
                 val matches = ">.*?<".toRegex().findAll(addrRaw)
                 val addr = matches.map { it.value.substring(1, it.value.length - 1) }.joinToString(" ").let { unescapeHtml(it) }
-                Log.e("pl***", " $type **** $addr")
+                Log.e("loadNextPage", " $type **** $addr")
 
                 val tid = germanStringsToTreeId[type] ?: 12
 
@@ -156,8 +156,11 @@ class PlantList : AppCompatActivity() {
             }
             allPagesLoaded = i == 0
             if (i > 0)
-                runOnUiThread { recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - i, i)
-                    recycler_info.visibility = View.GONE; recycler_info_divider.visibility = View.GONE }
+                runOnUiThread {
+                    recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - i, i)
+                    recycler_info.visibility = View.GONE
+                    recycler_info_divider.visibility = View.GONE
+                }
         }
     }
 
@@ -175,8 +178,17 @@ class PlantList : AppCompatActivity() {
             }
         })
 
+        Log.e("doCreate", "req")
         Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
             // TODO store this in sharedPrefs object (after login, and here for compat reasons)
+
+            when (response.statusCode) {
+                -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
+                302 -> {}
+                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }
+            }
+
+            Log.e("doCreate", response.statusCode.toString())
             uid = result.get().substringAfter("/user/").substringBefore("\"")
             loadNextPage()
         }

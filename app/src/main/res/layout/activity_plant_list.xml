@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
     <TextView
-        android:text="@string/empty_info"
+        android:text="@string/loading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recycler_info"
