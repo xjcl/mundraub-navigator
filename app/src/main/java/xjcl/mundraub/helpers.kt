@@ -47,9 +47,6 @@ fun materialDesignBg(padX: Int, padY: Int, c: Float): Drawable {
 fun primaryColorTitle(text : String) : Spanned =
     HtmlCompat.fromHtml("<font color=\"#94b422\">${text}</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
 
-fun scrapeFormToken(s: String) : String =
-    s.substringAfter("""form_token" value="""", "(missing)").substringBefore("\"")
-
 fun getFruitColor(resources : Resources, tid: Int?) : Int =
     BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
         .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
@@ -65,8 +62,6 @@ fun invalidateMarker(activity: Activity, nid: String) {
         }
     }
 }
-
-fun unescapeHtml(s : String) = HtmlCompat.fromHtml(s, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()  // unescape "&quot;" etc
 
 fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitude, scalar * vec.longitude)
 fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)

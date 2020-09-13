@@ -39,7 +39,7 @@ class Register : AppCompatActivity() {
         registerData["pass[pass1]"] = this.reg_pass_inner.text.toString()
         registerData["pass[pass2]"] = registerData["pass[pass1]"] ?: ""
         if (registerData["mail"].isNullOrBlank() || registerData["name"].isNullOrBlank() || registerData["pass[pass1]"].isNullOrBlank())
-            {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgRegisterInfo), Toast.LENGTH_SHORT).show() }; return}
+            return runOnUiThread { Toast.makeText(this, getString(R.string.errMsgRegisterInfo), Toast.LENGTH_SHORT).show() }
 
         Fuel.post("https://mundraub.org/user/register", registerData.toList()).allowRedirects(false).responseString { request, response, result ->
 
@@ -48,12 +48,7 @@ class Register : AppCompatActivity() {
                 -1 -> {runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                 303 -> {}
                 else -> {
-                    val s = result.get().substringAfter("Fehlermeldung</h2>").substringBefore("</div>")
-                        .substringAfter("<ul>").substringBefore("</ul>")
-                    Log.e("register", s)
-                    val errorMsg = s.split("</li>").filter { it.isNotBlank() }.map { it.trim() }.map { ">$it<" }
-                        .map { Regex(">.*?<").findAll(it).map { it.value.substring(1 until it.value.length - 1) }.joinToString(" ") }
-                        .joinToString("\n\n")
+                    val errorMsg = scrapeErrorMessage(result.get())
                     runOnUiThread {
                         top_info_register.text = errorMsg
                         Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()

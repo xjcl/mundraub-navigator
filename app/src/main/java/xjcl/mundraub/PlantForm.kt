@@ -36,7 +36,6 @@ class PlantForm : AppCompatActivity() {
     val plantData = mutableMapOf(
         "form_id" to "node_plant_form",
         "changed" to "0",
-        "form_build_id" to "",
         "body[0][format]" to "simple_text",
         "field_plant_image[0][_weight]" to "0",
         "field_plant_image[0][fids]" to "",
@@ -202,7 +201,6 @@ class PlantForm : AppCompatActivity() {
 
         fun plantSubmit(result : Result<String, FuelError>) {
             plantData["changed"] = result.get().substringAfter("name=\"changed\" value=\"").substringBefore("\"")
-            //plantData["form_build_id"] = result.get().substringAfter("name=\"form_build_id\" value=\"").substringBefore("\"")
             plantData["form_token"] = scrapeFormToken(result.get())
             plantData["body[0][value]"] = descriptionTIED.text.toString()
             plantData["field_plant_category"] = keys[values.indexOf( typeTIED.text.toString() )]
