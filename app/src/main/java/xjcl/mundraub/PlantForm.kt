@@ -96,11 +96,10 @@ class PlantForm : AppCompatActivity() {
     }
 
     private fun plantDeleteDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage(R.string.reallyDelete)
+        AlertDialog.Builder(this).setMessage(R.string.reallyDelete)
             .setPositiveButton(R.string.yes) { _, _ -> plantDelete() }
             .setNegativeButton(R.string.no) { _, _ -> }
-        builder.create().show()
+            .create().show()
     }
 
     private fun plantDelete() {
@@ -164,9 +163,7 @@ class PlantForm : AppCompatActivity() {
 
     private fun doCreate() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val cook = sharedPref.getString("cookie", null)
-        if (cook == null) { finish(); return }
-        cookie = cook
+        cookie = sharedPref.getString("cookie", null) ?: return finish()
 
         setContentView( R.layout.activity_plant_form )
 
@@ -233,7 +230,7 @@ class PlantForm : AppCompatActivity() {
         if (intentNid > -1) {
             submitUrl = "https://mundraub.org/node/${intentNid}/edit"
 
-            Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
+            Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { request, response, result ->
 
                 when (response.statusCode) {
                     -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; finish()}
@@ -275,12 +272,12 @@ class PlantForm : AppCompatActivity() {
                 getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) ||
                         locationPicker.text.toString() == "???" || locationPicker.text.toString() == getString(R.string.loading))
             )
-            errors.forEach { if (it.second) {
+            errors.filter { it.second }.forEach {
                 runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }
                 return@setOnClickListener
-            }}
+            }
 
-            Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
+            Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { request, response, result ->
                 when (response.statusCode) {
                     -1 -> {runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }; return@responseString}
                     200 -> {}

@@ -4,14 +4,11 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kittinunf.fuel.Fuel
@@ -95,11 +92,10 @@ class PlantList : AppCompatActivity() {
     }
 
     private fun logoutDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage(R.string.reallyLogout)
+        AlertDialog.Builder(this).setMessage(R.string.reallyLogout)
             .setPositiveButton(R.string.yes) { _, _ -> logout() }
             .setNegativeButton(R.string.no) { _, _ -> }
-        builder.create().show()
+            .create().show()
     }
 
     // Handle ActionBar option selection
@@ -167,9 +163,7 @@ class PlantList : AppCompatActivity() {
 
     private fun doCreate() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val cook = sharedPref.getString("cookie", null)
-        if (cook == null) { finish(); return }
-        cookie = cook
+        cookie = sharedPref.getString("cookie", null) ?: return finish()
 
         recycler_view.layoutManager = LinearLayoutManager(this)
         recycler_view.adapter = RVAdapter(cardInfos)

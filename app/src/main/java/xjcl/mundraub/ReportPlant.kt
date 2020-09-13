@@ -34,9 +34,7 @@ class ReportPlant : AppCompatActivity() {
 
     private fun doCreate() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val cook = sharedPref.getString("cookie", null)
-        if (cook == null) { finish(); return }
-        cookie = cook
+        cookie = sharedPref.getString("cookie", null) ?: return finish()
     }
 
     fun reportPlant(view : View) {
