@@ -6,6 +6,7 @@
     <string name="title_activity_register">Neues Nutzerkonto anlegen</string>
     <string name="title_activity_plant_list">Meine Fundorte</string>
     <string name="title_activity_report_plant">Fundort melden</string>
+    <string name="title_activity_app_settings">App-Einstellungen</string>
 
     <string name="tid4" >Apfel</string>
     <string name="tid5" >Birne</string>
@@ -67,6 +68,7 @@
     <string name="desc">Beschreibung</string>
     <string name="upld">Hochladen!</string>
     <string name="lgin">Login!</string>
+    <string name="save">Speichern</string>
     <string name="reg">Registrieren</string>
 
     <string name="errMsgNoInternet">Keine Verbindung</string>
@@ -89,6 +91,12 @@
     <string name="report2">Fundort ist ungenau platziert</string>
     <string name="report3">Fundort existiert nicht mehr</string>
     <string name="report4">Andere Gründe</string>
+
+    <string name="mapType">Kartentyp</string>
+    <string name="mapType1">Straßenkarte</string>
+    <string name="mapType2">Satellit</string>
+    <string name="mapType3">Topografisch</string>
+    <string name="mapType4">Hybrid (Straßenkarte/Satellit)</string>
 
     <string name="loggedInAs">Eingeloggt als: %1$s</string>
     <string name="tapForInfo">--- Berühren für Details ---</string>

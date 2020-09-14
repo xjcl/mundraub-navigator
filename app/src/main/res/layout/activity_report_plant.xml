@@ -12,58 +12,37 @@
         android:orientation="vertical"
         tools:context=".Login">
 
-        <com.google.android.material.chip.ChipGroup xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/chipGroupR"
+        <RadioGroup
+            android:id="@+id/report_radio_group"
+            android:checkedButton="@+id/report_r0"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            app:checkedChip="@id/chip_r4"
-            >
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_r0"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/report0"
-                />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_r1"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/report1"
-                />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_r2"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/report2"
-                />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_r3"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/report3"
-                />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_r4"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/report4"
-                />
-
-        </com.google.android.material.chip.ChipGroup>
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:id="@+id/report_r0"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/report0"/>
+            <RadioButton
+                android:id="@+id/report_r1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/report1"/>
+            <RadioButton
+                android:id="@+id/report_r2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/report2"/>
+            <RadioButton
+                android:id="@+id/report_r3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/report3"/>
+            <RadioButton
+                android:id="@+id/report_r4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/report4"/>
+        </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/report_text"

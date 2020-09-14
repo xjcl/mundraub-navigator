@@ -192,6 +192,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // --- On startup: Prepare map and cause onRequestPermissionsResult to be called ---
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        mMap.mapType = sharedPref.getInt("mapType", MAP_TYPE_NORMAL)
         mMap.setOnCameraIdleListener(this)
         mMap.setPadding(totalLeftPadding, 0, 0, 0)
 
@@ -341,7 +343,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 60) { mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) ); return }  // might have modifed markers
+        if (recreateMain) {
+            recreateMain = false
+            return recreate()
+        }
+        if (requestCode == 60) return mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // might have modifed markers
         if (!(requestCode == 33 && resultCode == Activity.RESULT_OK && data != null)) return
 
         // if we add or edit a marker, resume at its location with open info window (= simulate click)

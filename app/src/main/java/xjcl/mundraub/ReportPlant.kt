@@ -20,7 +20,7 @@ class ReportPlant : AppCompatActivity() {
         "form_id" to "report_node_form"
     )
 
-    val chipMap = mapOf(R.id.chip_r0 to "0", R.id.chip_r1 to "1", R.id.chip_r2 to "2", R.id.chip_r3 to "3", R.id.chip_r4 to "4")
+    val radioMap = mapOf(R.id.report_r0 to "0", R.id.report_r1 to "1", R.id.report_r2 to "2", R.id.report_r3 to "3", R.id.report_r4 to "4")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +50,7 @@ class ReportPlant : AppCompatActivity() {
             }
 
             reportData["form_token"] = scrapeFormToken(result.get().substringAfter("edit-report-node-form-form-token"))
-            reportData["report_type"] = chipMap[this.chipGroupR.checkedChipId] ?: "4"
+            reportData["report_type"] = radioMap[this.report_radio_group.checkedRadioButtonId] ?: "4"
             reportData["description"] = this.report_text_inner.text.toString()
 
             Log.e("reportPlant", intentNid.toString())

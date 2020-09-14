@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".AppSettings">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="6dp"
+        android:text="@string/mapType"/>
+
+    <RadioGroup
+        android:id="@+id/mapType_radio_group"
+        android:checkedButton="@+id/set_radio_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/mapType_radio_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/mapType1"/>
+        <RadioButton
+            android:id="@+id/mapType_radio_2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/mapType2"/>
+        <RadioButton
+            android:id="@+id/mapType_radio_3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/mapType3"/>
+        <RadioButton
+            android:id="@+id/mapType_radio_4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/mapType4"/>
+    </RadioGroup>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onSaveClick"
+        android:text="@string/save" />
+
+    <TextView
+        android:id="@+id/version_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"/>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
+</ScrollView>
+

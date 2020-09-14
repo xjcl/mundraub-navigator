@@ -21,7 +21,7 @@ import kotlin.collections.ArrayList
 
 class CardInfo(val nid: Int, val tid: Int, val addr: String, val type: String)
 
-class RVAdapter (val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.PersonViewHolder>() {
+class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.PersonViewHolder>() {
     class PersonViewHolder (val v: View) : RecyclerView.ViewHolder(v)
 
     // card created
@@ -100,15 +100,18 @@ class PlantList : AppCompatActivity() {
 
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            8 -> { logoutDialog(); true }
-            else -> super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            8 -> startActivity(Intent(this, AppSettings::class.java))
+            9 -> logoutDialog()
+            else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(8, 8, 8, "Logout").setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+        menu.add(8, 8, 8, getString(R.string.title_activity_app_settings)).setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+        menu.add(9, 9, 9, "Logout").setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
         return true
     }
 

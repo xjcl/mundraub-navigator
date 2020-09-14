@@ -6,6 +6,7 @@
     <string name="title_activity_register">Create your account</string>
     <string name="title_activity_plant_list">My discoveries</string>
     <string name="title_activity_report_plant">Report location</string>
+    <string name="title_activity_app_settings">App settings</string>
 
     <string name="tid4">Apple</string>
     <string name="tid5">Pear</string>
@@ -67,6 +68,7 @@
     <string name="desc">Description (preferably in German)</string>
     <string name="upld">Upload!</string>
     <string name="lgin">Log in!</string>
+    <string name="save">Save</string>
     <string name="reg">Register</string>
 
     <string name="errMsgNoInternet">Couldn\'t connect</string>
@@ -89,6 +91,12 @@
     <string name="report2">Location is incorrectly placed</string>
     <string name="report3">Location does not exist (anymore)</string>
     <string name="report4">Other reason</string>
+
+    <string name="mapType">Map Type</string>
+    <string name="mapType1">Roadmap</string>
+    <string name="mapType2">Satellite</string>
+    <string name="mapType3">Terrain</string>
+    <string name="mapType4">Hybrid (Roadmap/Satellite)</string>
 
     <string name="loggedInAs">Logged in as: %1$s</string>
     <string name="tapForInfo">--- Tap to download info ---</string>
