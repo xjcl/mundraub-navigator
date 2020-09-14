@@ -93,6 +93,8 @@
     <string name="loggedInAs">Logged in as: %1$s</string>
     <string name="tapForInfo">--- Tap to download info ---</string>
     <string name="loading">(loading…)</string>
+    <string name="geocoding">Geocoding…\n(requires internet)</string>
+    <string name="geocoding_failed">Geocoding failed!\nPick location again later</string>
     <string name="login_info">Adding, editing and reporting markers requires a Mundraub account.</string>
     <string name="empty_info">You haven\'t submitted any places yet.</string>
     <string name="register_info">Your username can contain the following special characters: _.-\'@</string>

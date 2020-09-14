@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
@@ -64,15 +63,33 @@ class PlantForm : AppCompatActivity() {
     lateinit var locationPicker : MaterialButton
 
     fun updateLocationPicker(latLng: LatLng) {
-        if (!::locationPicker.isInitialized) return
-        locationPicker.text = getString(R.string.loading)
         location = latLng
+        geocodeLocation()
+    }
+
+    /**
+     * Continuously try getting location in background because sometimes it randomly fails
+     *  (or there might be no internet)
+     */
+    fun geocodeLocation() {
+        if (!::locationPicker.isInitialized) return
+        locationPicker.text = getString(R.string.geocoding)
+
         thread {
-            val gcd = Geocoder(this@PlantForm, Locale.getDefault())
-            val addresses: List<Address> = try { gcd.getFromLocation(latLng.latitude, latLng.longitude, 1) }
-                catch (ex : IOException) { listOf() }
-            runOnUiThread { locationPicker.text = if (addresses.isEmpty()) "???" else
-                (0..addresses[0].maxAddressLineIndex).map { addresses[0].getAddressLine(it) }.joinToString("\n") }
+            repeat(10) {
+                val gcd = Geocoder(this@PlantForm, Locale.getDefault())
+                Log.e("geocodeLocation", "geolocating...")
+                val address = try { gcd.getFromLocation(location.latitude, location.longitude, 1).firstOrNull() }
+                    catch (ex : IOException) { null }
+                address?.let {
+                    val addressStr = (0..address.maxAddressLineIndex).map { address.getAddressLine(it) }.joinToString("\n")
+                    Log.e("geocodeLocation", addressStr)
+                    runOnUiThread { locationPicker.text = addressStr }
+                    return@thread
+                }
+            }
+            Log.e("geocodeLocation", "geolocating failed")
+            runOnUiThread { locationPicker.text = getString(R.string.geocoding_failed) }
         }
     }
 
@@ -181,7 +198,6 @@ class PlantForm : AppCompatActivity() {
         typeTIED.setOnItemClickListener { _, _, _, _ -> updateType() }
 
         locationPicker = button_loc.apply {
-            text = "???"
             setOnClickListener {
                 val typeIndex = values.indexOf(typeTIED.text.toString())
                 val intent = Intent(context, LocationPicker::class.java).putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt())
@@ -270,7 +286,8 @@ class PlantForm : AppCompatActivity() {
                 getString(R.string.errMsgDesc) to descriptionTIED.text.toString().isBlank(),
                 getString(R.string.errMsgType) to (typeIndex == -1),
                 getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) ||
-                        locationPicker.text.toString() == "???" || locationPicker.text.toString() == getString(R.string.loading))
+                        locationPicker.text.toString() == getString(R.string.geocoding) ||
+                        locationPicker.text.toString() == getString(R.string.geocoding_failed))
             )
             errors.filter { it.second }.forEach {
                 return@setOnClickListener runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }

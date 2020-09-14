@@ -93,6 +93,8 @@
     <string name="loggedInAs">Eingeloggt als: %1$s</string>
     <string name="tapForInfo">--- Berühren für Details ---</string>
     <string name="loading">(warte…)</string>
+    <string name="geocoding">Geokodierung…\n(benötigt Internet)</string>
+    <string name="geocoding_failed">Geokodierung fehlgeschlagen!\nOrt später noch einmal eintragen</string>
     <string name="login_info">Hinzufügen, Bearbeiten und Melden von Markern erfordert Login mit einem Mundraub-Account.</string>
     <string name="empty_info">Du hast noch keine Fundorte beigetragen.</string>
     <string name="register_info">Folgende Sonderzeichen sind im Benutzernamen erlaubt: _.-\'@</string>

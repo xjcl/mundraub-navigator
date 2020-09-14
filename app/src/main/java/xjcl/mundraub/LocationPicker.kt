@@ -84,6 +84,6 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
         if (lat == 0.0 && lng == 0.0)
             nMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))
         else
-            nMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 15F))
+            nMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 16F))
     }
 }
