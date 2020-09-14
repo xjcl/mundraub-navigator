@@ -88,7 +88,7 @@ class PlantList : AppCompatActivity() {
             remove("pass")
             apply()
         }
-        recreate()
+        finish()
     }
 
     private fun logoutDialog() {
@@ -188,7 +188,7 @@ class PlantList : AppCompatActivity() {
             when (response.statusCode) {
                 -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
                 302 -> {}
-                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }
+                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show(); finish() }
             }
 
             Log.e("doCreate", response.statusCode.toString())

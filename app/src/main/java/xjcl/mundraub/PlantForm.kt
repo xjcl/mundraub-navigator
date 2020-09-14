@@ -62,16 +62,12 @@ class PlantForm : AppCompatActivity() {
     var location : LatLng = LatLng(0.0, 0.0)
     lateinit var locationPicker : MaterialButton
 
-    fun updateLocationPicker(latLng: LatLng) {
-        location = latLng
-        geocodeLocation()
-    }
-
     /**
-     * Continuously try getting location in background because sometimes it randomly fails
-     *  (or there might be no internet)
+     * Continuously try getting location in background because sometimes it randomly fails :(
+     *  (or there might be weak signal or no internet)
      */
-    fun geocodeLocation() {
+    fun geocodeLocation(latLng: LatLng) {
+        location = latLng
         if (!::locationPicker.isInitialized) return
         locationPicker.text = getString(R.string.geocoding)
 
@@ -98,7 +94,7 @@ class PlantForm : AppCompatActivity() {
         if (requestCode == 42 && resultCode == Activity.RESULT_OK && data != null) {
             val lat = data.getDoubleExtra("lat", 0.0)
             val lng = data.getDoubleExtra("lng", 0.0)
-            updateLocationPicker(LatLng(lat, lng))
+            geocodeLocation(LatLng(lat, lng))
         }
         if (requestCode == 55) {
             if (hasLoginCookie(this)) doCreate() else finish()
@@ -170,6 +166,7 @@ class PlantForm : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView( R.layout.activity_plant_form )
 
         intentNid = intent.getIntExtra("nid", -1)
         supportActionBar?.title = if (intentNid > -1) getString(R.string.editNode) else getString(R.string.addNode)
@@ -181,8 +178,6 @@ class PlantForm : AppCompatActivity() {
     private fun doCreate() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         cookie = sharedPref.getString("cookie", null) ?: return finish()
-
-        setContentView( R.layout.activity_plant_form )
 
         // TODO make this a proper map and call getInverse() on it
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
@@ -207,7 +202,7 @@ class PlantForm : AppCompatActivity() {
         }
 
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { it?.let { location ->
-            updateLocationPicker(LatLng(location))
+            geocodeLocation(LatLng(location))
         }}
 
         // ----
@@ -252,6 +247,7 @@ class PlantForm : AppCompatActivity() {
                     -1 -> runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
                     200 -> {}
                     else -> {
+                        // TODO delete this, code has been moved to function
                         // No access to this resource -> try ReportPlant form instead
                         startActivityForResult(Intent(this, ReportPlant::class.java).putExtra("nid", intentNid), 35)
                         finish()
@@ -273,7 +269,7 @@ class PlantForm : AppCompatActivity() {
                     typeTIED.setText( values[keys.indexOf(type)] ); updateType()
                     descriptionTIED.setText(description)
                     chipGroup.check(chipMap.getInverse(count) ?: R.id.chip_0)
-                    updateLocationPicker( LatLng(locationList[1].toDouble(), locationList[0].toDouble()) )
+                    geocodeLocation( LatLng(locationList[1].toDouble(), locationList[0].toDouble()) )
                 }, 30)
             }
         }
@@ -295,13 +291,37 @@ class PlantForm : AppCompatActivity() {
 
             Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { request, response, result ->
                 when (response.statusCode) {
-                    -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
+                    -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
                     200 -> {}
-                    else -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }
+                    else -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show(); finish() }
                 }
 
                 plantSubmit(result)
             }
+        }
+    }
+}
+
+/**
+ * Long-click on marker
+ *  -> edit if it is my own marker
+ *  -> report if it is someone else's marker (= no edit rights)
+ */
+fun editOrReportLauncher(activity : Activity, intentNid : Int) {
+    val submitUrl = "https://mundraub.org/node/${intentNid}/edit"
+
+    // TODO maybe we need to pass a callback to #hasLoginCookie... sigh
+    if (!hasLoginCookie(activity, loginIfMissing = true)) return
+
+    val sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE)
+    val cook = sharedPref.getString("cookie", null) ?:
+        return Toast.makeText(activity, activity.getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show()
+
+    Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
+        when (response.statusCode) {
+            -1 -> Toast.makeText(activity, activity.getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show()
+            200 -> activity.startActivityForResult(Intent(activity, PlantForm::class.java).putExtra("nid", intentNid), 33)
+            else -> activity.startActivityForResult(Intent(activity, ReportPlant::class.java).putExtra("nid", intentNid), 35)
         }
     }
 }

@@ -11,11 +11,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.kittinunf.fuel.Fuel
 import kotlinx.android.synthetic.main.activity_login.*
 
+
+
 class Login : AppCompatActivity() {
-    val loginData = mutableMapOf(
-        "form_id" to "user_login_form",
-        "op" to "Anmelden"
-    )
 
     // migrate the user's old settings (new in v13) -- can delete this a few weeks out
     private fun migrateSettings() {
@@ -42,44 +40,13 @@ class Login : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         migrateSettings()
-
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val name = sharedPref.getString("name", "") ?: ""
-
-        this.name_inner.setText( name )
-        this.pass_inner.setText( sharedPref.getString("pass", "") ?: "" )
-        this.onLoginClick()
     }
 
-    fun onLoginClick(view : View? = null) {
-        loginData["name"] = this.name_inner.text.toString()
-        loginData["pass"] = this.pass_inner.text.toString()
-        if (loginData["name"]!!.isBlank() || loginData["pass"]!!.isBlank())
-            { Toast.makeText(this, getString(R.string.errMsgLoginInfo), Toast.LENGTH_SHORT).show(); return }
+    fun onLoginClick(view : View) {
+        if (this.name_inner.text.toString().isBlank() || this.pass_inner.text.toString().isBlank())
+            return Toast.makeText(this, this.getString(R.string.errMsgLoginInfo), Toast.LENGTH_SHORT).show()
 
-        Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
-
-            when (response.statusCode) {
-                -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
-                303 -> {}
-                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show() }
-            }
-
-            val cook = response.headers["Set-Cookie"].first()
-
-            val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-            with (sharedPref.edit()) {
-                putString("name", loginData["name"])
-                putString("pass", loginData["pass"])
-                putString("cookie", cook)
-                putLong("cookieTime", System.currentTimeMillis() / 1000L)
-                apply()
-            }
-
-            Log.e("cook", "success with cookie $cook")
-            runOnUiThread { Toast.makeText(this, getString(R.string.errMsgLoginSuccess), Toast.LENGTH_SHORT).show() }
-            finish()
-        }
+        doLogin(this, this.name_inner.text.toString(), this.pass_inner.text.toString(), inLoginActivity = true)
     }
 
     fun onRegisterClick(view : View) {
@@ -87,7 +54,61 @@ class Login : AppCompatActivity() {
         finish()
     }
 }
+
 // --------------------------------
+
+/**
+ * Idea is to
+ *  (a) (inLoginActivity=true) Provide functionality for Login form
+ *          -> As stated below, put callback for when the cookie arrives in onActivityResult
+ *  (b) (inLoginActivity=false) Secretly re-log in the background when the log-in cookie expires
+ *          I.e. this function is called in ANOTHER activity's UI thread
+ */
+fun doLogin(activity: Activity, name : String? = null, pass : String? = null, inLoginActivity : Boolean = false) {
+    val loginData = mutableMapOf(
+        "form_id" to "user_login_form",
+        "op" to "Anmelden"
+    )
+
+    val sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE)
+    loginData["name"] = name ?: sharedPref.getString("name", "") ?: ""
+    loginData["pass"] = pass ?: sharedPref.getString("pass", "") ?: ""
+    Log.e("doLogin", loginData["name"] + "_" + loginData["pass"])
+    if (loginData["name"]!!.isBlank() || loginData["pass"]!!.isBlank())
+        return activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+
+    Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
+
+        when (response.statusCode) {
+            -1 -> return@responseString activity.runOnUiThread {
+                Toast.makeText(activity, activity.getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show()
+                if (!inLoginActivity) activity.finish()
+            }
+            303 -> {}
+            else -> return@responseString activity.runOnUiThread {
+                Toast.makeText(activity, activity.getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show()
+                if (!inLoginActivity) activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+            }
+        }
+
+        val cook = response.headers["Set-Cookie"].first()
+
+        with (sharedPref.edit()) {
+            putString("name", loginData["name"])
+            putString("pass", loginData["pass"])
+            putString("cookie", cook)
+            putLong("cookieTime", System.currentTimeMillis() / 1000L)
+            apply()
+        }
+
+        Log.e("cook", "success with cookie $cook")
+        activity.runOnUiThread {
+            Toast.makeText(activity, activity.getString(R.string.errMsgLoginSuccess), Toast.LENGTH_SHORT).show()
+            if (inLoginActivity) activity.finish() else activity.recreate()
+            // TODO:  if (inLoginActivity) activity.finish(); callback() (callback in both cases)
+        }
+    }
+}
 
 /**
  * *** hasLoginCookie(true) ***
@@ -96,7 +117,7 @@ class Login : AppCompatActivity() {
  *      1. First attempt re-login with the previous credentials
  *      2. If credentials do not work, wait for user to submit form
  *      -> Both will call onActivityResult so use hasLoginCookie(false) there to test for success
-  */
+ */
 fun hasLoginCookie(activity : Activity, loginIfMissing : Boolean = false) : Boolean {
     Log.e("cook", "hasLoginCookie ENTER")
 
@@ -104,7 +125,7 @@ fun hasLoginCookie(activity : Activity, loginIfMissing : Boolean = false) : Bool
     val cook = sharedPref.getString("cookie", null)
     if (cook == null) {
         Log.e("cook", "no cook")
-        if (loginIfMissing) activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+        if (loginIfMissing) doLogin(activity)
         return false
     }
 
@@ -112,9 +133,11 @@ fun hasLoginCookie(activity : Activity, loginIfMissing : Boolean = false) : Bool
     val cookTime = sharedPref.getLong("cookieTime", 0)
     Log.e("cook", "trying cookie $cook from time $nowTime - $cookTime = ${nowTime - cookTime}")
 
-    if (nowTime - cookTime > 140000) {  // Drupal cookies expire after 200k secs server-side
+    // XXX TODO change back
+    //if (nowTime - cookTime > 140000) {  // Drupal cookies expire after 200k secs server-side
+    if (nowTime - cookTime > 40) {  // Drupal cookies expire after 200k secs server-side
         Log.e("cook", "this cook is expired")
-        if (loginIfMissing) activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+        if (loginIfMissing) doLogin(activity)
         return false
     }
 

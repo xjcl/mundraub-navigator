@@ -292,6 +292,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mMap.setOnInfoWindowLongClickListener {
             markersData[it.position]?.let { md ->
                 startActivityForResult(Intent(this, PlantForm::class.java).putExtra("nid", md.nid), 33)
+                //runOnUiThread { editOrReportLauncher(this, md.nid ?: -1) }
         }}
 
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
