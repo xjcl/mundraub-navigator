@@ -108,6 +108,7 @@
     <string name="register_info">Folgende Sonderzeichen sind im Benutzernamen erlaubt: _.-\'@</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="delete">Löschen</string>
     <string name="reallyDelete">Wirklich löschen?</string>
     <string name="reallyLogout">Wirklich abmelden?</string>
 </resources>

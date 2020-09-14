@@ -389,8 +389,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         val icon7 = ContextCompat.getDrawable(this, R.drawable.material_list) ?: return true
         icon7.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
 
-        menu.add(7, 7, 7, "List").setIcon(icon7).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(9, 9, 9, "Add").setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(7, 7, 7, getString(R.string.title_activity_plant_list))
+            .setIcon(icon7).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(9, 9, 9, getString(R.string.addNode))
+            .setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
 

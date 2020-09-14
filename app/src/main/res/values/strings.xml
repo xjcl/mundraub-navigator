@@ -108,6 +108,7 @@
     <string name="register_info">Your username can contain the following special characters: _.-\'@</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="delete">Delete</string>
     <string name="reallyDelete">Really delete?</string>
     <string name="reallyLogout">Really logout?</string>
 </resources>
