@@ -1,3 +1,8 @@
+v20
+- UI flow improvements
+- Geocoder retries now
+- Allow map type selection
+
 v19
 - Repair register form by adding password
 
