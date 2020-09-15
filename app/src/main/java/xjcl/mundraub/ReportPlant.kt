@@ -28,8 +28,7 @@ class ReportPlant : AppCompatActivity() {
 
         intentNid = intent.getIntExtra("nid", -1)
 
-        if (hasLoginCookie(this, loginIfMissing = true))
-            doCreate()
+        doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
     }
 
     private fun doCreate() {

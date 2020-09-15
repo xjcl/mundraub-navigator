@@ -91,14 +91,14 @@ class PlantForm : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
         if (requestCode == 42 && resultCode == Activity.RESULT_OK && data != null) {
             val lat = data.getDoubleExtra("lat", 0.0)
             val lng = data.getDoubleExtra("lng", 0.0)
             geocodeLocation(LatLng(lat, lng))
         }
-        if (requestCode == 55) {
-            if (hasLoginCookie(this)) doCreate() else finish()
-        }
+        if (requestCode == 55 && resultCode == Activity.RESULT_OK) recreate()
+        if (requestCode == 55 && resultCode != Activity.RESULT_OK) finish()
     }
 
     private fun finishSuccess(nid : String = "") {
@@ -171,8 +171,7 @@ class PlantForm : AppCompatActivity() {
         intentNid = intent.getIntExtra("nid", -1)
         supportActionBar?.title = if (intentNid > -1) getString(R.string.editNode) else getString(R.string.addNode)
 
-        if (hasLoginCookie(this, loginIfMissing = true))
-            doCreate()
+        doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
     }
 
     private fun doCreate() {
@@ -307,11 +306,8 @@ class PlantForm : AppCompatActivity() {
  *  -> edit if it is my own marker
  *  -> report if it is someone else's marker (= no edit rights)
  */
-fun editOrReportLauncher(activity : Activity, intentNid : Int) {
+fun editOrReportLauncherLoggedIn(activity : Activity, intentNid : Int) {
     val submitUrl = "https://mundraub.org/node/${intentNid}/edit"
-
-    // TODO maybe we need to pass a callback to #hasLoginCookie... sigh
-    if (!hasLoginCookie(activity, loginIfMissing = true)) return
 
     val sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE)
     val cook = sharedPref.getString("cookie", null) ?:
@@ -324,6 +320,10 @@ fun editOrReportLauncher(activity : Activity, intentNid : Int) {
             else -> activity.startActivityForResult(Intent(activity, ReportPlant::class.java).putExtra("nid", intentNid), 35)
         }
     }
+}
+
+fun editOrReportLauncher(activity : Activity, intentNid : Int) {
+    doWithLoginCookie(activity, loginIfMissing = true, callback = { editOrReportLauncherLoggedIn(activity, intentNid) })
 }
 
 // TODO: MapFragment with preview of window :D

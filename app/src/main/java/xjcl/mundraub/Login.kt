@@ -12,8 +12,12 @@ import com.github.kittinunf.fuel.Fuel
 import kotlinx.android.synthetic.main.activity_login.*
 
 
-
 class Login : AppCompatActivity() {
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        recreate()
+    }
 
     // migrate the user's old settings (new in v13) -- can delete this a few weeks out
     private fun migrateSettings() {
@@ -40,18 +44,21 @@ class Login : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         migrateSettings()
+
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        this.name_inner.setText( sharedPref.getString("name", "") ?: "" )
+        this.pass_inner.setText( sharedPref.getString("pass", "") ?: "" )
     }
 
     fun onLoginClick(view : View) {
         if (this.name_inner.text.toString().isBlank() || this.pass_inner.text.toString().isBlank())
             return Toast.makeText(this, this.getString(R.string.errMsgLoginInfo), Toast.LENGTH_SHORT).show()
 
-        doLogin(this, this.name_inner.text.toString(), this.pass_inner.text.toString(), inLoginActivity = true)
+        doLogin(this, {}, this.name_inner.text.toString(), this.pass_inner.text.toString(), inLoginActivity = true)
     }
 
     fun onRegisterClick(view : View) {
         startActivityForResult(Intent(this, Register::class.java), 56)
-        finish()
     }
 }
 
@@ -64,7 +71,7 @@ class Login : AppCompatActivity() {
  *  (b) (inLoginActivity=false) Secretly re-log in the background when the log-in cookie expires
  *          I.e. this function is called in ANOTHER activity's UI thread
  */
-fun doLogin(activity: Activity, name : String? = null, pass : String? = null, inLoginActivity : Boolean = false) {
+fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pass : String? = null, inLoginActivity : Boolean = false) {
     val loginData = mutableMapOf(
         "form_id" to "user_login_form",
         "op" to "Anmelden"
@@ -104,8 +111,11 @@ fun doLogin(activity: Activity, name : String? = null, pass : String? = null, in
         Log.e("cook", "success with cookie $cook")
         activity.runOnUiThread {
             Toast.makeText(activity, activity.getString(R.string.errMsgLoginSuccess), Toast.LENGTH_SHORT).show()
-            if (inLoginActivity) activity.finish() else activity.recreate()
-            // TODO:  if (inLoginActivity) activity.finish(); callback() (callback in both cases)
+            if (inLoginActivity) {
+                activity.setResult(Activity.RESULT_OK, Intent())
+                activity.finish()
+            }
+            callback()
         }
     }
 }
@@ -118,14 +128,14 @@ fun doLogin(activity: Activity, name : String? = null, pass : String? = null, in
  *      2. If credentials do not work, wait for user to submit form
  *      -> Both will call onActivityResult so use hasLoginCookie(false) there to test for success
  */
-fun hasLoginCookie(activity : Activity, loginIfMissing : Boolean = false) : Boolean {
+fun doWithLoginCookie(activity : Activity, loginIfMissing : Boolean = false, callback : () -> Unit = {}) : Boolean {
     Log.e("cook", "hasLoginCookie ENTER")
 
     val sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE)
     val cook = sharedPref.getString("cookie", null)
     if (cook == null) {
         Log.e("cook", "no cook")
-        if (loginIfMissing) doLogin(activity)
+        if (loginIfMissing) doLogin(activity, callback)
         return false
     }
 
@@ -133,14 +143,14 @@ fun hasLoginCookie(activity : Activity, loginIfMissing : Boolean = false) : Bool
     val cookTime = sharedPref.getLong("cookieTime", 0)
     Log.e("cook", "trying cookie $cook from time $nowTime - $cookTime = ${nowTime - cookTime}")
 
-    // XXX TODO change back
-    //if (nowTime - cookTime > 140000) {  // Drupal cookies expire after 200k secs server-side
-    if (nowTime - cookTime > 40) {  // Drupal cookies expire after 200k secs server-side
+    // XXX TODO change back !!
+    if (nowTime - cookTime > 140000) {  // Drupal cookies expire after 200k secs server-side
         Log.e("cook", "this cook is expired")
-        if (loginIfMissing) doLogin(activity)
+        if (loginIfMissing) doLogin(activity, callback)
         return false
     }
 
     Log.e("cook", "use cook")
+    callback()
     return true
 }

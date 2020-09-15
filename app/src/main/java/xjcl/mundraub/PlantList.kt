@@ -72,12 +72,11 @@ class PlantList : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.e("onActivityResult", "onActivityResult")
+        Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
         // TODO change just one item, do not recreate whole activity
         if (requestCode == 33 && resultCode == Activity.RESULT_OK) recreate()
-        if (requestCode == 55) {
-            if (hasLoginCookie(this)) doCreate() else finish()
-        }
+        if (requestCode == 55 && resultCode == Activity.RESULT_OK) recreate()
+        if (requestCode == 55 && resultCode != Activity.RESULT_OK) finish()
     }
 
     private fun logout() {
@@ -120,8 +119,7 @@ class PlantList : AppCompatActivity() {
         setContentView(R.layout.activity_plant_list)
         setGermanStringsToTreeId()
 
-        if (hasLoginCookie(this, loginIfMissing = true))
-            doCreate()
+        doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
     }
 
     private fun loadNextPage() {
