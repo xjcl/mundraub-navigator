@@ -26,7 +26,7 @@ class AppSettings : AppCompatActivity() {
         val checked = this.mapType_radio_group.checkedRadioButtonId
         sharedPref.edit().putInt("mapType", resToInt[checked] ?: 1).apply()
         Log.e("AppSet", resToInt[checked].toString())
-        recreateMain = true
+        mapTypeChanged = true
         finish()
     }
 }

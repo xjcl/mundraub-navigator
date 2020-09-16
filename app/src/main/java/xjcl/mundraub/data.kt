@@ -35,7 +35,7 @@ fun Any?.discard() = Unit
 
 lateinit var mMap: GoogleMap
 lateinit var fusedLocationClient: FusedLocationProviderClient
-var recreateMain = false
+var mapTypeChanged = false
 
 lateinit var relView : RelativeLayout
 lateinit var mapView : View

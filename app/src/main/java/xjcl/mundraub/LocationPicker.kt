@@ -1,6 +1,7 @@
 package xjcl.mundraub
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -78,6 +79,7 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         nMap = googleMap
+        nMap.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", GoogleMap.MAP_TYPE_NORMAL)
 
         val lat = this.intent.getDoubleExtra("lat", 0.0)
         val lng = this.intent.getDoubleExtra("lng", 0.0)
