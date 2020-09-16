@@ -72,6 +72,7 @@ class Login : AppCompatActivity() {
  *          I.e. this function is called in ANOTHER activity's UI thread
  */
 fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pass : String? = null, inLoginActivity : Boolean = false) {
+    Log.e("cook", "doLogin")
     val loginData = mutableMapOf(
         "form_id" to "user_login_form",
         "op" to "Anmelden"
@@ -99,6 +100,7 @@ fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pa
         }
 
         val cook = response.headers["Set-Cookie"].first()
+        Log.e("cook", "new cook $cook")
 
         with (sharedPref.edit()) {
             putString("name", loginData["name"])
@@ -110,8 +112,8 @@ fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pa
 
         Log.e("cook", "success with cookie $cook")
         activity.runOnUiThread {
-            Toast.makeText(activity, activity.getString(R.string.errMsgLoginSuccess), Toast.LENGTH_SHORT).show()
             if (inLoginActivity) {
+                Toast.makeText(activity, activity.getString(R.string.errMsgLoginSuccess), Toast.LENGTH_SHORT).show()
                 activity.setResult(Activity.RESULT_OK, Intent())
                 activity.finish()
             }
@@ -143,7 +145,6 @@ fun doWithLoginCookie(activity : Activity, loginIfMissing : Boolean = false, cal
     val cookTime = sharedPref.getLong("cookieTime", 0)
     Log.e("cook", "trying cookie $cook from time $nowTime - $cookTime = ${nowTime - cookTime}")
 
-    // XXX TODO change back !!
     if (nowTime - cookTime > 140000) {  // Drupal cookies expire after 200k secs server-side
         Log.e("cook", "this cook is expired")
         if (loginIfMissing) doLogin(activity, callback)

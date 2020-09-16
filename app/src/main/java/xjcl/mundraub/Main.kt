@@ -490,14 +490,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //    - keep markers near user location always
 //    - favorite markers that get permanently stored
 
-// TODO user profiles
-//    - allow login
-//    - allow adding a node
-//    - allow editing a node
-//    - allow reporting a problem with a node
-
 // TODO meta
-//    - make img/ and docs/ dir
+//    - make docs/ dir
 
 
 // TODO wontfix
@@ -507,7 +501,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
 
 // TODO immediate
-//    - hide "Login erfolgreich" after re-log (not from Activity)
 //    - admins unpublished
 //    - refactor bg color recyclerview+linearlayout
 
