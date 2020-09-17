@@ -1,3 +1,6 @@
+v21
+- Minor UX improvements
+
 v20
 - UI flow improvements
 - Geocoder retries now
