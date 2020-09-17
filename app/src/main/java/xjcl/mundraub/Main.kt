@@ -480,9 +480,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //    - list of how common each marker type is
 
 // TODO UI
-//    * show season information in info window (only a single row)
 //    - all markers jump when pressing filter?
-//    * immediately download info when tapping marker (1 instead of 2 taps)
 //    - "force reload" button
 
 // TODO marker persistence
@@ -502,17 +500,3 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
 // TODO immediate
 //    - admins unpublished
-//    - refactor bg color recyclerview+linearlayout
-
-
-/*
-Kleine Sachen über die ich noch nachgedacht habe:
-- Eventuell direkt auf der Karte die Marker dunkler machen die nicht saisonal sind
-- Direkter Download von Marker-Infos beim ersten Berühren. Da ist die Frage wie sehr es das Backend belastet
-
-Größere Features:
-- Marker als "Favoriten" makieren. Die werden dann am besten permanent auf dem Gerät gespeichert. Ich dachte zuerst an eine Liste aber ein Filter mit grauem Icon wie die anderen beiden wäre sogar intuitiver denke ich.
-- Marker-History. Die am besten automatisch bemerkt an welchen Markern man vorbei gelaufen ist. Daraus kann man dann Gamification machen und schauen ob man alle Sorten besuchen kann. Da braucht man auch ein Feature um fälschlich besuchte Marker wieder zu entfernen.
-
-Error message
-*/

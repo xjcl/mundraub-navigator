@@ -75,7 +75,7 @@
     <string name="errMsgLoginInfo">Please fill in login info</string>
     <string name="errMsgRegisterInfo">Please fill in registration info</string>
     <string name="errMsgAccess">No access to this resource</string>
-    <string name="errMsgLogin">Login failed</string>
+    <string name="errMsgLogin">Login failed. Make sure you entered the correct details and that your email is verified.</string>
     <string name="errMsgLoginSuccess">Login successful!</string>
     <string name="errMsgRegisterSuccess">Registration successful! You can use your account if you respond to our confirmation email.</string>
     <string name="errMsgDesc">Please add a description</string>
@@ -105,7 +105,7 @@
     <string name="geocoding_failed">Geocoding failed!\nPick location again later</string>
     <string name="login_info">Adding, editing and reporting markers requires a Mundraub account.</string>
     <string name="empty_info">You haven\'t submitted any places yet.</string>
-    <string name="register_info">Your username can contain the following special characters: _.-\'@</string>
+    <string name="register_info">Your username can contain the following special characters: _.-\'@\n\nAfter registration, please confirm your email address by clicking on our email.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="delete">Delete</string>
