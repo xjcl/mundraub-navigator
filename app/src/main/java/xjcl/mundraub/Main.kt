@@ -482,6 +482,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 // TODO UI
 //    - all markers jump when pressing filter?
 //    - "force reload" button
+//    - from PlantList: land user on marker view rather than edit view
 
 // TODO marker persistence
 //    - startup: load markers from last time

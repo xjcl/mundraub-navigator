@@ -22,7 +22,7 @@ import kotlin.math.max
 
 class JanMapFragment : SupportMapFragment() {
 
-    private val ivs = HashMap<Int, ImageView>()
+    private val ivs = mutableMapOf<Int, ImageView>()
     private var density : Float = 0f
     private var scrHeight : Int = 0
     private lateinit var bmpSample : Bitmap
@@ -144,8 +144,10 @@ class JanMapFragment : SupportMapFragment() {
             tv.measure(0, 0)
             Log.e("tvm", "${tv.measuredHeight} ${tv.measuredWidth}")
 
-            tv.height = markerHeight(cum, cum + group.size) - density.toInt()  // make room for ImageView divider
-            tv.width = tv.measuredHeight + 400  // 400 IQ
+            tv.height = markerHeight(cum, cum + group.size) - (density + .5).toInt()  // make room for ImageView divider
+            Log.e("tvWidth", "${tv.measuredHeight} ${bmpSample.width}")
+            val tvWidth = max(tv.measuredHeight, (bmpSample.width * .9).toInt())
+            tv.width = tvWidth + 400  // 400 IQ
 
             val tvHolder = RelativeLayout(context)   // NEEDED else the touch regions are all wrong
             tvHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -158,10 +160,13 @@ class JanMapFragment : SupportMapFragment() {
             linearLabels.addView(tvHolder)
 
             val iv = ImageView(context)
-            iv.setImageResource(R.drawable.divider)  // has height of  = 1 * density
+            iv.minimumWidth = (tvWidth * .85).toInt()
+            iv.minimumHeight = (density + .5).toInt()
+            iv.setBackgroundColor(Color.GRAY)
+            iv.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             linearLabels.addView(iv)
 
-            totalLeftPadding = max(totalLeftPadding, (.04 * scrHeight).toInt() + bmpSample.width + tv.measuredHeight)
+            totalLeftPadding = max(totalLeftPadding, (.04 * scrHeight).toInt() + bmpSample.width + tvWidth)
         }
         mMap.setPadding(totalLeftPadding, 0, 0, 0)
 
