@@ -375,23 +375,26 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
             7 -> { startActivityForResult(Intent(this, PlantList::class.java), 60); true }
+            9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
+            15 -> { startActivity(Intent(this, AppSettings::class.java)); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val icon9 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
-        icon9.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
         val icon7 = ContextCompat.getDrawable(this, R.drawable.material_list) ?: return true
         icon7.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+        val icon9 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
+        icon9.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
 
         menu.add(7, 7, 7, getString(R.string.title_activity_plant_list))
             .setIcon(icon7).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         menu.add(9, 9, 9, getString(R.string.addNode))
             .setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(15, 15, 15, getString(R.string.title_activity_app_settings))
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
         return true
     }
 
@@ -399,12 +402,12 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.e("UA", System.getProperty("http.agent")?:"")
         supportActionBar?.apply {
             val trueWidth = resources.displayMetrics.widthPixels / resources.displayMetrics.density
             Log.e("trueWidth", trueWidth.toString())
             val navStr = if (trueWidth > 500) "Navigator" else if (trueWidth > 400) "Nav." else ""
             title = primaryColorTitle("$navStr v${BuildConfig.VERSION_NAME}")
-            setBackgroundDrawable(ColorDrawable(Color.WHITE))
             setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
             displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
         }
@@ -483,6 +486,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //    - all markers jump when pressing filter?
 //    - "force reload" button
 //    - from PlantList: land user on marker view rather than edit view
+//    - show marker icons in AutocompleteTextView
 
 // TODO marker persistence
 //    - startup: load markers from last time
@@ -501,3 +505,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
 // TODO immediate
 //    - admins unpublished
+//    - map marker icons
+
+// TODO reset password in-app
+// TODO impressum

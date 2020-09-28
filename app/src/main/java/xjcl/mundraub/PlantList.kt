@@ -100,7 +100,6 @@ class PlantList : AppCompatActivity() {
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            8 -> startActivity(Intent(this, AppSettings::class.java))
             9 -> logoutDialog()
             else -> return super.onOptionsItemSelected(item)
         }
@@ -109,7 +108,6 @@ class PlantList : AppCompatActivity() {
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(8, 8, 8, getString(R.string.title_activity_app_settings)).setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
         menu.add(9, 9, 9, "Logout").setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
         return true
     }
