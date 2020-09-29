@@ -2,11 +2,11 @@
 <table>
 <tr>
 <td width="35%">
-<img src="images/demo_2020-07-07.jpg" alt="Demo of the app">
+<img src="images/demo_2020-09-19_de.jpg" alt="Demo von der App">
 </td>
 <td rowspan="2"  valign="top">
 
-# <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo of the app" width="55px"> Mundraub Navigator
+# <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo von der App" width="55px"> Mundraub Navigator
 
 Mundraub Navigator ist eine Kotlin-App für Android, die öffentlich zugängige Obstbäume auf https://mundraub.org aufspürt.
 
