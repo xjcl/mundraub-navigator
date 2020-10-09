@@ -3,6 +3,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="actionBarTheme">@style/MainActionBar</item>
+        <item name="android:fontFamily">@font/bitter</item>
 
 <!--        Colors -->
         <item name="colorPrimary">@color/colorPrimary</item>
