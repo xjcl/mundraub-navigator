@@ -154,9 +154,7 @@ class PlantForm : AppCompatActivity() {
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (intentNid == -1) return true
-        val icon9 = ContextCompat.getDrawable(this, R.drawable.material_delete) ?: return true
-        icon9.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
-        menu.add(9, 9, 9, getString(R.string.delete)).setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(9, 9, 9, getString(R.string.delete)).setIcon(R.drawable.ic_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
 
