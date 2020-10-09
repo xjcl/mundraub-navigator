@@ -124,7 +124,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     }
 
     // --- Download detailed node description and stick it into marker info window ---
-    fun downloadMarkerData(marker : Marker) {
+    private fun downloadMarkerData(marker : Marker) {
         val md = markersData[marker.position] ?: return
         if (md.description != null || md.nid == null) return
 
@@ -384,15 +384,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val icon7 = ContextCompat.getDrawable(this, R.drawable.material_list) ?: return true
-        icon7.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
-        val icon9 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
-        icon9.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
-
         menu.add(7, 7, 7, getString(R.string.title_activity_plant_list))
-            .setIcon(icon7).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            .setIcon(R.drawable.ic_list).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         menu.add(9, 9, 9, getString(R.string.addNode))
-            .setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            .setIcon(R.drawable.ic_location_add).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         menu.add(15, 15, 15, getString(R.string.title_activity_app_settings))
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
         return true
