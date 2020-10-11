@@ -45,6 +45,14 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     lateinit var mapFragment : JanMapFragment
     var onCameraIdleEnabled : Boolean = true
 
+    companion object ItemMenu {
+        const val PLANT_LIST = 1
+        const val PLANT_FORM = 2
+        const val SETTINGS = 3
+        const val IMPRINT = 4
+        const val PRIVACY = 5
+    }
+
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeature(feature: Feature) {
         val latlng = LatLng(feature.pos[0], feature.pos[1])
@@ -369,24 +377,40 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         })
     }
 
+    private fun openUrl(link: Int) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(getString(link))
+        startActivity(intent)
+    }
+
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            7 -> { startActivityForResult(Intent(this, PlantList::class.java), 60); true }
-            9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
-            15 -> { startActivity(Intent(this, AppSettings::class.java)); true }
+        when (item.itemId) {
+            PLANT_LIST -> startActivityForResult(Intent(this, PlantList::class.java), 60)
+            PLANT_FORM -> startActivityForResult(Intent(this, PlantForm::class.java), 33)
+            SETTINGS -> startActivity(Intent(this, AppSettings::class.java))
+            IMPRINT -> openUrl(R.string.title_activity_app_imprint_url)
+            PRIVACY ->  openUrl(R.string.title_activity_app_privacy_url)
             else -> super.onOptionsItemSelected(item)
+        }
+        return true
+    }
+
+    private fun addMenuItem(menu: Menu, id: Int, titleId: Int, icon: Int?) {
+        menu.add(id, id, id, getString(titleId)).apply {
+            if (icon == null) setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+            else setIcon(icon).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
     }
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(7, 7, 7, getString(R.string.title_activity_plant_list))
-            .setIcon(R.drawable.ic_list).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(9, 9, 9, getString(R.string.addNode))
-            .setIcon(R.drawable.ic_location_add).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(15, 15, 15, getString(R.string.title_activity_app_settings))
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+        addMenuItem(menu, PLANT_LIST, R.string.title_activity_plant_list, R.drawable.ic_list)
+        addMenuItem(menu, PLANT_FORM, R.string.addNode, R.drawable.ic_location_add)
+
+        addMenuItem(menu, SETTINGS, R.string.title_activity_app_settings, null)
+        addMenuItem(menu, IMPRINT, R.string.title_activity_app_imprint, null)
+        addMenuItem(menu, IMPRINT, R.string.title_activity_app_privacy, null)
         return true
     }
 

@@ -7,6 +7,8 @@
     <string name="title_activity_plant_list">Meine Fundorte</string>
     <string name="title_activity_report_plant">Fundort melden</string>
     <string name="title_activity_app_settings">App-Einstellungen</string>
+    <string name="title_activity_app_imprint">Impressum</string>
+    <string name="title_activity_app_privacy">Datenschutz</string>
 
     <string name="tid4" >Apfel</string>
     <string name="tid5" >Birne</string>
