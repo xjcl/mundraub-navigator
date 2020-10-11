@@ -2,6 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+<!--        Theme -->
         <item name="actionBarTheme">@style/MainActionBar</item>
         <item name="android:fontFamily">@font/bitter</item>
 
@@ -9,6 +10,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+<!--        Styles -->
+        <item name="FAB">@style/FAB</item>
     </style>
 
     <style name="MainActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
@@ -17,5 +21,4 @@
         <item name="android:textColorPrimary">@color/colorPrimary</item>
         <item name="android:textColorSecondary">@color/colorPrimary</item>
     </style>
-
 </resources>
