@@ -1,68 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:padding="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:padding="12dp"
         tools:context=".PlantForm">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/typeTIL"
-            android:hint="@string/type"
-            android:layout_marginBottom="12dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu" >
+            android:layout_marginBottom="12dp">
 
             <AutoCompleteTextView
                 android:id="@+id/typeTIED"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:hint="@string/type"
                 android:inputType="text" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <include layout="@layout/chip_group_number"/>
+        <include layout="@layout/chip_group_number" />
 
-        <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/descriptionTIL"
-            android:hint="@string/desc"
-            android:layout_marginBottom="12dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:hint="@string/desc">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/descriptionTIED"
-                android:minLines="3"
-                android:maxLines="3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="top"
                 android:inputType="textMultiLine"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:maxLines="3"
+                android:minLines="3" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_loc"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:minHeight="80dp"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="12dp"
+            android:minHeight="80dp" />
 
         <Button
+            android:id="@+id/upld_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/upld_button"
             android:text="@string/upld" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

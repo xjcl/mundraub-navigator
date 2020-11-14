@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="FAB" format="reference"/>
+
+    <style name="FAB" parent="Widget.Design.FloatingActionButton">
+        <item name="backgroundTint">@android:color/white</item>
+        <item name="android:src">@drawable/ic_directions</item>
+    </style>
+</resources>

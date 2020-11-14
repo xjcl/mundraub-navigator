@@ -271,14 +271,7 @@ class JanMapFragment : SupportMapFragment() {
             relView.addView(filterBar)
 
             // *** FAB for Maps navigation ***
-            fab = FloatingActionButton(context!!)
-            fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
-            fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
-            //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
-            //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
-            fab.compatElevation = 6F
+            fab = FloatingActionButton(context!!, null, R.attr.FAB)
             fab.layoutParams = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT).apply {
                 setMargins(0, 0, (.04 * scrHeight).toInt(), (.04 * scrHeight).toInt()) }
 

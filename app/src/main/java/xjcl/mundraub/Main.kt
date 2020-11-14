@@ -7,9 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
@@ -26,7 +24,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -47,6 +44,14 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     lateinit var mapFragment : JanMapFragment
     var onCameraIdleEnabled : Boolean = true
+
+    companion object ItemMenu {
+        const val PLANT_LIST = 1
+        const val PLANT_FORM = 2
+        const val SETTINGS = 3
+        const val IMPRINT = 4
+        const val PRIVACY = 5
+    }
 
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeature(feature: Feature) {
@@ -124,7 +129,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     }
 
     // --- Download detailed node description and stick it into marker info window ---
-    fun downloadMarkerData(marker : Marker) {
+    private fun downloadMarkerData(marker : Marker) {
         val md = markersData[marker.position] ?: return
         if (md.description != null || md.nid == null) return
 
@@ -372,29 +377,40 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         })
     }
 
+    private fun openUrl(link: Int) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(getString(link))
+        startActivity(intent)
+    }
+
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            7 -> { startActivityForResult(Intent(this, PlantList::class.java), 60); true }
-            9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
-            15 -> { startActivity(Intent(this, AppSettings::class.java)); true }
+        when (item.itemId) {
+            PLANT_LIST -> startActivityForResult(Intent(this, PlantList::class.java), 60)
+            PLANT_FORM -> startActivityForResult(Intent(this, PlantForm::class.java), 33)
+            SETTINGS -> startActivity(Intent(this, AppSettings::class.java))
+            IMPRINT -> openUrl(R.string.title_activity_app_imprint_url)
+            PRIVACY ->  openUrl(R.string.title_activity_app_privacy_url)
             else -> super.onOptionsItemSelected(item)
+        }
+        return true
+    }
+
+    private fun addMenuItem(menu: Menu, id: Int, titleId: Int, icon: Int?) {
+        menu.add(id, id, id, getString(titleId)).apply {
+            if (icon == null) setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+            else setIcon(icon).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
     }
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val icon7 = ContextCompat.getDrawable(this, R.drawable.material_list) ?: return true
-        icon7.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
-        val icon9 = ContextCompat.getDrawable(this, R.drawable.material_add_location) ?: return true
-        icon9.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_IN)
+        addMenuItem(menu, PLANT_LIST, R.string.title_activity_plant_list, R.drawable.ic_list)
+        addMenuItem(menu, PLANT_FORM, R.string.addNode, R.drawable.ic_location_add)
 
-        menu.add(7, 7, 7, getString(R.string.title_activity_plant_list))
-            .setIcon(icon7).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(9, 9, 9, getString(R.string.addNode))
-            .setIcon(icon9).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(15, 15, 15, getString(R.string.title_activity_app_settings))
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+        addMenuItem(menu, SETTINGS, R.string.title_activity_app_settings, null)
+        addMenuItem(menu, IMPRINT, R.string.title_activity_app_imprint, null)
+        addMenuItem(menu, IMPRINT, R.string.title_activity_app_privacy, null)
         return true
     }
 
@@ -408,7 +424,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             Log.e("trueWidth", trueWidth.toString())
             val navStr = if (trueWidth > 500) "Navigator" else if (trueWidth > 400) "Nav." else ""
             title = primaryColorTitle("$navStr v${BuildConfig.VERSION_NAME}")
-            setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
+            setHomeAsUpIndicator(R.drawable.ic_mundraub_logo)
             displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
         }
 
