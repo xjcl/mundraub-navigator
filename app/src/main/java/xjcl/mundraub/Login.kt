@@ -16,7 +16,8 @@ class Login : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        recreate()
+        Log.e("Login", "onActivityResult")
+        loadCredsIntoFields()
     }
 
     // migrate the user's old settings (new in v13) -- can delete this a few weeks out
@@ -39,15 +40,18 @@ class Login : AppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
-
+    private fun loadCredsIntoFields() {
         migrateSettings()
 
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         this.name_inner.setText( sharedPref.getString("name", "") ?: "" )
         this.pass_inner.setText( sharedPref.getString("pass", "") ?: "" )
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login)
+        loadCredsIntoFields()
     }
 
     fun onLoginClick(view : View) {
