@@ -1,3 +1,8 @@
+v22
+- Fix app crash for "Seasonals"
+- Move app settings to main screen
+- Minor UI and bug fixes
+
 v21
 - Minor UX improvements
 
