@@ -41,7 +41,8 @@ class JanMapFragment : SupportMapFragment() {
         species.setTextColor(getFruitColor(context!!.resources, key))
         for (other in ivs)
             other.value.setColorFilter(Color.parseColor(if (cond(other.key) || other.key >= 90) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
-        selectedSpeciesStr = ivs.filter { cond(it.key) }.map { it.key.toString() }.joinToString(",")
+        // dummy category "1" added to handle two issues that occur when passing an empty filter string (no filtering done, no tid returned(!))
+        selectedSpeciesStr = ivs.filter { cond(it.key) }.map { it.key.toString() }.let { listOf("1") + it }.joinToString(",")
         iv?.let { animateJump(it) }
         mMap.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
         infoBar.removeViewAt(1) // removes monthsBar
