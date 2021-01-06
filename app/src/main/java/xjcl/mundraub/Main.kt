@@ -339,6 +339,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
      *      No I/O, no details stored, user sets password later anyway
      *  PlantList 60
      *      Used to reload markers if edited through the list
+     *  99
+     *      Result irrelevant, I just want the callback to onActivityResult
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -377,7 +379,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         return when (item.itemId) {
             7 -> { startActivityForResult(Intent(this, PlantList::class.java), 60); true }
             9 -> { startActivityForResult(Intent(this, PlantForm::class.java), 33); true }
-            15 -> { startActivity(Intent(this, AppSettings::class.java)); true }
+            15 -> { startActivityForResult(Intent(this, AppSettings::class.java), 99); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
