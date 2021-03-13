@@ -50,9 +50,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     enum class ItemMenu(val value: Int) {
         PLANT_LIST(1),
         PLANT_FORM(2),
-        SETTINGS(3),
-        IMPRINT(4),
-        PRIVACY(5),
+        IMPRINT(10),
+        PRIVACY(11),
+        SETTINGS(99),
     }
 
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
