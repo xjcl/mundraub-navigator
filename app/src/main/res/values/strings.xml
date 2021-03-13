@@ -7,10 +7,11 @@
     <string name="title_activity_plant_list">My discoveries</string>
     <string name="title_activity_report_plant">Report location</string>
     <string name="title_activity_app_settings">App settings</string>
-    <string name="title_activity_app_imprint">Imprint</string>
-    <string name="title_activity_app_imprint_url" translatable="false">https://mundraub.org/impressum</string>
-    <string name="title_activity_app_privacy">Privacy</string>
-    <string name="title_activity_app_privacy_url" translatable="false">https://mundraub.org/agb_datenschutz</string>
+
+    <string name="imprint">Imprint</string>
+    <string name="imprint_url" translatable="false">https://mundraub.org/impressum</string>
+    <string name="privacy">Privacy</string>
+    <string name="privacy_url" translatable="false">https://mundraub.org/agb_datenschutz</string>
 
     <string name="tid4">Apple</string>
     <string name="tid5">Pear</string>

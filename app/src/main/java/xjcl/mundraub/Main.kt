@@ -9,7 +9,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
@@ -48,12 +47,12 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     lateinit var mapFragment : JanMapFragment
     var onCameraIdleEnabled : Boolean = true
 
-    companion object ItemMenu {
-        const val PLANT_LIST = 1
-        const val PLANT_FORM = 2
-        const val SETTINGS = 3
-        const val IMPRINT = 4
-        const val PRIVACY = 5
+    enum class ItemMenu(val value: Int) {
+        PLANT_LIST(1),
+        PLANT_FORM(2),
+        SETTINGS(3),
+        IMPRINT(4),
+        PRIVACY(5),
     }
 
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
@@ -391,11 +390,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            PLANT_LIST -> startActivityForResult(Intent(this, PlantList::class.java), 60)
-            PLANT_FORM -> startActivityForResult(Intent(this, PlantForm::class.java), 33)
-            SETTINGS -> startActivityForResult(Intent(this, AppSettings::class.java), 99)
-            IMPRINT -> openUrl(R.string.title_activity_app_imprint_url)
-            PRIVACY ->  openUrl(R.string.title_activity_app_privacy_url)
+            ItemMenu.PLANT_LIST.value -> startActivityForResult(Intent(this, PlantList::class.java), 60)
+            ItemMenu.PLANT_FORM.value -> startActivityForResult(Intent(this, PlantForm::class.java), 33)
+            ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), 99)
+            ItemMenu.IMPRINT.value -> openUrl(R.string.imprint_url)
+            ItemMenu.PRIVACY.value ->  openUrl(R.string.privacy_url)
             else -> return super.onOptionsItemSelected(item)
         }
         return true
@@ -414,11 +413,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        addMenuItem(menu, PLANT_LIST, R.string.title_activity_plant_list, R.drawable.material_list)
-        addMenuItem(menu, PLANT_FORM, R.string.addNode, R.drawable.material_add_location)
-        addMenuItem(menu, SETTINGS, R.string.title_activity_app_settings, null)
-        addMenuItem(menu, IMPRINT, R.string.title_activity_app_imprint, null)
-        addMenuItem(menu, PRIVACY, R.string.title_activity_app_privacy, null)
+        addMenuItem(menu, ItemMenu.PLANT_LIST.value, R.string.title_activity_plant_list, R.drawable.material_list)
+        addMenuItem(menu, ItemMenu.PLANT_FORM.value, R.string.addNode, R.drawable.material_add_location)
+        addMenuItem(menu, ItemMenu.SETTINGS.value, R.string.title_activity_app_settings, null)
+        addMenuItem(menu, ItemMenu.IMPRINT.value, R.string.imprint, null)
+        addMenuItem(menu, ItemMenu.PRIVACY.value, R.string.privacy, null)
         return true
     }
 
