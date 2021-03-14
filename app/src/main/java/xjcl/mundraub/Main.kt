@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Typeface
+import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
@@ -204,6 +205,13 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         // TODO delete all previous routes
         // TODO remove polyline if marker gets removed
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            val distance = floatArrayOf(0F)
+            Location.distanceBetween(marker.position.latitude, marker.position.longitude, location.latitude, location.longitude, distance)
+            if (distance[0] > 20000) {
+                Log.e("distance", "distance ${distance[0]} is larger than 20 km, not plotting")
+                return@addOnSuccessListener
+            }
+
             GoogleDirection.withServerKey(getString(R.string.google_maps_key))
                 .from(LatLng(location.latitude, location.longitude))
                 .to(marker.position)
