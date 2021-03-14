@@ -26,6 +26,13 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.akexorcist.googledirection.DirectionCallback
+import com.akexorcist.googledirection.GoogleDirection
+import com.akexorcist.googledirection.constant.AvoidType
+import com.akexorcist.googledirection.constant.TransportMode
+import com.akexorcist.googledirection.model.Direction
+import com.akexorcist.googledirection.model.Step
+import com.akexorcist.googledirection.util.DirectionConverter
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -171,6 +178,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     fun markerOnClickListener(marker : Marker): Boolean {
         if (markersData[marker.position]?.type ?: "" == "cluster") return true
         marker.showInfoWindow()
+
         // --- Click on FAB will give directions to Marker in Google Maps app ---
         fab.setOnClickListener {
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
@@ -181,8 +189,42 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             }
         }
         fab.animate().x(fabAnimationFromTo.second)
+
+        // TODO only show if near the user
+        // TODO delete all previous routes
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            GoogleDirection.withServerKey(getString(R.string.google_maps_key))
+                .from(LatLng(location.latitude, location.longitude))
+                .to(marker.position)
+                .transportMode(TransportMode.DRIVING)
+                .avoid(AvoidType.TOLLS)
+                .avoid(AvoidType.FERRIES)
+                .execute(object : DirectionCallback {
+                    override fun onDirectionSuccess(direction: Direction?) {
+                        Log.e("onDirectionSuccess", direction.toString())
+                        if (direction == null || !direction.isOK)
+                            return
+
+                        try {
+                            val stepList: List<Step> = direction.routeList[0].legList[0].stepList
+                            val polylineOptionList = DirectionConverter.createTransitPolyline(
+                                this@Main, stepList, 5, Color.RED, 3, Color.RED)
+                            for (polylineOption in polylineOptionList)
+                                mMap.addPolyline(polylineOption)
+                        } catch (e: java.lang.Exception) {
+                            Log.e("stack", e.stackTraceToString())
+                        }
+                    }
+
+                    override fun onDirectionFailure(t: Throwable) {
+                        Log.e("onDirectionFailure", t.toString())
+                    }
+                })
+        }
+
         val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
         mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
+
         downloadMarkerData(marker)
         return true
     }
