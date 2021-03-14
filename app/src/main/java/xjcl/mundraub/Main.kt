@@ -62,6 +62,14 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         SETTINGS(99),
     }
 
+    private fun removePolylines() {
+        runOnUiThread {
+            for (polyline in polylinesOnScreen)
+                polyline.remove()
+            polylinesOnScreen.clear()
+        }
+    }
+
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeature(feature: Feature) {
         val latlng = LatLng(feature.pos[0], feature.pos[1])
@@ -97,6 +105,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 runOnUiThread { mark.value.remove() }
                 markers.remove(mark.key)
                 markersData.remove(mark.key)
+                if (mark.key == polylinesLatLng)
+                    removePolylines()
             }
 
             // --- add newly downloaded markers not already in old set ---
@@ -192,6 +202,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         // TODO only show if near the user
         // TODO delete all previous routes
+        // TODO remove polyline if marker gets removed
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             GoogleDirection.withServerKey(getString(R.string.google_maps_key))
                 .from(LatLng(location.latitude, location.longitude))
@@ -206,13 +217,15 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                             return
 
                         try {
+                            removePolylines()
                             val stepList: List<Step> = direction.routeList[0].legList[0].stepList
-                            val polylineOptionList = DirectionConverter.createTransitPolyline(
+                            val polylines = DirectionConverter.createTransitPolyline(
                                 this@Main, stepList, 5, Color.RED, 3, Color.RED)
-                            for (polylineOption in polylineOptionList)
-                                mMap.addPolyline(polylineOption)
+                            for (polyline in polylines)
+                                polylinesOnScreen.add(mMap.addPolyline(polyline))
+                            polylinesLatLng = marker.position
                         } catch (e: java.lang.Exception) {
-                            Log.e("stack", e.stackTraceToString())
+                            Log.e("polylines", e.stackTraceToString())
                         }
                     }
 
