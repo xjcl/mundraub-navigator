@@ -271,9 +271,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             override fun getInfoContents(marker: Marker): View {
                 val md = markersData[marker.position] ?: return TextView(this@Main)
 
-                // 12 month circles of 13 pixels width -- ugly but WRAP_CONTENT just would not work =(
-                val density = resources.displayMetrics.density
-                var masterWidth = (12 * 13 * density).toInt()
+                val months = mapFragment.createMonthsBar(md)
+                months.measure(0, 0)
+                val masterWidth = months.measuredWidth
 
                 val info = LinearLayout(this@Main)
                 info.orientation = LinearLayout.VERTICAL
@@ -321,13 +321,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 seasonText.setTextColor(Color.BLACK)
                 seasonText.text = this@Main.getString(if (md.isSeasonal) R.string.inSeason else R.string.notInSeason)
                 info.addView(seasonText)
-
-                val months = mapFragment.createMonthsBar(md)
-                months.measure(0, 0)
-                Log.e("width change", masterWidth.toString() + " -> " + months.measuredWidth)
-                masterWidth = months.measuredWidth
-                description.width = masterWidth
-                photo.setImageBitmap(scaleToWidth(md.image, masterWidth))
 
                 val day = RelativeLayout(this@Main)
                 val tv = TextView(this@Main)
