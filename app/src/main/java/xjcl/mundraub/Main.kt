@@ -101,13 +101,21 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
             // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
             val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
-            for (mark in markers.toMap()) {  // copy constructor
-                if (featuresSet.contains(mark.key)) continue
-                runOnUiThread { mark.value.remove() }
-                markers.remove(mark.key)
-                markersData.remove(mark.key)
-                if (mark.key == polylinesLatLng)
-                    removePolylines()
+            for (markChunk in markers.toMap().entries.chunked(10)) {  // copy constructor
+                for (mark in markChunk) {
+                    if (featuresSet.contains(mark.key)) continue
+                    markers.remove(mark.key)
+                    markersData.remove(mark.key)
+                    if (mark.key == polylinesLatLng)
+                        removePolylines()
+                }
+
+                runOnUiThread {
+                    for (mark in markChunk) {
+                        if (featuresSet.contains(mark.key)) continue
+                        mark.value.remove()
+                    }
+                }
             }
 
             // --- add newly downloaded markers not already in old set ---
