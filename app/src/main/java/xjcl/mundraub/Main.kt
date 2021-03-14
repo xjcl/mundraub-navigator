@@ -288,20 +288,30 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 if (md.type != "cluster") info.addView(description)
                 if (md.description != null) {
                     description.text = md.description
+                    val byLine = LinearLayout(this@Main)
 
                     val uploader = TextView(this@Main)
-                    uploader.textSize = 12F
+                    uploader.textSize = 10.5F
                     uploader.text = md.uploader
-                    uploader.gravity = Gravity.RIGHT
+                    uploader.gravity = Gravity.LEFT
                     uploader.maxWidth = masterWidth
-                    info.addView(uploader)
+                    uploader.measure(0, 0)
 
                     val uploadDate = TextView(this@Main)
-                    uploadDate.textSize = 12F
+                    uploadDate.textSize = 10.5F
                     uploadDate.text = md.uploadDate
                     uploadDate.gravity = Gravity.RIGHT
                     uploadDate.maxWidth = masterWidth
-                    info.addView(uploadDate)
+                    uploadDate.measure(0, 0)
+
+                    val whitespace = TextView(this@Main)
+                    whitespace.width = masterWidth - uploader.measuredWidth - uploadDate.measuredWidth
+
+                    byLine.addView(uploader)
+                    byLine.addView(whitespace)
+                    byLine.addView(uploadDate)
+
+                    info.addView(byLine)
                 } else {
                     description.text = this@Main.getString(R.string.loading)
                 }
