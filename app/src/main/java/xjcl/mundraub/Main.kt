@@ -45,9 +45,12 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.lang.Thread.sleep
 import java.net.URL
 import java.util.*
 import kotlin.concurrent.thread
+import kotlin.math.pow
+import kotlin.random.Random
 
 
 class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -87,6 +90,26 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
     }
 
+    // --- runOnUiThread is NOT always executed so this very ugly workaround retries removing markers ---
+    private fun removeMarkerExponentialBackoff(mark: Marker) {
+        Log.e("removing marker 2", mark.toString())
+        thread {
+            Log.e("removing marker 3", mark.toString())
+            var removalSuccess = false
+            for (it in 1..20) {
+                Log.e("removing marker 4", "$mark $it attempt")
+                if (removalSuccess)
+                    return@thread
+                runOnUiThread {
+                    Log.e("removing marker 5", "$mark $it")
+                    mark.remove()
+                    removalSuccess = true
+                }
+                sleep(10L * (1.2).pow(it).toInt() + Random.nextInt(10))
+            }
+        }
+    }
+
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
     // Note that the HashMap 'markers' is only modified in the markerContext to avoid concurrency issues
     private fun addLocationMarkers(jsonStrPre: String) {
@@ -103,7 +126,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
             for (mark in markers.toMap()) {  // copy constructor
                 if (featuresSet.contains(mark.key)) continue
-                runOnUiThread { mark.value.remove() }
+                Log.e("removing marker 1", mark.toString())
+                removeMarkerExponentialBackoff(mark.value)
                 markers.remove(mark.key)
                 markersData.remove(mark.key)
                 if (mark.key == polylinesLatLng)
