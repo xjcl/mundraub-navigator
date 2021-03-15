@@ -72,17 +72,26 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     }
 
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
-    private fun addMarkerFromFeature(feature: Feature) {
-        val latlng = LatLng(feature.pos[0], feature.pos[1])
-        val md = featureToMarkerData(this, feature)
-        val mo = MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F)
+    private fun addMarkerFromFeatures(features: List<Feature>) {
+        for (featureChunk in features.chunked(12)) {
+            val new_markers = mutableListOf<Triple<LatLng, Marker, MarkerData>>()
+            runOnUiThread {
+                for (feature in featureChunk) {
+                    val latlng = LatLng(feature.pos[0], feature.pos[1])
+                    if (markers.contains(latlng)) continue
+                    val md = featureToMarkerData(this, feature)
+                    val mo = MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F)
+                    val mark = mMap.addMarker(mo)
+                    new_markers.add(Triple(latlng, mark, md))
+                }
 
-        runOnUiThread {
-            val mark = mMap.addMarker(mo)
-
-            markerContext.execute {
-                markers[latlng] = mark
-                markersData[latlng] = md
+                markerContext.execute {
+                    new_markers.forEach {
+                        val (latlng, mark, md) = it
+                        markers[latlng] = mark
+                        markersData[latlng] = md
+                    }
+                }
             }
         }
     }
@@ -101,21 +110,25 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
             // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
             val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
-            for (mark in markers.toMap()) {  // copy constructor
-                if (featuresSet.contains(mark.key)) continue
-                runOnUiThread { mark.value.remove() }
-                markers.remove(mark.key)
-                markersData.remove(mark.key)
-                if (mark.key == polylinesLatLng)
-                    removePolylines()
+            for (markChunk in markers.toMap().entries.chunked(12)) {  // copy constructor
+                for (mark in markChunk) {
+                    if (featuresSet.contains(mark.key)) continue
+                    markers.remove(mark.key)
+                    markersData.remove(mark.key)
+                    if (mark.key == polylinesLatLng)
+                        removePolylines()
+                }
+
+                runOnUiThread {
+                    for (mark in markChunk) {
+                        if (featuresSet.contains(mark.key)) continue
+                        mark.value.remove()
+                    }
+                }
             }
 
             // --- add newly downloaded markers not already in old set ---
-            for (feature in root.features) {
-                val latlng = LatLng(feature.pos[0], feature.pos[1])
-                if (markers.contains(latlng)) continue
-                addMarkerFromFeature(feature)
-            }
+            addMarkerFromFeatures(root.features)
             Log.e("addLocationMarkers", "EXIT " + markers.size.toString())
         }
     }
