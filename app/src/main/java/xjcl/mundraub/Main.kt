@@ -88,7 +88,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                         markersData[latlng] = md
                     }
                 }
+                Thread.sleep(5L)
             }
+            Thread.sleep(5L)
         }
     }
 
@@ -120,7 +122,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                         if (featuresSet.contains(mark.key)) continue
                         mark.value.remove()
                     }
+                    Thread.sleep(5L)
                 }
+                Thread.sleep(5L)
             }
 
             // --- add newly downloaded markers not already in old set ---
