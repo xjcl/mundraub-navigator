@@ -50,6 +50,10 @@ import java.util.*
 import kotlin.concurrent.thread
 
 
+data class MarkerBoolean(val marker : Marker, var boolean: Boolean)
+val queue = ArrayDeque<MarkerBoolean>()
+
+
 class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     lateinit var mapFragment : JanMapFragment
@@ -103,7 +107,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
             for (mark in markers.toMap()) {  // copy constructor
                 if (featuresSet.contains(mark.key)) continue
-                runOnUiThread { mark.value.remove() }
+                val mb = MarkerBoolean(mark.value, false)
+                queue.add(mb)
+                runOnUiThread { mb.marker.remove(); mb.boolean = true }
                 markers.remove(mark.key)
                 markersData.remove(mark.key)
                 if (mark.key == polylinesLatLng)
@@ -115,6 +121,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 val latlng = LatLng(feature.pos[0], feature.pos[1])
                 if (markers.contains(latlng)) continue
                 addMarkerFromFeature(feature)
+                Thread.sleep(5L)
             }
             Log.e("addLocationMarkers", "EXIT " + markers.size.toString())
         }
@@ -130,7 +137,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-             "&zoom=${(zoom + .25F).toInt()}&cat=${selectedSpeciesStr}"
+             "&zoom=${zoom.toInt()}&cat=${selectedSpeciesStr}"
 
         Log.e("updateMarkers", "GET $url")
 
@@ -507,6 +514,22 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mapFragment.getMapAsync(this)
         // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true
+
+        thread {
+            while (true) {
+                Log.e("qsize", queue.size.toString())
+                if (queue.isNotEmpty()) {
+                    val f = queue.removeFirst()
+                    if (f.boolean) continue
+                    runOnUiThread {
+                        f.marker.remove()
+                        //f.boolean = true
+                    }
+                    queue.add(f)
+                }
+                Thread.sleep(30L)
+            }
+        }
     }
 
     override fun onBackPressed() {
