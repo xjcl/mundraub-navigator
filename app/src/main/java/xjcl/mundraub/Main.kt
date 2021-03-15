@@ -48,6 +48,8 @@ import kotlinx.serialization.json.Json
 import java.net.URL
 import java.util.*
 import kotlin.concurrent.thread
+import kotlin.math.pow
+import kotlin.random.Random
 
 
 class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -87,6 +89,27 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
     }
 
+    // --- runOnUiThread is NOT always executed so this very ugly workaround retries removing markers ---
+    private fun removeMarkersExponentialBackoff(marks: List<Marker>) {
+        Log.e("removing marker 2", marks.size.toString())
+        val removalSuccess = MutableList<Boolean>(marks.size) { false }
+        for (it in 1..20) {
+            Log.e("removing marker 3", "${removalSuccess.count { it }}/${marks.size.toString()} $it attempt")
+            if (removalSuccess.all { it }) return
+            marks.forEachIndexed { i, mark ->
+                Log.e("removing marker 4", "${marks.size.toString()} $mark $it")
+                if (removalSuccess[i]) return@forEachIndexed
+                Log.e("removing marker 5", "${marks.size.toString()} $mark $it")
+                runOnUiThread {
+                    Log.e("removing marker 6", "${marks.size.toString()} $mark $it")
+                    mark.remove()
+                    removalSuccess[i] = true
+                }
+            }
+            Thread.sleep(30L * (1.4).pow(it).toInt() + Random.nextInt(10))
+        }
+    }
+
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
     // Note that the HashMap 'markers' is only modified in the markerContext to avoid concurrency issues
     private fun addLocationMarkers(jsonStrPre: String) {
@@ -101,9 +124,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
             // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
             val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
-            for (mark in markers.toMap()) {  // copy constructor
+            val relevantMarkers = markers.filter { !featuresSet.contains(it.key) }.values.toList()
+            for (mark in markers.toMap()) {  // copy constructor  TODO use relevantMarkers
                 if (featuresSet.contains(mark.key)) continue
-                runOnUiThread { mark.value.remove() }
                 markers.remove(mark.key)
                 markersData.remove(mark.key)
                 if (mark.key == polylinesLatLng)
@@ -116,6 +139,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 if (markers.contains(latlng)) continue
                 addMarkerFromFeature(feature)
             }
+            removeMarkersExponentialBackoff(relevantMarkers)
             Log.e("addLocationMarkers", "EXIT " + markers.size.toString())
         }
     }
