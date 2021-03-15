@@ -1,3 +1,8 @@
+v23
+- Add directions preview for markers
+- Fix markers not getting deleted (partially)
+- Minor UI adjustments
+
 v22
 - Fix app crash for "Seasonals"
 - Move app settings to main screen
