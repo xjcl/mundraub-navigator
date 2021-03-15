@@ -84,17 +84,17 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         runOnUiThread {
             val mark = mMap.addMarker(mo)
 
-            markerContext.execute {
-                markers[latlng] = mark
-                markersData[latlng] = md
-            }
+            markerMutex.acquire()
+            markers[latlng] = mark
+            markersData[latlng] = md
+            markerMutex.release()
         }
     }
 
     // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
     // Note that the HashMap 'markers' is only modified in the markerContext to avoid concurrency issues
     private fun addLocationMarkers(jsonStrPre: String) {
-        markerContext.execute {
+            markerMutex.acquire()
             Log.e("addLocationMarkers", "ENTER " + markers.size.toString() + " " + jsonStrPre)
             val jsonStr = if (jsonStrPre == "null") "{\"features\":[]}" else jsonStrPre
 
@@ -124,7 +124,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 Thread.sleep(5L)
             }
             Log.e("addLocationMarkers", "EXIT " + markers.size.toString())
-        }
+            markerMutex.release()
     }
 
     // --- Update markers when user finished moving the map ---
@@ -446,9 +446,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 onCameraIdleEnabled = true
 
                 // simulate click on just-uploaded/updated marker
-                markerContext.execute {
+                    markerMutex.acquire()
                     markers.filter { markersData[it.key]?.nid.toString() == nid }.forEach { runOnUiThread { markerOnClickListener(it.value) }}
-                }
+                    markerMutex.release()
             }
             override fun onCancel() {}
         })

@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.serialization.Serializable
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 
 @Serializable
 data class Properties(val nid: Int, val tid: Int)  // node id, tree type id
@@ -40,7 +41,7 @@ lateinit var fab : FloatingActionButton
 
 var markers = mutableMapOf<LatLng, Marker>()
 var markersData = mutableMapOf<LatLng, MarkerData>()
-val markerContext = Executors.newSingleThreadExecutor()
+val markerMutex = Semaphore(1)
 
 val polylinesOnScreen = mutableListOf<Polyline>()
 var polylinesLatLng : LatLng? = null

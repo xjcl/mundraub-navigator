@@ -51,8 +51,9 @@ fun getFruitColor(resources : Resources, tid: Int?) : Int =
     BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
         .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
 
+// TODO
 fun invalidateMarker(activity: Activity, nid: String) {
-    markerContext.execute {
+        markerMutex.acquire()
         for (mark in markers.toMap()) {  // copy constructor
             if (markersData[mark.key]?.nid.toString() == nid) {
                 activity.runOnUiThread { mark.value.remove() }
@@ -60,7 +61,7 @@ fun invalidateMarker(activity: Activity, nid: String) {
                 markersData.remove(mark.key)
             }
         }
-    }
+    markerMutex.release()
 }
 
 fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitude, scalar * vec.longitude)
