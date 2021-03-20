@@ -442,11 +442,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         })
     }
 
-    private fun openUrl(link: Int) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse(getString(link))
-        startActivity(intent)
-    }
+    private fun openUrl(link: String) =
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
 
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -454,8 +451,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             ItemMenu.PLANT_LIST.value -> startActivityForResult(Intent(this, PlantList::class.java), ActivityRequest.PlantList.value)
             ItemMenu.PLANT_FORM.value -> startActivityForResult(Intent(this, PlantForm::class.java), ActivityRequest.PlantForm.value)
             ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), ActivityRequest.IRRELEVANT.value)
-            ItemMenu.IMPRINT.value -> openUrl(R.string.imprint_url)
-            ItemMenu.PRIVACY.value ->  openUrl(R.string.privacy_url)
+            ItemMenu.IMPRINT.value -> openUrl(getString(R.string.imprint_url))
+            ItemMenu.PRIVACY.value -> openUrl(getString(R.string.privacy_url))
             else -> return super.onOptionsItemSelected(item)
         }
         return true
