@@ -64,6 +64,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     }
 
     private fun removePolylines() {
+        if (polylinesOnScreen.isEmpty()) return
         runOnUiThread {
             for (polyline in polylinesOnScreen)
                 polyline.remove()
@@ -222,7 +223,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             Location.distanceBetween(marker.position.latitude, marker.position.longitude, location.latitude, location.longitude, distance)
             if (distance[0] > 20000) {
                 Log.e("distance", "distance ${distance[0]} is larger than 20 km, not plotting")
-                return@addOnSuccessListener
+                return@addOnSuccessListener removePolylines()
             }
 
             GoogleDirection.withServerKey(getString(R.string.google_maps_key))
