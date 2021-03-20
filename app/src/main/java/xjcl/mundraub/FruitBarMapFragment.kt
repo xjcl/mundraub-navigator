@@ -213,7 +213,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
     }
 
-    private fun setupInfoBar() {
+    private fun createInfoBar(): LinearLayout {
         // *** central info bar at the top, showing the currently active filter ***
         infoBar = LinearLayout(context)
         infoBar.orientation = LinearLayout.VERTICAL
@@ -248,10 +248,10 @@ class FruitBarMapFragment : SupportMapFragment() {
         // https://developer.android.com/training/material/shadows-clipping
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
 
-        relView.addView(infoBar)
+        return infoBar
     }
 
-    private fun setupFAB() {
+    private fun createFAB(): LinearLayout {
         // *** FAB for Maps navigation ***
         fab = FloatingActionButton(context!!)
         fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
@@ -269,14 +269,12 @@ class FruitBarMapFragment : SupportMapFragment() {
         fabAnimationFromTo = scrWidth.toFloat() to scrWidth - (.04 * scrHeight).toFloat() - fab.measuredWidth
         fab.x = fabAnimationFromTo.first
 
-        // TODO try to get rid of this intermediate class
-        val fabHolder = LinearLayout(context).apply {
+        // TODO properly use Android RelativeLayout to avoid this intermediate class
+        return LinearLayout(context).apply {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
             gravity = Gravity.END or Gravity.BOTTOM
             addView(fab)
         }
-
-        relView.addView(fabHolder)
     }
 
     fun mapViewPostInner() {
@@ -288,12 +286,9 @@ class FruitBarMapFragment : SupportMapFragment() {
         Log.e("scrHeight", scrHeight.toString())
         Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
-        setupInfoBar()
-
-        val filterBar = createFilterBar()
-        relView.addView(filterBar)
-
-        setupFAB()
+        relView.addView(createInfoBar())
+        relView.addView(createFilterBar())
+        relView.addView(createFAB())
     }
 
     fun mapViewPost() {
