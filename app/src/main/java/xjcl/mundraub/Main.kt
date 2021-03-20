@@ -220,6 +220,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         // TODO delete all previous routes
         // TODO remove polyline if marker gets removed
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return@addOnSuccessListener
+            if (location == null) return@addOnSuccessListener
             val distance = floatArrayOf(0F)
             Location.distanceBetween(marker.position.latitude, marker.position.longitude, location.latitude, location.longitude, distance)
             if (distance[0] > 20000) {
