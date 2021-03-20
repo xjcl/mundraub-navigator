@@ -52,7 +52,7 @@ import kotlin.concurrent.thread
 
 class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
-    lateinit var mapFragment : JanMapFragment
+    lateinit var mapFragment : FruitBarMapFragment
     var onCameraIdleEnabled : Boolean = true
 
     enum class ItemMenu(val value: Int) {
@@ -516,7 +516,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as JanMapFragment
+        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as FruitBarMapFragment
         mapFragment.getMapAsync(this)
         // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true

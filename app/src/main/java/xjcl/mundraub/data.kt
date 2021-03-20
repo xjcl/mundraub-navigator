@@ -52,7 +52,7 @@ var totalLeftPadding = 0
 
 // This stupidly needs to be stored with a strong reference because it otherwise gets garbage-collected
 // https://stackoverflow.com/a/24602348/2111778
-class JanTarget : com.squareup.picasso.Target {
+class PicassoBitmapTarget : com.squareup.picasso.Target {
     var marker: Marker? = null
     var md: MarkerData? = null
     override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
@@ -62,7 +62,7 @@ class JanTarget : com.squareup.picasso.Target {
         marker?.showInfoWindow()
     }
 }
-val picassoBitmapTarget = JanTarget()
+val picassoBitmapTarget = PicassoBitmapTarget()
 
 // ----
 

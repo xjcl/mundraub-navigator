@@ -20,7 +20,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.math.max
 
-class JanMapFragment : SupportMapFragment() {
+class FruitBarMapFragment : SupportMapFragment() {
 
     private val ivs = mutableMapOf<Int, ImageView>()
     private var density : Float = 0f
