@@ -213,6 +213,96 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
     }
 
+    private fun setupInfoBar() {
+        // *** central info bar at the top, showing the currently active filter ***
+        infoBar = LinearLayout(context)
+        infoBar.orientation = LinearLayout.VERTICAL
+        infoBar.gravity = Gravity.CENTER
+        infoBar.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
+            setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
+            addRule(RelativeLayout.CENTER_IN_PARENT)
+            addRule(RelativeLayout.ALIGN_PARENT_TOP)
+        }
+
+        val infoSpecies = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+
+            val info = TextView(context)
+            info.text = getString(R.string.onlyShowing)
+            this.addView(info)
+
+            species = TextView(context)
+            species.text = getString(R.string.tid99)
+            species.setTypeface(null, Typeface.BOLD)
+            species.setTextColor(getFruitColor(resources, 99))
+            this.addView(species)
+        }
+        infoBar.addView(infoSpecies)
+
+        val months = createMonthsBar(99)
+        infoBar.addView(months)
+
+        infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
+
+        // https://developer.android.com/training/material/shadows-clipping
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
+
+        relView.addView(infoBar)
+    }
+
+    private fun setupFAB() {
+        // *** FAB for Maps navigation ***
+        fab = FloatingActionButton(context!!)
+        fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
+        fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
+        //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
+        //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
+        fab.compatElevation = 6F
+        fab.layoutParams = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT).apply {
+            setMargins(0, 0, (.04 * scrHeight).toInt(), (.04 * scrHeight).toInt()) }
+
+        val scrWidth = mapView.measuredWidth
+        fab.measure(0, 0)
+        fabAnimationFromTo = scrWidth.toFloat() to scrWidth - (.04 * scrHeight).toFloat() - fab.measuredWidth
+        fab.x = fabAnimationFromTo.first
+
+        // TODO try to get rid of this intermediate class
+        val fabHolder = LinearLayout(context).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+            gravity = Gravity.END or Gravity.BOTTOM
+            addView(fab)
+        }
+
+        relView.addView(fabHolder)
+    }
+
+    fun mapViewPostInner() {
+        relView.removeAllViews()
+        relView.addView(mapView)
+
+        scrHeight = mapView.measuredHeight
+        bmpSample = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
+        Log.e("scrHeight", scrHeight.toString())
+        Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
+
+        setupInfoBar()
+
+        val filterBar = createFilterBar()
+        relView.addView(filterBar)
+
+        setupFAB()
+    }
+
+    fun mapViewPost() {
+        // This needs to happen in post so measuredHeight is available
+        mapView.post {
+            mapViewPostInner()
+        }
+    }
+
     // --- Create drawer and info bar for species filtering ---
     // -> This moves Google controls over using screen and marker dimensions
     // -> 2% top-margin 1% top-padding 1% bottom-padding 2% bottom-margin => 94% height
@@ -223,79 +313,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         relView.addView(mapView)
 
         density = resources.displayMetrics.density
-
-        // This needs to happen in post so measuredHeight is available
-        mapView.post {
-            val scrWidth = mapView.measuredWidth
-            scrHeight = mapView.measuredHeight
-            bmpSample = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
-            Log.e("scrHeight", scrHeight.toString())
-            Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
-
-            // *** info bar
-            infoBar = LinearLayout(context)
-            infoBar.orientation = LinearLayout.VERTICAL
-            infoBar.gravity = Gravity.CENTER
-            infoBar.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
-                setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), (.02 * scrHeight).toInt())
-                addRule(RelativeLayout.CENTER_IN_PARENT)
-                addRule(RelativeLayout.ALIGN_PARENT_TOP)
-            }
-
-            val infoSpecies = LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER
-
-                val info = TextView(context)
-                info.text = getString(R.string.onlyShowing)
-                this.addView(info)
-
-                species = TextView(context)
-                species.text = getString(R.string.tid99)
-                species.setTypeface(null, Typeface.BOLD)
-                species.setTextColor(getFruitColor(resources, 99))
-                this.addView(species)
-            }
-            infoBar.addView(infoSpecies)
-
-            val months = createMonthsBar(99)
-            infoBar.addView(months)
-
-            infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
-
-            // https://developer.android.com/training/material/shadows-clipping
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
-
-            relView.addView(infoBar)
-
-            val filterBar = createFilterBar()
-            relView.addView(filterBar)
-
-            // *** FAB for Maps navigation ***
-            fab = FloatingActionButton(context!!)
-            fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
-            fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
-            //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
-            //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
-            fab.compatElevation = 6F
-            fab.layoutParams = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT).apply {
-                setMargins(0, 0, (.04 * scrHeight).toInt(), (.04 * scrHeight).toInt()) }
-
-            fab.measure(0, 0)
-            fabAnimationFromTo = scrWidth.toFloat() to scrWidth - (.04 * scrHeight).toFloat() - fab.measuredWidth
-            fab.x = fabAnimationFromTo.first
-
-            // TODO try to get rid of this intermediate class
-            val fabHolder = LinearLayout(context).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-                gravity = Gravity.END or Gravity.BOTTOM
-                addView(fab)
-            }
-
-            relView.addView(fabHolder)
-        }
+        mapViewPost()
 
         return relView
     }
