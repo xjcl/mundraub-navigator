@@ -92,13 +92,13 @@ class PlantForm : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
-        if (requestCode == 42 && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == ActivityRequest.LocationPicker.value && resultCode == Activity.RESULT_OK && data != null) {
             val lat = data.getDoubleExtra("lat", 0.0)
             val lng = data.getDoubleExtra("lng", 0.0)
             geocodeLocation(LatLng(lat, lng))
         }
-        if (requestCode == 55 && resultCode == Activity.RESULT_OK) recreate()
-        if (requestCode == 55 && resultCode != Activity.RESULT_OK) finish()
+        if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
+        if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
     }
 
     private fun finishSuccess(nid : String = "") {
@@ -196,7 +196,7 @@ class PlantForm : AppCompatActivity() {
                 val typeIndex = values.indexOf(typeTIED.text.toString())
                 val intent = Intent(context, LocationPicker::class.java).putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt())
                     .putExtra("lat", location.latitude).putExtra("lng", location.longitude)
-                startActivityForResult(intent, 42)
+                startActivityForResult(intent, ActivityRequest.LocationPicker.value)
             }
         }
 
@@ -248,7 +248,7 @@ class PlantForm : AppCompatActivity() {
                     else -> {
                         // TODO delete this, code has been moved to function
                         // No access to this resource -> try ReportPlant form instead
-                        startActivityForResult(Intent(this, ReportPlant::class.java).putExtra("nid", intentNid), 35)
+                        startActivityForResult(Intent(this, ReportPlant::class.java).putExtra("nid", intentNid), ActivityRequest.ReportPlant.value)
                         finish()
                     }
                 }
@@ -316,8 +316,8 @@ fun editOrReportLauncherLoggedIn(activity : Activity, intentNid : Int) {
     Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
         when (response.statusCode) {
             -1 -> Toast.makeText(activity, activity.getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show()
-            200 -> activity.startActivityForResult(Intent(activity, PlantForm::class.java).putExtra("nid", intentNid), 33)
-            else -> activity.startActivityForResult(Intent(activity, ReportPlant::class.java).putExtra("nid", intentNid), 35)
+            200 -> activity.startActivityForResult(Intent(activity, PlantForm::class.java).putExtra("nid", intentNid), ActivityRequest.PlantForm.value)
+            else -> activity.startActivityForResult(Intent(activity, ReportPlant::class.java).putExtra("nid", intentNid), ActivityRequest.ReportPlant.value)
         }
     }
 }

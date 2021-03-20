@@ -62,7 +62,7 @@ class Login : AppCompatActivity() {
     }
 
     fun onRegisterClick(view : View) {
-        startActivityForResult(Intent(this, Register::class.java), 56)
+        startActivityForResult(Intent(this, Register::class.java), ActivityRequest.Register.value)
     }
 }
 
@@ -87,7 +87,7 @@ fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pa
     loginData["pass"] = pass ?: sharedPref.getString("pass", "") ?: ""
     Log.e("doLogin", loginData["name"] + "_" + loginData["pass"])
     if (loginData["name"]!!.isBlank() || loginData["pass"]!!.isBlank())
-        return activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+        return activity.startActivityForResult(Intent(activity, Login::class.java), ActivityRequest.Login.value)
 
     Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
 
@@ -99,7 +99,7 @@ fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pa
             303 -> {}
             else -> return@responseString activity.runOnUiThread {
                 Toast.makeText(activity, activity.getString(R.string.errMsgLogin), Toast.LENGTH_SHORT).show()
-                if (!inLoginActivity) activity.startActivityForResult(Intent(activity, Login::class.java), 55)
+                if (!inLoginActivity) activity.startActivityForResult(Intent(activity, Login::class.java), ActivityRequest.Login.value)
             }
         }
 

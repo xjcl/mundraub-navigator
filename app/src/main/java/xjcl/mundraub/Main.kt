@@ -406,36 +406,14 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mMap.isMyLocationEnabled = true  // show blue circle on map
     }
 
-    /**
-     * Master table of Activity Request codes (startActivityForResult)
-     *  PlantForm 33
-     *      Add/Edit marker
-     *      @param nid (-1 for Add, actual nid for Edit)
-     *      @return lat/lng+nid of new marker in Add case
-     *  ReportPlant 35
-     *      if not my plant, then ability to report, else forward to editing (PlantForm 33)
-     *      @param nid
-     *      @return None
-     *  LocationPicker 42
-     *      @param tid (icon to use) + lat/lng (position to start view)
-     *      @return lat/lng (position user inputted)
-     *  Login 55
-     *      No I/O, this writes to the sharedPreferences object
-     *  Register 56
-     *      No I/O, no details stored, user sets password later anyway
-     *  PlantList 60
-     *      Used to reload markers if edited through the list
-     *  99
-     *      Result irrelevant, I just want the callback to onActivityResult
-     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (mapTypeChanged) {
             mapTypeChanged = false
             mMap.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
         }
-        if (requestCode == 60) return mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // might have modifed markers
-        if (!(requestCode == 33 && resultCode == Activity.RESULT_OK && data != null)) return
+        if (requestCode == ActivityRequest.PlantList.value) return mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // might have modifed markers
+        if (!(requestCode == ActivityRequest.PlantForm.value && resultCode == Activity.RESULT_OK && data != null)) return
 
         // if we add or edit a marker, resume at its location with open info window (= simulate click)
         val lat = data.getDoubleExtra("lat", 0.0)
@@ -469,9 +447,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            ItemMenu.PLANT_LIST.value -> startActivityForResult(Intent(this, PlantList::class.java), 60)
-            ItemMenu.PLANT_FORM.value -> startActivityForResult(Intent(this, PlantForm::class.java), 33)
-            ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), 99)
+            ItemMenu.PLANT_LIST.value -> startActivityForResult(Intent(this, PlantList::class.java), ActivityRequest.PlantList.value)
+            ItemMenu.PLANT_FORM.value -> startActivityForResult(Intent(this, PlantForm::class.java), ActivityRequest.PlantForm.value)
+            ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), ActivityRequest.IRRELEVANT.value)
             ItemMenu.IMPRINT.value -> openUrl(R.string.imprint_url)
             ItemMenu.PRIVACY.value ->  openUrl(R.string.privacy_url)
             else -> return super.onOptionsItemSelected(item)

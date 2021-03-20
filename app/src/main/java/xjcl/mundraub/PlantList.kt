@@ -74,9 +74,9 @@ class PlantList : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
         // TODO change just one item, do not recreate whole activity
-        if (requestCode == 33 && resultCode == Activity.RESULT_OK) recreate()
-        if (requestCode == 55 && resultCode == Activity.RESULT_OK) recreate()
-        if (requestCode == 55 && resultCode != Activity.RESULT_OK) finish()
+        if (requestCode == ActivityRequest.PlantForm.value && resultCode == Activity.RESULT_OK) recreate()
+        if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
+        if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
     }
 
     private fun logout() {
