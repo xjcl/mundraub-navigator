@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
@@ -388,6 +389,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
+        mapFragment.mapViewPost()
+
         // dummy zoom to trigger onCameraIdle with *correct* orientation  https://stackoverflow.com/a/61993030/2111778
         mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )
     }
@@ -482,6 +485,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
         Log.e("UA", System.getProperty("http.agent")?:"")
         supportActionBar?.apply {
@@ -499,6 +503,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mapFragment.getMapAsync(this)
         // retains markers if user rotates phone etc. (useful offline)  https://stackoverflow.com/a/22058966/2111778
         mapFragment.retainInstance = true
+
+        if (resources.getBoolean(R.bool.force_portrait))
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        Log.e("force_portrait", resources.getBoolean(R.bool.force_portrait).toString())
     }
 
     override fun onBackPressed() {

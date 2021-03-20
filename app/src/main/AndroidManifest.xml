@@ -49,8 +49,7 @@
             android:name=".Main"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_maps"
-            android:theme="@style/MainActivityTheme"
-            android:screenOrientation="portrait">
+            android:theme="@style/MainActivityTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
