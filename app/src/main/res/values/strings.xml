@@ -111,6 +111,7 @@
     <string name="login_info">Adding, editing and reporting markers requires a Mundraub account.</string>
     <string name="empty_info">You haven\'t submitted any places yet.</string>
     <string name="register_info">Your username can contain the following special characters: _.-\'@\n\nAfter registration, please confirm your email address by clicking on our email.</string>
+    <string name="report_info">Reporting markers is currently disabled to prevent spam. Using below form will not work.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="delete">Delete</string>
