@@ -20,7 +20,7 @@ class Login : AppCompatActivity() {
         loadCredsIntoFields()
     }
 
-    // migrate the user's old settings (new in v13) -- can delete this a few weeks out
+    // migrate the user's old settings, new in v13 (Aug 2020) -- can delete this in December 2021
     private fun migrateSettings() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         val sharedPrefOld = this.getSharedPreferences("AddPlantActivity", Context.MODE_PRIVATE)

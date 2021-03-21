@@ -626,15 +626,15 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
 
 // TODO IDEAS 2021-03-07 (inspiration from yelp app)
-// - impressum
 // - git fix on website: anchor + jitter
+// - git zugriff und zoom bug auf der webseite?
 // - rotate screen on tablet -> infobar -> use chips like yelp?
 // - bug: minimum example markers staying on
 // - allow image upload
 // - link to flora incognita app
 // - don't change messagebox size (marker placeholder for img)
-//     -> separate page with full description and editing options (+ gmaps + latlng + addr)
-// - download/fav markers for offline use -> map?
+//     -> separate page with full description and editing options (+ gmaps + latlng + addr) (+ reverse map embed?)
 // - long-term: up- and downvotes tied to accounts
-// - git zugriff und zoom bug auf der webseite?
 // - get beta testers (private or public? google email? agree to send them stuff)
+
+// - download/fav markers for offline use -> map? only show the 1 selected?
