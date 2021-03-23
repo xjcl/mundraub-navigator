@@ -1,3 +1,9 @@
+v24
+- Fix crash when location not available
+- Allow landscape mode on tablets
+- Invite beta testers
+- Minor fixes
+
 v23
 - Add directions preview for markers
 - Fix markers not getting deleted (partially)
