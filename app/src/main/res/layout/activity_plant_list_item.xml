@@ -23,6 +23,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginRight="16dp"
+            android:src="@drawable/apple"
             />
 
         <TextView
@@ -32,6 +33,7 @@
             android:layout_toRightOf="@+id/card_marker"
             android:layout_alignParentTop="true"
             android:textSize="30sp"
+            android:text="Title"
             />
 
         <TextView
@@ -40,6 +42,18 @@
             android:id="@+id/card_subtitle"
             android:layout_toRightOf="@+id/card_marker"
             android:layout_below="@+id/card_title"
+            android:text="Subtitle"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/card_subtitle2"
+            android:layout_alignParentRight="true"
+            android:gravity="right"
+            android:layout_toRightOf="@+id/card_subtitle"
+            android:layout_below="@+id/card_title"
+            android:text=""
             />
 
     </RelativeLayout>

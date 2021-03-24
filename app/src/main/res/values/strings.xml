@@ -103,6 +103,12 @@
     <string name="mapType3">Terrain</string>
     <string name="mapType4">Hybrid (Roadmap/Satellite)</string>
 
+    <string name="markers">markers</string>
+    <string name="common_plants">Plant statistics</string>
+    <string name="common_plants_about">Here you can see statistics about the most common plant types.\n\nYou can also see which types you\'ve contributed to mundraub.org (in green).</string>
+    <string name="submitted">Thank you!</string>
+    <string name="not_submitted">none are from you</string>
+
     <string name="loggedInAs">Logged in as: %1$s</string>
     <string name="tapForInfo">--- Tap to download info ---</string>
     <string name="loading">(loading…)</string>

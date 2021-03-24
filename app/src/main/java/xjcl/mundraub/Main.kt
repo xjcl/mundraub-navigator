@@ -60,8 +60,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     enum class ItemMenu(val value: Int) {
         PLANT_LIST(1),
         PLANT_FORM(2),
-        IMPRINT(10),
-        PRIVACY(11),
+        COMMON_PLANTS(10),
+        IMPRINT(80),
+        PRIVACY(81),
         SETTINGS(99),
     }
 
@@ -453,9 +454,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         when (item.itemId) {
             ItemMenu.PLANT_LIST.value -> startActivityForResult(Intent(this, PlantList::class.java), ActivityRequest.PlantList.value)
             ItemMenu.PLANT_FORM.value -> startActivityForResult(Intent(this, PlantForm::class.java), ActivityRequest.PlantForm.value)
-            ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), ActivityRequest.IRRELEVANT.value)
+            ItemMenu.COMMON_PLANTS.value -> startActivityForResult(Intent(this, CommonPlants::class.java), ActivityRequest.IRRELEVANT.value)
             ItemMenu.IMPRINT.value -> openUrl(getString(R.string.imprint_url))
             ItemMenu.PRIVACY.value -> openUrl(getString(R.string.privacy_url))
+            ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), ActivityRequest.IRRELEVANT.value)
             else -> return super.onOptionsItemSelected(item)
         }
         return true
@@ -476,9 +478,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         addMenuItem(menu, ItemMenu.PLANT_LIST.value, R.string.title_activity_plant_list, R.drawable.material_list)
         addMenuItem(menu, ItemMenu.PLANT_FORM.value, R.string.addNode, R.drawable.material_add_location)
-        addMenuItem(menu, ItemMenu.SETTINGS.value, R.string.title_activity_app_settings, null)
+        addMenuItem(menu, ItemMenu.COMMON_PLANTS.value, R.string.common_plants, null)
         addMenuItem(menu, ItemMenu.IMPRINT.value, R.string.imprint, null)
         addMenuItem(menu, ItemMenu.PRIVACY.value, R.string.privacy, null)
+        addMenuItem(menu, ItemMenu.SETTINGS.value, R.string.title_activity_app_settings, null)
         return true
     }
 

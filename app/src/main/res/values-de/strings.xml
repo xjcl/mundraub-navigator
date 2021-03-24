@@ -101,6 +101,12 @@
     <string name="mapType3">Topografisch</string>
     <string name="mapType4">Hybrid (Straßenkarte/Satellit)</string>
 
+    <string name="markers">Marker</string>
+    <string name="common_plants">Pflanzen-Statistik</string>
+    <string name="common_plants_about">Hier kannst du Statistiken über die häufigsten Pflanzenarten sehen.\n\nAußerdem erkennst du welche Arten du schon zu mundraub.org beigetragen hast (in grün).</string>
+    <string name="submitted">Danke!</string>
+    <string name="not_submitted">noch keine von dir</string>
+
     <string name="loggedInAs">Eingeloggt als: %1$s</string>
     <string name="tapForInfo">--- Berühren für Details ---</string>
     <string name="loading">(warte…)</string>

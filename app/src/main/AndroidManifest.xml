@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".CommonPlants"
+            android:label="@string/common_plants"/>
+        <activity
             android:name=".AppSettings"
             android:label="@string/title_activity_app_settings" />
         <activity
