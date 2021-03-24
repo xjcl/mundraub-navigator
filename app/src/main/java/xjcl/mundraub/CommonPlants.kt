@@ -105,40 +105,43 @@ class CommonPlants : AppCompatActivity() {
         for (el in treeIdToFrequency.toList().sortedBy { -it.second })  // Pair<tid, frequency>
             cardInfos.add(CPCardInfo(el.first, false))
 
-        thread {
-            // TODO: thread?
-            val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-            val cookie = sharedPref.getString("cookie", null) ?: return@thread finish()
 
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val cookie = sharedPref.getString("cookie", null) ?: return finish()
+
+        Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+
+            when (response.statusCode) {
+                -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
+                302 -> {}
+                else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show(); finish() }
+            }
+
+            Log.e("GET user to obtain uid", response.statusCode.toString())
+            val uid = result.get().substringAfter("/user/").substringBefore("\"")
             val tidPresentMap = mutableSetOf<Int>()
 
-            // TODO: error handling
-            Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
-                // TODO store this in sharedPrefs object (after login, and here for compat reasons)
-
-                when (response.statusCode) {
-                    -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
-                    302 -> {}
-                    else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show(); finish() }
-                }
-
-                Log.e("doCreate", response.statusCode.toString())
-                val uid = result.get().substringAfter("/user/").substringBefore("\"")
-
-
-                val url = "https://mundraub.org/user/$uid/plants?page=0"
+            fun nextPage(i: Int = 0) {
+                val url = "https://mundraub.org/user/$uid/plants?page=$i"
                 Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
+                    when (response.statusCode) {
+                        -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
+                        200 -> {}
+                        else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show(); finish() }
+                    }
+
                     val newCardInfos = processHTMLToCardInfos(result.get(), this)
                     newCardInfos.forEach { tidPresentMap.add(it.tid) }
 
                     cardInfos.filter { tidPresentMap.contains(it.tid) }.forEach { it.submitted = true }
-                    recycler_view.adapter?.notifyDataSetChanged()
-//
-//                    for (el in treeIdToFrequency.toList().sortedBy { -it.second })  // Pair<tid, frequency>
-//                        cardInfos.add(CPCardInfo(el.first, tidPresentMap.contains(el.first) ))
+                    runOnUiThread { recycler_view.adapter?.notifyDataSetChanged() }
 
+                    if (newCardInfos.isNotEmpty()) nextPage(i + 1)
                 }
             }
+            nextPage()
         }
+
+
     }
 }
