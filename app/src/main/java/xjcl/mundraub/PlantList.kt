@@ -19,6 +19,33 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
+
+fun processHTMLToCardInfos(html: String, activity: Activity) : List<CardInfo> {
+    var unprocessed = html
+    var i = -1
+    val newCardInfos = mutableListOf<CardInfo>()
+    while (i++ >= -1) {
+        unprocessed = unprocessed.substringAfter("nid=", "")
+        if (unprocessed.isBlank()) break
+
+        val nid = unprocessed.substringBefore("\"").toInt()
+        val type = unprocessed.substringAfter("boxlink\">").substringBefore("<")
+        val addrRaw = unprocessed.substringAfter("</a>").substringBefore("</div></div>")
+
+        val matches = ">.*?<".toRegex().findAll(addrRaw)
+        val addr = matches.map { it.value.substring(1, it.value.length - 1) }.joinToString(" ").let { unescapeHtml(it) }
+        Log.e("loadNextPage", " $type **** $addr")
+
+        val tid = germanStringsToTreeId[type] ?: 12
+
+        val card = CardInfo(nid, tid, addr, activity.resources.getString(activity.resources.getIdentifier("tid${tid}", "string", activity.packageName)))
+        newCardInfos.add(card)
+    }
+    return newCardInfos
+}
+
+
+
 class CardInfo(val nid: Int, val tid: Int, val addr: String, val type: String)
 
 class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
@@ -47,23 +74,6 @@ class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.
 
 
 class PlantList : AppCompatActivity() {
-    // I hate this code but Android
-    private fun setGermanStringsToTreeId() {
-        val conf = resources.configuration
-        val localeBackup: Locale = conf.locale
-        conf.locale = Locale.GERMAN
-        resources.updateConfiguration(conf, null) // second arg null means don't change
-
-        val values = treeIdToMarkerIcon.keys.toList()
-        val keys = values.map { key -> resources.getString(resources.getIdentifier("tid${key}", "string", packageName)) }
-
-        conf.locale = localeBackup
-        resources.updateConfiguration(conf, null)
-
-        germanStringsToTreeId = keys.zip(values).toMap()
-    }
-
-    private lateinit var germanStringsToTreeId : Map<String, Int>
     private lateinit var cookie : String
     private lateinit var uid : String
     private var pagesLoaded = 0
@@ -115,7 +125,6 @@ class PlantList : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_plant_list)
-        setGermanStringsToTreeId()
 
         doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
     }
@@ -133,29 +142,13 @@ class PlantList : AppCompatActivity() {
             }
             pagesLoaded += 1
 
-            var unprocessed = result.get()
-            var i = -1
-            while (i++ >= -1) {
-                unprocessed = unprocessed.substringAfter("nid=", "")
-                if (unprocessed.isBlank()) break
+            val newCardInfos = processHTMLToCardInfos(result.get(), this)
+            cardInfos.addAll(newCardInfos)
 
-                val nid = unprocessed.substringBefore("\"").toInt()
-                val type = unprocessed.substringAfter("boxlink\">").substringBefore("<")
-                val addrRaw = unprocessed.substringAfter("</a>").substringBefore("</div></div>")
-
-                val matches = ">.*?<".toRegex().findAll(addrRaw)
-                val addr = matches.map { it.value.substring(1, it.value.length - 1) }.joinToString(" ").let { unescapeHtml(it) }
-                Log.e("loadNextPage", " $type **** $addr")
-
-                val tid = germanStringsToTreeId[type] ?: 12
-
-                val card = CardInfo(nid, tid, addr, resources.getString(resources.getIdentifier("tid${tid}", "string", packageName)))
-                cardInfos.add(card)
-            }
-            allPagesLoaded = i == 0
+            allPagesLoaded = newCardInfos.isEmpty()
             if (!allPagesLoaded)
                 runOnUiThread {
-                    recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - i, i)
+                    recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - newCardInfos.size, newCardInfos.size)
                     recycler_info.visibility = View.GONE
                     recycler_info_divider.visibility = View.GONE
                 }

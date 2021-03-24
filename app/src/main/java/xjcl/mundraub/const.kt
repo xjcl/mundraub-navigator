@@ -84,3 +84,5 @@ val treeIdToMarkerIcon = hashMapOf(
     37 to R.drawable.otherherb
 )
 val treeIdToMarkerIconSorted = treeIdToMarkerIcon.toSortedMap()
+
+lateinit var germanStringsToTreeId : Map<String, Int>

@@ -508,6 +508,22 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             .create().show()
     }
 
+    // I hate this code but Android
+    private fun setGermanStringsToTreeId() {
+        val conf = resources.configuration
+        val localeBackup: Locale = conf.locale
+        conf.locale = Locale.GERMAN
+        resources.updateConfiguration(conf, null) // second arg null means don't change
+
+        val values = treeIdToMarkerIcon.keys.toList()
+        val keys = values.map { key -> resources.getString(resources.getIdentifier("tid${key}", "string", packageName)) }
+
+        conf.locale = localeBackup
+        resources.updateConfiguration(conf, null)
+
+        germanStringsToTreeId = keys.zip(values).toMap()
+    }
+
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -535,6 +551,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         Log.e("force_portrait", resources.getBoolean(R.bool.force_portrait).toString())
 
         testerInvitation()
+        setGermanStringsToTreeId()
     }
 
     override fun onBackPressed() {
