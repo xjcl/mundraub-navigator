@@ -21,23 +21,23 @@ import kotlin.collections.ArrayList
 
 class CardInfo(val nid: Int, val tid: Int, val addr: String, val type: String)
 
-class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.PersonViewHolder>() {
-    class PersonViewHolder (val v: View) : RecyclerView.ViewHolder(v)
+class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
+    class ViewHolder (val v: View) : RecyclerView.ViewHolder(v)
 
     // card created
-    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PersonViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
         val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.activity_plant_list_item, viewGroup, false)
-        return PersonViewHolder(v)
+        return ViewHolder(v)
     }
 
     // card scrolls into view or data changed
-    override fun onBindViewHolder(personViewHolder: PersonViewHolder, i: Int) {
-        personViewHolder.v.apply {
+    override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
+        viewHolder.v.apply {
             card_title.text = cardInfos[i].type
             card_subtitle.text = cardInfos[i].addr
             card_marker.setImageResource( treeIdToMarkerIcon[cardInfos[i].tid] ?: R.drawable.otherfruit )
             setOnClickListener {
-                (context as Activity).startActivityForResult(Intent(context, PlantForm::class.java).putExtra("nid", cardInfos[i].nid), 33)
+                (context as Activity).startActivityForResult(Intent(context, PlantForm::class.java).putExtra("nid", cardInfos[i].nid), ActivityRequest.PlantForm.value)
             }
         }
     }
