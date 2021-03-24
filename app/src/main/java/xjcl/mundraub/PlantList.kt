@@ -135,7 +135,7 @@ class PlantList : AppCompatActivity() {
         Log.e("loadNextPage", url)
         Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
 
-            when (response.statusCode ) {
+            when (response.statusCode) {
                 -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                 200 -> {}
                 else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }
