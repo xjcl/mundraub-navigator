@@ -131,7 +131,6 @@ class PlantList : AppCompatActivity() {
                 200 -> {}
                 else -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show() }
             }
-            runOnUiThread { recycler_info.text = getString(R.string.empty_info) }
             pagesLoaded += 1
 
             var unprocessed = result.get()
@@ -154,12 +153,14 @@ class PlantList : AppCompatActivity() {
                 cardInfos.add(card)
             }
             allPagesLoaded = i == 0
-            if (i > 0)
+            if (!allPagesLoaded)
                 runOnUiThread {
                     recycler_view.adapter?.notifyItemRangeInserted(cardInfos.size - i, i)
                     recycler_info.visibility = View.GONE
                     recycler_info_divider.visibility = View.GONE
                 }
+            if (allPagesLoaded && pagesLoaded == 1)
+                runOnUiThread { recycler_info.text = getString(R.string.empty_info) }
         }
     }
 
