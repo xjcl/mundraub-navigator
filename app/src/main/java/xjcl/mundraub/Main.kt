@@ -147,7 +147,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-             "&zoom=${(zoom + .25F).toInt()}&cat=${selectedSpeciesStr}"
+                "&zoom=${(zoom + .25F).toInt()}&cat=${selectedSpeciesStr}"
 
         Log.e("updateMarkers", "GET $url")
 
@@ -383,7 +383,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mMap.setOnInfoWindowLongClickListener {
             markersData[it.position]?.let { md ->
                 runOnUiThread { editOrReportLauncher(this, md.nid ?: -1) }
-        }}
+            }}
 
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
         mMap.setOnMarkerClickListener { marker -> markerOnClickListener(marker) }
@@ -499,10 +499,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         AlertDialog.Builder(this).setTitle("Beta-Tester gesucht!")
             .setMessage("Ich (Jan) suche Beta-Tester für neue Features im Mundraub Navigator. " +
-                        "Du kriegst die nächste Version automatisch auf dein Gerät " +
-                        "und kannst mit mir direkt auf Discord sprechen und Feedback geben. " +
-                        "Es würde uns freuen wenn du mitmachst!" +
-                        "\n\nVG Jan (Entwickler) und Kai (mundraub.org)")
+                    "Du kriegst die nächste Version automatisch auf dein Gerät " +
+                    "und kannst mit mir direkt auf Discord sprechen und Feedback geben. " +
+                    "Es würde uns freuen wenn du mitmachst!" +
+                    "\n\nVG Jan (Entwickler) und Kai (mundraub.org)")
             .setNegativeButton("Discord beitreten") { _, _ -> suppressDialog(); openUrl("https://discord.gg/SAVF66ZKQn") }
             .setPositiveButton("Nein danke") { _, _ -> suppressDialog() }
             .create().show()
@@ -593,7 +593,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //    - request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
-//    - apply darkened markers to map too
+//    - apply greyed-out markers to map too
 //    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
 //    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
 //         -> either remove drawer, shrink it (???) or put it on the x axis (bottom) (?)
@@ -634,7 +634,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 // TODO wontfix
 //    - rarely used marker types: groups, actions, cider, saplings
 //    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
-
+//    - bug: markers staying on (mostly eliminated)
 
 
 // TODO immediate
@@ -642,15 +642,15 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //    - map marker icons
 
 // TODO reset password in-app
-// TODO impressum
 
 
 // TODO IDEAS 2021-03-07 (inspiration from yelp app)
 // - git fix on website: anchor + jitter
 // - git zugriff und zoom bug auf der webseite?
-// - rotate screen on tablet -> infobar -> use chips like yelp?
-// - bug: minimum example markers staying on
+// - infobar -> use chips like yelp?
 // - allow image upload
+//      - also always preview image, even if just stock marker image
+// - refactor user handling code into class so uid, name, login/logout status can be gotten easily
 // - link to flora incognita app
 // - don't change messagebox size (marker placeholder for img)
 //     -> separate page with full description and editing options (+ gmaps + latlng + addr) (+ reverse map embed?)
@@ -658,3 +658,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 // - get beta testers (private or public? google email? agree to send them stuff)
 
 // - download/fav markers for offline use -> map? only show the 1 selected?
+
+// for offline storage: maybe checkmark on detail page? and update with write to sharedpreferences every tap?
+// https://stackoverflow.com/questions/7145606/how-do-you-save-store-objects-in-sharedpreferences-on-android
