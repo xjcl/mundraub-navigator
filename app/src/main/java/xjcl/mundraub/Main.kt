@@ -355,20 +355,31 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 if (md.monthCodes.all { it == '_' })
                     return info
 
-                val seasonText = TextView(this@Main)
-                seasonText.setTextColor(Color.BLACK)
-                seasonText.text = this@Main.getString(if (md.isSeasonal) R.string.inSeason else R.string.notInSeason)
-                info.addView(seasonText)
-
                 val day = RelativeLayout(this@Main)
                 val tv = TextView(this@Main)
                 tv.text = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
                 tv.setTextColor(if (md.isSeasonal) md.fruitColor else Color.GRAY)
                 tv.setTypeface(null, Typeface.BOLD)
                 tv.measure(0, 0)
-                val params = RelativeLayout.LayoutParams(tv.measuredWidth, tv.measuredHeight)
-                params.leftMargin = ( masterWidth / 12F * (md.curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
-                day.addView(tv, params)
+                tv.layoutParams = RelativeLayout.LayoutParams(tv.measuredWidth, tv.measuredHeight).apply {
+                    leftMargin = ( masterWidth / 12F * (md.curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
+                }
+                day.addView(tv)
+
+                if (md.isSeasonal) {
+                    // using RelativeLayout.ALIGN_PARENT_RIGHT just causes a funk, so ugly workaround here
+                    val ripe2 = ImageView(this@Main)
+                    ripe2.setImageResource(R.drawable._ripe_de)
+                    ripe2.measure(0, 0)
+                    ripe2.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
+                        if (getCurMonth() < 8.5)
+                            leftMargin = masterWidth - ripe2.measuredWidth
+                        addRule(RelativeLayout.CENTER_VERTICAL)
+                        RelativeLayout.ALIGN_PARENT_RIGHT
+                    }
+                    if (md.isSeasonal) ripe2.setColorFilter(md.fruitColor)
+                    day.addView(ripe2)
+                }
 
                 info.addView(day)
                 info.addView(months)
