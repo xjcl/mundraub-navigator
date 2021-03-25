@@ -673,3 +673,12 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
 // for offline storage: maybe checkmark on detail page? and update with write to sharedpreferences every tap?
 // https://stackoverflow.com/questions/7145606/how-do-you-save-store-objects-in-sharedpreferences-on-android
+
+// new image screenshots using pixel 3a
+
+
+// TODO 2021-03-25
+// "Reif" as (un)lighted image instead of text
+// maybe increase font sizes
+// image everywhere
+// loading images
