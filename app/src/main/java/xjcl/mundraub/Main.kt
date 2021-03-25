@@ -369,7 +369,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 if (md.isSeasonal) {
                     // using RelativeLayout.ALIGN_PARENT_RIGHT just causes a funk, so ugly workaround here
                     val ripe2 = ImageView(this@Main)
-                    ripe2.setImageResource(R.drawable._ripe_de)
+                    ripe2.setImageResource(R.drawable._ripe)
                     ripe2.measure(0, 0)
                     ripe2.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
                         if (getCurMonth() < 8.5)
