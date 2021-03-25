@@ -348,6 +348,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 title.gravity = Gravity.CENTER
                 title.setTypeface(null, Typeface.BOLD)
                 title.text = marker.title
+                title.textSize = 16F
                 info.addView(title)
 
                 // no month/season information in this case so return early
