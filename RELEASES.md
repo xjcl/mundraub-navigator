@@ -1,3 +1,6 @@
+v25
+- Add (user) plant statistics
+
 v24
 - Fix crash when location not available
 - Allow landscape mode on tablets
