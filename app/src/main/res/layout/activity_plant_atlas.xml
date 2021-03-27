@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:text="@string/common_plants_about"
+        android:text="@string/plant_atlas_about"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recycler_info"

@@ -15,11 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
-import kotlinx.android.synthetic.main.activity_common_plants.*
-import kotlinx.android.synthetic.main.activity_plant_list.*
-import kotlinx.android.synthetic.main.activity_plant_list.recycler_view
+import kotlinx.android.synthetic.main.activity_plant_atlas.*
 import kotlinx.android.synthetic.main.activity_plant_list_item.view.*
-import kotlin.concurrent.thread
 
 
 val treeIdToFrequency = hashMapOf(
@@ -94,7 +91,7 @@ class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapter<CPRVAd
 
 
 
-class CommonPlants : AppCompatActivity() {
+class PlantAtlas : AppCompatActivity() {
     private val cardInfos = ArrayList<CPCardInfo>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -105,7 +102,7 @@ class CommonPlants : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_common_plants)
+        setContentView(R.layout.activity_plant_atlas)
 
         doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
     }
