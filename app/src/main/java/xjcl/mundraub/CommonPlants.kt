@@ -1,6 +1,8 @@
 package xjcl.mundraub
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -95,19 +97,28 @@ class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapter<CPRVAd
 class CommonPlants : AppCompatActivity() {
     private val cardInfos = ArrayList<CPCardInfo>()
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
+        if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_common_plants)
+
+        doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
+    }
+
+    private fun doCreate() {
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val cookie = sharedPref.getString("cookie", null) ?: return finish()
 
         recycler_view.layoutManager = LinearLayoutManager(this)
         recycler_view.adapter = CPRVAdapter(cardInfos)
 
         for (el in treeIdToFrequency.toList().sortedBy { -it.second })  // Pair<tid, frequency>
             cardInfos.add(CPCardInfo(el.first, false))
-
-
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val cookie = sharedPref.getString("cookie", null) ?: return finish()
 
         Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
 
