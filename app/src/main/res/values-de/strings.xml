@@ -103,7 +103,7 @@
 
     <string name="markers">Marker</string>
     <string name="plant_atlas">Pflanzen-Atlas</string>
-    <string name="plant_atlas_about">Hier kannst du Statistiken über die häufigsten Pflanzenarten sehen.\n\nAußerdem erkennst du welche Arten du schon zu mundraub.org beigetragen hast (in grün).</string>
+    <string name="plant_atlas_about">Hier siehst du Statistiken und Steckbriefe über die einzelnen Pflanzenarten.\n\nAußerdem erkennst du welche Arten du schon zu mundraub.org beigetragen hast (in grün).</string>
     <string name="submitted">Danke!</string>
     <string name="not_submitted">noch keine von dir</string>
 
