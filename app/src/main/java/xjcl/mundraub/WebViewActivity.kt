@@ -1,9 +1,8 @@
 package xjcl.mundraub
 
 import android.os.Bundle
-import android.view.View
-import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_webview.*
 
 
 val treeIdToProfileUrl = hashMapOf(
@@ -47,16 +46,22 @@ val treeIdToProfileUrl = hashMapOf(
 
 
 class PlantProfile : AppCompatActivity() {
-    private var webView: WebView? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_plant_profile)
+        setContentView(R.layout.activity_webview)
 
         val url = treeIdToProfileUrl[intent.extras?.getInt("tid")] ?: "https://mundraub.org/404"
+        webView.loadUrl(url)
+    }
+}
 
-        webView = (findViewById<View>(R.id.webView) as WebView).apply {
-            loadUrl(url)
-        }
+
+class WebViewActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_webview)
+
+        val url = intent.extras?.getString("url") ?: "https://mundraub.org/404"
+        webView.loadUrl(url)
     }
 }

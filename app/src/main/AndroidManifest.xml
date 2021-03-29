@@ -14,7 +14,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PlantProfile"></activity>
+        <activity android:name=".PlantProfile" />
+        <activity android:name=".WebViewActivity" />
         <activity
             android:name=".PlantAtlas"
             android:label="@string/plant_atlas" />

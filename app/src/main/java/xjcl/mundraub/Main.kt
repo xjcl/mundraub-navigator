@@ -458,8 +458,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         })
     }
 
-    private fun openUrl(link: String) =
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
+    private fun openUrl(url: String) =
+        startActivity(Intent(this, WebViewActivity::class.java).putExtra("url", url))
 
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
