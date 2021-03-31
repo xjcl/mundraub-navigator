@@ -85,8 +85,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                     if (markers.contains(latlng)) continue
                     val md = featureToMarkerData(this, feature)
                     val mo = MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F)
-                    val mark = mMap.addMarker(mo)
-                    new_markers.add(Triple(latlng, mark, md))
+                    val mark = mMap?.addMarker(mo)
+                    if (mark != null)
+                        new_markers.add(Triple(latlng, mark, md))
                 }
 
                 markerContext.execute {
@@ -139,11 +140,12 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // --- Update markers when user finished moving the map ---
     private fun updateMarkers(callback : () -> Unit = {}) {
-        val zoom = mMap.cameraPosition.zoom
+        val mmMap = mMap ?: return
+        val zoom = mmMap.cameraPosition.zoom
         Log.e("updateMarkers", "zoom $zoom")
         if (zoom == 2F || zoom == 3F) return  // Bugfix, do not remove, see commit message
-        val bboxLo = mMap.projection.visibleRegion.latLngBounds.southwest
-        val bboxHi = mMap.projection.visibleRegion.latLngBounds.northeast
+        val bboxLo = mmMap.projection.visibleRegion.latLngBounds.southwest
+        val bboxHi = mmMap.projection.visibleRegion.latLngBounds.northeast
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
@@ -248,8 +250,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                             val stepList: List<Step> = direction.routeList[0].legList[0].stepList
                             val polylines = DirectionConverter.createTransitPolyline(
                                 this@Main, stepList, 5, Color.RED, 3, Color.RED)
+                            val mmMap = mMap ?: return
                             for (polyline in polylines)
-                                polylinesOnScreen.add(mMap.addPolyline(polyline))
+                                polylinesOnScreen.add(mmMap.addPolyline(polyline))
                             polylinesLatLng = marker.position
                         } catch (e: java.lang.Exception) {
                             Log.e("polylines", e.stackTraceToString())
@@ -262,8 +265,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 })
         }
 
-        val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mMap.projection.visibleRegion.farLeft, mMap.projection.visibleRegion.nearLeft)))
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
+        val mmMap = mMap ?: return true
+        val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mmMap.projection.visibleRegion.farLeft, mmMap.projection.visibleRegion.nearLeft)))
+        mmMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
 
         downloadMarkerData(marker)
         return true
@@ -274,16 +278,15 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     private fun setUpNetworking() {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = runOnUiThread { mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) ) }
+            override fun onAvailable(network: Network) = runOnUiThread { mMap?.animateCamera( CameraUpdateFactory.zoomBy(0F) ) }
         })
     }
 
     // --- On startup: Prepare map and cause onRequestPermissionsResult to be called ---
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        mMap.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
-        mMap.setOnCameraIdleListener(this)
-        mMap.setPadding(totalLeftPadding, 0, 0, 0)
+    override fun onMapReady(mmMap: GoogleMap) {
+        mmMap.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
+        mmMap.setOnCameraIdleListener(this)
+        mmMap.setPadding(totalLeftPadding, 0, 0, 0)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) setUpNetworking()
 
@@ -292,7 +295,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         // --- Build a vertical layout to provide an info window for a marker ---
         // https://stackoverflow.com/a/31629308/2111778
-        mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
+        mmMap.setInfoWindowAdapter(object : InfoWindowAdapter {
             override fun getInfoWindow(arg0: Marker): View? = null
 
             override fun getInfoContents(marker: Marker): View {
@@ -388,17 +391,18 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         })
 
         // --- Disappear the navigation button once window closes ---
-        mMap.setOnInfoWindowCloseListener {
+        mmMap.setOnInfoWindowCloseListener {
             fab.animate().x(fabAnimationFromTo.first)
         }
 
-        mMap.setOnInfoWindowLongClickListener {
+        mmMap.setOnInfoWindowLongClickListener {
             markersData[it.position]?.let { md ->
                 runOnUiThread { editOrReportLauncher(this, md.nid ?: -1) }
             }}
 
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
-        mMap.setOnMarkerClickListener { marker -> markerOnClickListener(marker) }
+        mmMap.setOnMarkerClickListener { marker -> markerOnClickListener(marker) }
+        mMap = mmMap
     }
 
     // --- When user rotates phone, re-download markers for the new screen size ---
@@ -408,31 +412,32 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mapFragment.mapViewPost()
 
         // dummy zoom to trigger onCameraIdle with *correct* orientation  https://stackoverflow.com/a/61993030/2111778
-        mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )
+        mMap?.animateCamera( CameraUpdateFactory.zoomBy(0F) )
     }
 
     // --- On startup: If GPS enabled, then zoom into user, else zoom into Germany ---
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
         fusedLocationClient.lastLocation.addOnFailureListener(this) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
+            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
         }
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             if (location == null) return@addOnSuccessListener
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
+            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
         }
 
         if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_DENIED) return
 
-        mMap.isMyLocationEnabled = true  // show blue circle on map
+        mMap?.isMyLocationEnabled = true  // show blue circle on map
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (mapTypeChanged) {
             mapTypeChanged = false
-            mMap.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
+            mMap?.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
         }
-        if (requestCode == ActivityRequest.PlantList.value) return mMap.animateCamera( CameraUpdateFactory.zoomBy(0F) )  // might have modifed markers
+        if (requestCode == ActivityRequest.PlantList.value)
+            return mMap?.animateCamera( CameraUpdateFactory.zoomBy(0F) ).discard()  // might have modifed markers
         if (!(requestCode == ActivityRequest.PlantForm.value && resultCode == Activity.RESULT_OK && data != null)) return
 
         // if we add or edit a marker, resume at its location with open info window (= simulate click)
@@ -442,7 +447,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         onCameraIdleEnabled = false
         mapFragment.handleFilterClick(null, 99) {true}
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
+        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
             override fun onFinish() = updateMarkers {
                 // The problem here is that addMarkerFromFeature does not wait for the UI thread to finish (and I found no good way
                 //  to do this) so instead we dirtily just *sleep* here

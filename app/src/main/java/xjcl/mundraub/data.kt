@@ -30,7 +30,7 @@ fun getCurMonth(): Double = Calendar.getInstance().get(Calendar.MONTH) + 1 + Cal
 fun isSeasonal(tid : Int?, month : Double) = treeIdToSeason[tid]?.first ?: 0.0 <= month && month <= treeIdToSeason[tid]?.second ?: 0.0
 fun Any?.discard() = Unit
 
-lateinit var mMap: GoogleMap
+var mMap: GoogleMap? = null
 lateinit var fusedLocationClient: FusedLocationProviderClient
 var mapTypeChanged = false
 

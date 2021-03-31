@@ -44,7 +44,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         // dummy category "1" added to handle two issues that occur when passing an empty filter string (no filtering done, no tid returned(!))
         selectedSpeciesStr = ivs.filter { cond(it.key) }.map { it.key.toString() }.let { listOf("1") + it }.joinToString(",")
         iv?.let { animateJump(it) }
-        mMap.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
+        mMap?.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
         infoBar.removeViewAt(1) // removes monthsBar
         infoBar.addView(createMonthsBar(key))
     }
@@ -169,7 +169,7 @@ class FruitBarMapFragment : SupportMapFragment() {
 
             totalLeftPadding = max(totalLeftPadding, (.04 * scrHeight).toInt() + bmpSample.width + tvWidth)
         }
-        mMap.setPadding(totalLeftPadding, 0, 0, 0)
+        mMap?.setPadding(totalLeftPadding, 0, 0, 0)
 
         // filter to 1 species
         var i = 0
