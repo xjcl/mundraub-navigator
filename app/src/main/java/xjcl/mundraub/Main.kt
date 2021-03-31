@@ -63,6 +63,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         PLANT_ATLAS(10),
         IMPRINT(80),
         PRIVACY(81),
+        LOGOUT(98),
         SETTINGS(99),
     }
 
@@ -465,6 +466,24 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         })
     }
 
+    private fun logout() {
+        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            remove("cookie")
+            remove("name")
+            remove("pass")
+            apply()
+        }
+        Toast.makeText(this, R.string.errMsgLogoutSuccess, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun logoutDialog() {
+        AlertDialog.Builder(this).setMessage(R.string.reallyLogout)
+            .setPositiveButton(R.string.yes) { _, _ -> logout() }
+            .setNegativeButton(R.string.no) { _, _ -> }
+            .create().show()
+    }
+
     private fun openUrl(url: String) =
         startActivity(Intent(this, WebViewActivity::class.java).putExtra("url", url))
 
@@ -476,6 +495,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             ItemMenu.PLANT_ATLAS.value -> startActivityForResult(Intent(this, PlantAtlas::class.java), ActivityRequest.IRRELEVANT.value)
             ItemMenu.IMPRINT.value -> openUrl(getString(R.string.imprint_url))
             ItemMenu.PRIVACY.value -> openUrl(getString(R.string.privacy_url))
+            ItemMenu.LOGOUT.value -> logoutDialog()
             ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), ActivityRequest.IRRELEVANT.value)
             else -> return super.onOptionsItemSelected(item)
         }
@@ -500,6 +520,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         addMenuItem(menu, ItemMenu.PLANT_ATLAS.value, R.string.plant_atlas, null)
         addMenuItem(menu, ItemMenu.IMPRINT.value, R.string.imprint, null)
         addMenuItem(menu, ItemMenu.PRIVACY.value, R.string.privacy, null)
+        addMenuItem(menu, ItemMenu.LOGOUT.value, R.string.logout, null)
         addMenuItem(menu, ItemMenu.SETTINGS.value, R.string.title_activity_app_settings, null)
         return true
     }

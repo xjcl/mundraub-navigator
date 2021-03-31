@@ -82,6 +82,7 @@
     <string name="errMsgAccess">No access to this resource</string>
     <string name="errMsgLogin">Login failed. Make sure you entered the correct details and that your email is verified.</string>
     <string name="errMsgLoginSuccess">Login successful!</string>
+    <string name="errMsgLogoutSuccess">Logout successful.</string>
     <string name="errMsgRegisterSuccess">Registration successful! You can use your account if you respond to our confirmation email.</string>
     <string name="errMsgDesc">Please add a description</string>
     <string name="errMsgType">Please specify a valid fruit type</string>
@@ -123,4 +124,5 @@
     <string name="delete">Delete</string>
     <string name="reallyDelete">Really delete?</string>
     <string name="reallyLogout">Really logout?</string>
+    <string name="logout">Logout</string>
 </resources>

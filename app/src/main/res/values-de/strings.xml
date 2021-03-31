@@ -80,6 +80,7 @@
     <string name="errMsgAccess">Fehlende Rechte für diese Aktion</string>
     <string name="errMsgLogin">Login fehlgeschlagen. Überprüfe deine Login-Daten und stelle sicher dass deine E-Mail-Adresse verifiziert ist.</string>
     <string name="errMsgLoginSuccess">Login erfolgreich!</string>
+    <string name="errMsgLogoutSuccess">Logout erfolgreich.</string>
     <string name="errMsgRegisterSuccess">Registration erfolgreich! Nach Bestätigung unserer E-Mail kannst du deinen Account nutzen.</string>
     <string name="errMsgDesc">Bitte Beschreibung ausfüllen</string>
     <string name="errMsgType">Bitte gültige Fruchtart eingeben</string>
@@ -121,4 +122,5 @@
     <string name="delete">Löschen</string>
     <string name="reallyDelete">Wirklich löschen?</string>
     <string name="reallyLogout">Wirklich abmelden?</string>
+    <string name="logout">Logout</string>
 </resources>

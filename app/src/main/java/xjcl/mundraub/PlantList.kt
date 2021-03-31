@@ -89,39 +89,6 @@ class PlantList : AppCompatActivity() {
         if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
     }
 
-    private fun logout() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        with (sharedPref.edit()) {
-            remove("cookie")
-            remove("name")
-            remove("pass")
-            apply()
-        }
-        finish()
-    }
-
-    private fun logoutDialog() {
-        AlertDialog.Builder(this).setMessage(R.string.reallyLogout)
-            .setPositiveButton(R.string.yes) { _, _ -> logout() }
-            .setNegativeButton(R.string.no) { _, _ -> }
-            .create().show()
-    }
-
-    // Handle ActionBar option selection
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            9 -> logoutDialog()
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
-    }
-
-    // Create the ActionBar options menu
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(9, 9, 9, "Logout").setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
-        return true
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_plant_list)
