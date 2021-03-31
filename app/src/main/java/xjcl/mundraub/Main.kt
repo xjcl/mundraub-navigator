@@ -421,8 +421,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
         }
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-            if (location == null) return@addOnSuccessListener
-            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
+            if (location == null)
+                mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
+            else
+                mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 13F))
         }
 
         if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_DENIED) return
