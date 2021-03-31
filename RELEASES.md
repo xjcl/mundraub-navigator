@@ -1,3 +1,8 @@
+v26
+- Window UI: "ripe" icon and larger text
+- Plant atlas with plant profiles
+- UI and bug fixes
+
 v25
 - Add (user) plant statistics
 
