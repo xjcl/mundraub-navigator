@@ -396,10 +396,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             fab.animate().x(fabAnimationFromTo.first)
         }
 
-        mmMap.setOnInfoWindowLongClickListener {
+        mmMap.setOnInfoWindowClickListener {
             markersData[it.position]?.let { md ->
                 runOnUiThread { editOrReportLauncher(this, md.nid ?: -1) }
-            }}
+            }
+        }
 
         // --- Custom zoom to marker at a *below-center* position to leave more space for its large info window ---
         mmMap.setOnMarkerClickListener { marker -> markerOnClickListener(marker) }
