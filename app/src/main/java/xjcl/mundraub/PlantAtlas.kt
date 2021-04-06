@@ -84,7 +84,7 @@ class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapter<CPRVAd
             card_marker.setImageResource( treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit )
             cv.setCardBackgroundColor(if (submitted) resources.getColor(R.color.colorPrimary) else Color.WHITE)
             setOnClickListener {
-                if (!hashSetOf(12, 17, 30, 37).contains(tid))  // "other" fruit/shrub/nut/herb
+                if (treeIdToProfileUrl[tid] != null)  // "other" fruit/shrub/nut/herb
                     (context as Activity).startActivity(Intent(context, PlantProfile::class.java).putExtra("tid", tid))
             }
         }

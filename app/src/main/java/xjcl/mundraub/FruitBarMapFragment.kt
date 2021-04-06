@@ -1,5 +1,7 @@
 package xjcl.mundraub
 
+import android.app.Activity
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Build
@@ -9,10 +11,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -47,6 +46,10 @@ class FruitBarMapFragment : SupportMapFragment() {
         mMap?.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
         infoBar.removeViewAt(1) // removes monthsBar
         infoBar.addView(createMonthsBar(key))
+        infoBar.setOnClickListener {
+            if (treeIdToProfileUrl[key] != null)
+                (context as Activity).startActivity(Intent(context, PlantProfile::class.java).putExtra("tid", key))
+        }
     }
 
     fun createMonthsBar(md : MarkerData, withLetters : Boolean = true): LinearLayout {
