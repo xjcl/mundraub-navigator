@@ -63,6 +63,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         PLANT_ATLAS(10),
         IMPRINT(80),
         PRIVACY(81),
+        MUNDRAUB_RULES(82),
+        FLORA_INCOGNITA(83),
         LOGOUT(98),
         SETTINGS(99),
     }
@@ -496,6 +498,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             ItemMenu.PLANT_ATLAS.value -> startActivityForResult(Intent(this, PlantAtlas::class.java), ActivityRequest.IRRELEVANT.value)
             ItemMenu.IMPRINT.value -> openUrl(getString(R.string.imprint_url))
             ItemMenu.PRIVACY.value -> openUrl(getString(R.string.privacy_url))
+            ItemMenu.MUNDRAUB_RULES.value -> openUrl(getString(R.string.mundraub_rules_url))
+            ItemMenu.FLORA_INCOGNITA.value -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.flora_incognita_url))))
             ItemMenu.LOGOUT.value -> logoutDialog()
             ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), ActivityRequest.IRRELEVANT.value)
             else -> return super.onOptionsItemSelected(item)
@@ -521,6 +525,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         addMenuItem(menu, ItemMenu.PLANT_ATLAS.value, R.string.plant_atlas, null)
         addMenuItem(menu, ItemMenu.IMPRINT.value, R.string.imprint, null)
         addMenuItem(menu, ItemMenu.PRIVACY.value, R.string.privacy, null)
+        addMenuItem(menu, ItemMenu.MUNDRAUB_RULES.value, R.string.mundraub_rules, null)
+        addMenuItem(menu, ItemMenu.FLORA_INCOGNITA.value, R.string.flora_incognita, null)
         addMenuItem(menu, ItemMenu.LOGOUT.value, R.string.logout, null)
         addMenuItem(menu, ItemMenu.SETTINGS.value, R.string.title_activity_app_settings, null)
         return true
@@ -668,9 +674,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 // - allow image upload
 //      - also always preview image, even if just stock marker image
 // - refactor user handling code into class so uid, name, login/logout status can be gotten easily
-// - link to flora incognita app
-//      - link to mundraub rules
-//      - permanent link to discord?
+// - permanent link to discord?
 // - don't change messagebox size (marker placeholder for img)
 //     -> separate page with full description and editing options (+ gmaps + latlng + addr) (+ reverse map embed?)
 // - long-term: up- and downvotes tied to accounts

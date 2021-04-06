@@ -12,6 +12,10 @@
     <string name="imprint_url" translatable="false">https://mundraub.org/impressum</string>
     <string name="privacy">Privacy</string>
     <string name="privacy_url" translatable="false">https://mundraub.org/agb_datenschutz</string>
+    <string name="mundraub_rules">mundraub rules</string>
+    <string name="mundraub_rules_url" translatable="false">https://mundraub.org/mundraeuber-regeln</string>
+    <string name="flora_incognita" translatable="false">Flora Incognita</string>
+    <string name="flora_incognita_url" translatable="false">market://details?id=com.floraincognita.app.floraincognita</string>
 
     <string name="tid4">Apple</string>
     <string name="tid5">Pear</string>
