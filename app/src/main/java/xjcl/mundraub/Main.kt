@@ -526,29 +526,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         return true
     }
 
-    // TODO: introduced in v24, delete in v25
-    private fun testerInvitation() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val dialogShown = sharedPref.getBoolean("testerDialogShown", false)
-        if (dialogShown) return
-
-        fun suppressDialog() =
-            with (sharedPref.edit()) {
-                putBoolean("testerDialogShown", true)
-                apply()
-            }
-
-        AlertDialog.Builder(this).setTitle("Beta-Tester gesucht!")
-            .setMessage("Ich (Jan) suche Beta-Tester für neue Features im Mundraub Navigator. " +
-                    "Du kriegst die nächste Version automatisch auf dein Gerät " +
-                    "und kannst mit mir direkt auf Discord sprechen und Feedback geben. " +
-                    "Es würde uns freuen wenn du mitmachst!" +
-                    "\n\nVG Jan (Entwickler) und Kai (mundraub.org)")
-            .setNegativeButton("Discord beitreten") { _, _ -> suppressDialog(); openUrl("https://discord.gg/SAVF66ZKQn") }
-            .setPositiveButton("Nein danke") { _, _ -> suppressDialog() }
-            .create().show()
-    }
-
     // I hate this code but Android
     private fun setGermanStringsToTreeId() {
         val conf = resources.configuration
@@ -591,7 +568,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         Log.e("force_portrait", resources.getBoolean(R.bool.force_portrait).toString())
 
-        testerInvitation()
         setGermanStringsToTreeId()
     }
 
