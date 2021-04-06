@@ -669,10 +669,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //      - also always preview image, even if just stock marker image
 // - refactor user handling code into class so uid, name, login/logout status can be gotten easily
 // - link to flora incognita app
+//      - link to mundraub rules
+//      - permanent link to discord?
 // - don't change messagebox size (marker placeholder for img)
 //     -> separate page with full description and editing options (+ gmaps + latlng + addr) (+ reverse map embed?)
 // - long-term: up- and downvotes tied to accounts
-// - get beta testers (private or public? google email? agree to send them stuff)
 
 // - download/fav markers for offline use -> map? only show the 1 selected?
 
@@ -683,7 +684,5 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
 
 // TODO 2021-03-25
-// "Reif" as (un)lighted image instead of text
-// maybe increase font sizes
 // image everywhere
 // loading images
