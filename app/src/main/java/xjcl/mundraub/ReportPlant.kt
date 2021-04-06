@@ -1,6 +1,7 @@
 package xjcl.mundraub
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +15,7 @@ class ReportPlant : AppCompatActivity() {
 
     private var intentNid : Int = -1
     private lateinit var cookie : String
+    private lateinit var username : String
 
     val reportData = mutableMapOf(
         "op" to "Absenden",
@@ -34,9 +36,10 @@ class ReportPlant : AppCompatActivity() {
     private fun doCreate() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         cookie = sharedPref.getString("cookie", null) ?: return finish()
+        username = sharedPref.getString("name", null) ?: return finish()
     }
 
-    fun reportPlant(view : View) {
+    fun reportPlantActual(view : View) {
         if (this.report_text_inner.text.toString().isBlank()) return
 
         val url = "https://mundraub.org/node/$intentNid?destination=/map?nid=$intentNid"
@@ -70,5 +73,28 @@ class ReportPlant : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun reportPlant(view: View) {
+        val url = "https://mundraub.org/node/$intentNid"
+        val reason = getString(resources.getIdentifier("report${radioMap[this.report_radio_group.checkedRadioButtonId] ?: "4"}", "string", packageName))
+
+        val emailIntent = Intent(Intent.ACTION_SEND)
+        emailIntent.type = "message/rfc822"
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("info@mundraub.org"))
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, """"Fundort melden" via Mundraub Navigator""")
+        emailIntent.putExtra(Intent.EXTRA_TEXT, """
+            Liebes mundraub-Team,
+            
+            ich würde gerne den folgenden Marker melden:
+            - URL: $url
+            - Grund: $reason
+            - Freitext: ${report_text_inner.text}
+            
+            Fruchtige Grüße,
+            Nutzer $username
+        """.trimIndent())
+
+        startActivity(Intent.createChooser(emailIntent, "Send mail..."))
     }
 }

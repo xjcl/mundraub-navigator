@@ -116,7 +116,7 @@
     <string name="login_info">Hinzufügen, Bearbeiten und Melden von Markern erfordert Login mit einem Mundraub-Account.</string>
     <string name="empty_info">Du hast noch keine Fundorte beigetragen.</string>
     <string name="register_info">Folgende Sonderzeichen sind im Benutzernamen erlaubt: _.-\'@\n\nNach dem Registrieren erhälst du eine Verifikations-E-Mail von uns die du bestätigen musst.</string>
-    <string name="report_info">Melden von Markern ist im Moment deaktiviert um Spam zu verhindern. Das untenstehende Formular ist damit nicht funktionstüchtig.</string>
+    <string name="report_info">Melden von Markern ist im Moment deaktiviert um Spam zu verhindern. Das untenstehende Formular bereiter daher nur eine E-Mail an info@mundraub.org vor.</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="delete">Löschen</string>
