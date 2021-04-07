@@ -32,15 +32,15 @@ for fn in glob.glob(src_dir + '/*.png'):
     try:
         col = image.getpixel((50, 500))
     except:
-        # TODO strawberry
-        continue
+        image = image.resize((662, 1056))
+        col = image.getpixel((50, 500))
 
     print(col)
 
     border = PIL.Image.open(fn).convert('RGBA')
     border = border.resize((int(image.width * 1.2), int(image.height * 1.2)))  # not good
 
-    out = PIL.Image.new("RGBA", (2500, 1400), (col[0], col[1], col[2], 122))
+    out = PIL.Image.new("RGBA", (2500, 1400), (col[0], col[1], col[2], 100))
     # out.paste(border, box=(1250 - border.width//2, 700 - border.height//2), mask=border)
     out.paste(image, box=(1250 - image.width//2, 700 - image.height//2), mask=image)
 

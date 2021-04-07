@@ -101,7 +101,7 @@ val treeIdToMarkerFrame = hashMapOf(
     17 to R.drawable.frame_othernut,
 
     18 to R.drawable.frame_blackberry,
-    //19 to R.drawable.frame_wildstrawberry,
+    19 to R.drawable.frame_wildstrawberry,
     20 to R.drawable.frame_blueberry,
     21 to R.drawable.frame_elderberry,
     22 to R.drawable.frame_raspberry,
