@@ -62,7 +62,7 @@ class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.
         viewHolder.v.apply {
             card_title.text = cardInfos[i].type
             card_subtitle.text = cardInfos[i].addr
-            card_marker.setImageResource( treeIdToMarkerIcon[cardInfos[i].tid] ?: R.drawable.otherfruit )
+            card_marker.setImageResource( treeIdToMarkerIcon[cardInfos[i].tid] ?: R.drawable.icon_otherfruit )
             setOnClickListener {
                 (context as Activity).startActivityForResult(Intent(context, PlantForm::class.java).putExtra("nid", cardInfos[i].nid), ActivityRequest.PlantForm.value)
             }

@@ -60,7 +60,7 @@ fun primaryColorTitle(text : String) : Spanned =
     HtmlCompat.fromHtml("<font color=\"#94b422\">${text}</font>", HtmlCompat.FROM_HTML_MODE_LEGACY)
 
 fun getFruitColor(resources : Resources, tid: Int?) : Int =
-    BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
+    BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
         .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
 
 fun invalidateMarker(activity: Activity, nid: String) {

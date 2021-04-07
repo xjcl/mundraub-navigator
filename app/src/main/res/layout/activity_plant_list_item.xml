@@ -23,7 +23,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginRight="16dp"
-            android:src="@drawable/apple"
+            android:src="@drawable/icon_apple"
             />
 
         <TextView

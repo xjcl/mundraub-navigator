@@ -77,7 +77,7 @@ fun featureToMarkerData(context : Context, feature : Feature) : MarkerData {
         if (type == "cluster") // isCluster
             BitmapDescriptorFactory.fromBitmap(bitmapWithText(R.drawable._cluster_c, context, feature.count.toString(), 45F))
         else // isTree
-            BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
+            BitmapDescriptorFactory.fromResource(treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
 
     // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on
     val monthCodes = (1..12).joinToString("") {

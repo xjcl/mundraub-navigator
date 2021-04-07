@@ -185,7 +185,7 @@ class PlantForm : AppCompatActivity() {
         fun updateType() {
             val typeIndex = values.indexOf( typeTIED.text.toString() )
             if (typeIndex == -1) return
-            val left = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.otherfruit)
+            val left = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.icon_otherfruit)
             locationPicker.setCompoundDrawablesWithIntrinsicBounds(left, null, null, null)
         }
         typeTIED.setOnFocusChangeListener { _, _ -> updateType() }

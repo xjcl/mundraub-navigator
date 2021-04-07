@@ -285,7 +285,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         relView.addView(mapView)
 
         scrHeight = mapView.measuredHeight
-        bmpSample = BitmapFactory.decodeResource(resources, R.drawable.otherfruit)
+        bmpSample = BitmapFactory.decodeResource(resources, R.drawable.icon_otherfruit)
         Log.e("scrHeight", scrHeight.toString())
         Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 

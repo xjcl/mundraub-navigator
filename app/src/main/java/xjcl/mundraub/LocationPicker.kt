@@ -31,7 +31,7 @@ class MapFragmentPicker : SupportMapFragment() {
 
         mapView.post {
             val markerView = ImageView(context).apply {
-                setImageResource(treeIdToMarkerIcon[tid] ?: R.drawable.otherfruit)
+                setImageResource(treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
                 measure(0, 0)
                 x = mapView.measuredWidth / 2F - measuredWidth / 2F
                 y = mapView.measuredHeight / 2F - measuredHeight  // anchor at bottom
