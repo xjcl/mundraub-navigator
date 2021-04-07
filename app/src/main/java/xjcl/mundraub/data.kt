@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.RelativeLayout
+import androidx.core.graphics.drawable.toBitmap
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
@@ -21,7 +22,7 @@ data class Feature(val pos: List<Double>, val properties: Properties? = null, va
 @Serializable
 data class Root(val features: List<Feature>)
 
-data class MarkerData(val type : String, val title : String, val monthCodes : String, val curMonth : Double,
+data class MarkerData(val tid : Int, val type : String, val title : String, val monthCodes : String, val curMonth : Double,
                       val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?,
                       var uploader : String?, var uploadDate : String?, var image : Bitmap?, val icon : BitmapDescriptor)
 
@@ -55,7 +56,10 @@ var totalLeftPadding = 0
 class PicassoBitmapTarget : com.squareup.picasso.Target {
     var marker: Marker? = null
     var md: MarkerData? = null
-    override fun onPrepareLoad(placeHolderDrawable: Drawable?) { }
+    override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+        md?.image = placeHolderDrawable?.toBitmap()
+        marker?.showInfoWindow()
+    }
     override fun onBitmapFailed(errorDrawable: Drawable?) { }
     override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
         md?.image = bitmap
@@ -67,7 +71,7 @@ val picassoBitmapTarget = PicassoBitmapTarget()
 // ----
 
 fun featureToMarkerData(context : Context, feature : Feature) : MarkerData {
-    val tid = feature.properties?.tid
+    val tid = feature.properties?.tid ?: 12
     val type = if (feature.properties == null) "cluster" else "normal"
 
     val title = context.getString(context.resources.getIdentifier("tid$tid", "string", context.packageName))
@@ -89,6 +93,6 @@ fun featureToMarkerData(context : Context, feature : Feature) : MarkerData {
         }
     }
 
-    return MarkerData(type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor,
+    return MarkerData(tid, type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor,
         feature.properties?.nid, null, null, null, null, icon)
 }

@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Typeface
@@ -193,17 +194,16 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             md.uploadDate = extractUnescaped(htmlStr.substringAfter("am <span>"), ", ", " - ")
             md.description = "[$number] $description"
 
-            runOnUiThread { marker.showInfoWindow() }
-
             // --- Download image in lowest quality ---
             val imageURL = htmlStr.substringAfter("srcset=\"", "").substringBefore(" ")
-            if (imageURL.isBlank() || md.image != null) return@thread
+            if (imageURL.isBlank() || md.image != null)
+                return@thread runOnUiThread { marker.showInfoWindow() }
 
             runOnUiThread {
                 Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
                 picassoBitmapTarget.md = md
                 picassoBitmapTarget.marker = marker
-                Picasso.with(this@Main).load("https://mundraub.org/$imageURL").into(picassoBitmapTarget)
+                Picasso.with(this@Main).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(picassoBitmapTarget)
             }
         }
     }
@@ -312,8 +312,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 info.orientation = LinearLayout.VERTICAL
 
                 val photo = ImageView(this@Main)
-                photo.setImageBitmap(scaleToWidth(md.image, masterWidth))
-                if (md.image != null) info.addView(photo)
+                photo.setImageBitmap(scaleToWidth(if (md.image != null) md.image else
+                    BitmapFactory.decodeResource(resources, treeIdToMarkerFrame[md.tid] ?: R.drawable.frame_otherfruit)
+                    , masterWidth))
+                info.addView(photo)
 
                 val description = TextView(this@Main)
                 description.width = masterWidth
