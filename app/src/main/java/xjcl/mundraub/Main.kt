@@ -311,6 +311,14 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 val info = LinearLayout(this@Main)
                 info.orientation = LinearLayout.VERTICAL
 
+                val title = TextView(this@Main)
+                title.setTextColor(md.fruitColor)
+                title.gravity = Gravity.CENTER
+                title.setTypeface(null, Typeface.BOLD)
+                title.text = marker.title
+                title.textSize = 18F
+                info.addView(title)
+
                 val photo = ImageView(this@Main)
                 photo.setImageBitmap(scaleToWidth(if (md.image != null) md.image else
                     BitmapFactory.decodeResource(resources, treeIdToMarkerFrame[md.tid] ?: R.drawable.frame_otherfruit)
@@ -320,7 +328,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 val description = TextView(this@Main)
                 description.width = masterWidth
                 description.textSize = 12F
-                description.minLines = 4
+                description.minLines = 5
                 if (md.type != "cluster") info.addView(description)
 
                 description.text = md.description ?: this@Main.getString(R.string.loading)
@@ -348,14 +356,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 byLine.addView(uploadDate)
 
                 info.addView(byLine)
-
-                val title = TextView(this@Main)
-                title.setTextColor(md.fruitColor)
-                title.gravity = Gravity.CENTER
-                title.setTypeface(null, Typeface.BOLD)
-                title.text = marker.title
-                title.textSize = 18F
-                info.addView(title)
 
                 // no month/season information in this case so return early
                 if (md.monthCodes.all { it == '_' })
