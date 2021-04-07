@@ -320,36 +320,34 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 val description = TextView(this@Main)
                 description.width = masterWidth
                 description.textSize = 12F
+                description.minLines = 4
                 if (md.type != "cluster") info.addView(description)
-                if (md.description != null) {
-                    description.text = md.description
-                    val byLine = LinearLayout(this@Main)
 
-                    val uploader = TextView(this@Main)
-                    uploader.textSize = 10.5F
-                    uploader.text = md.uploader
-                    uploader.gravity = Gravity.LEFT
-                    uploader.maxWidth = masterWidth
-                    uploader.measure(0, 0)
+                description.text = md.description ?: this@Main.getString(R.string.loading)
+                val byLine = LinearLayout(this@Main)
 
-                    val uploadDate = TextView(this@Main)
-                    uploadDate.textSize = 10.5F
-                    uploadDate.text = md.uploadDate
-                    uploadDate.gravity = Gravity.RIGHT
-                    uploadDate.maxWidth = masterWidth
-                    uploadDate.measure(0, 0)
+                val uploader = TextView(this@Main)
+                uploader.textSize = 10.5F
+                uploader.text = md.uploader ?: this@Main.getString(R.string.loading)
+                uploader.gravity = Gravity.LEFT
+                uploader.maxWidth = masterWidth
+                uploader.measure(0, 0)
 
-                    val whitespace = TextView(this@Main)
-                    whitespace.width = masterWidth - uploader.measuredWidth - uploadDate.measuredWidth
+                val uploadDate = TextView(this@Main)
+                uploadDate.textSize = 10.5F
+                uploadDate.text = md.uploadDate ?: this@Main.getString(R.string.loading)
+                uploadDate.gravity = Gravity.RIGHT
+                uploadDate.maxWidth = masterWidth
+                uploadDate.measure(0, 0)
 
-                    byLine.addView(uploader)
-                    byLine.addView(whitespace)
-                    byLine.addView(uploadDate)
+                val whitespace = TextView(this@Main)
+                whitespace.width = masterWidth - uploader.measuredWidth - uploadDate.measuredWidth
 
-                    info.addView(byLine)
-                } else {
-                    description.text = this@Main.getString(R.string.loading)
-                }
+                byLine.addView(uploader)
+                byLine.addView(whitespace)
+                byLine.addView(uploadDate)
+
+                info.addView(byLine)
 
                 val title = TextView(this@Main)
                 title.setTextColor(md.fruitColor)
