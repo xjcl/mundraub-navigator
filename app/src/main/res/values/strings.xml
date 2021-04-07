@@ -95,6 +95,7 @@
     <string name="errMsgSuccess">Upload successful!</string>
     <string name="errMsgDeleteSuccess">Successfully deleted!</string>
     <string name="errMsgReportSuccess">Successfully reported!</string>
+    <string name="errMsgOpenIntent">No app to open this!</string>
 
     <string name="report0">Location is private property</string>
     <string name="report1">Location is nature reserve</string>

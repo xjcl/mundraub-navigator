@@ -1,15 +1,27 @@
 package xjcl.mundraub
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
+import android.net.Uri
 import android.text.Spanned
+import android.widget.Toast
 import androidx.core.text.HtmlCompat
 import com.google.android.gms.maps.model.LatLng
+
+fun tryStartActivity(context: Context, uri: String) {
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(context, R.string.errMsgOpenIntent, Toast.LENGTH_SHORT).show()
+    }
+}
 
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, context: Context, text: String, textSize_: Float, outline: Boolean = true, xpos: Float = .5F, color_: Int = Color.WHITE) : Bitmap {
