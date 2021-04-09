@@ -45,6 +45,45 @@ val treeIdToSeason = hashMapOf(
     //37 to ( 0.0 to  0.0)
 )
 
+val treeIdToFrequency = hashMapOf(
+    4 to 10098,
+    5 to  3783,
+    6 to  7340,
+    7 to  2587,
+    8 to  4392,
+    9 to  3783,
+    10 to   53,
+    11 to  520,
+    12 to  859,
+
+    14 to 9120,
+    15 to 4945,
+    16 to 1199,
+    17 to  270,
+
+    18 to 4917,
+    19 to  110,
+    20 to  282,
+    21 to 2872,
+    22 to  401,
+    23 to  224,
+    24 to  813,
+    25 to  518,
+    26 to  527,
+    27 to 1286,
+    28 to  991,
+    29 to  377,
+    30 to  334,
+
+    31 to 1333,
+    32 to   37,
+    33 to   89,
+    34 to   38,
+    35 to  186,
+    36 to   46,
+    37 to 1114,
+)
+
 val treeIdToMarkerIcon = hashMapOf(
     4 to R.drawable.icon_apple,
     5 to R.drawable.icon_pear,
