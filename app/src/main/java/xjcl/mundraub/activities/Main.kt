@@ -222,7 +222,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         fab.setOnClickListener {
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
                 if (location == null) return@addOnSuccessListener
-                tryStartActivity(this,
+                tryStartActivity(
                     "http://maps.google.com/maps?saddr=${location.latitude}, ${location.longitude}&daddr=${marker.position.latitude}, ${marker.position.longitude}"
                 )
             }
@@ -518,7 +518,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             ItemMenu.IMPRINT.value -> openUrl(getString(R.string.imprint_url))
             ItemMenu.PRIVACY.value -> openUrl(getString(R.string.privacy_url))
             ItemMenu.MUNDRAUB_RULES.value -> openUrl(getString(R.string.mundraub_rules_url))
-            ItemMenu.FLORA_INCOGNITA.value -> tryStartActivity(this, getString(R.string.flora_incognita_url))
+            ItemMenu.FLORA_INCOGNITA.value -> tryStartActivity(getString(R.string.flora_incognita_url))
             ItemMenu.LOGOUT.value -> logoutDialog()
             ItemMenu.SETTINGS.value -> startActivityForResult(Intent(this, AppSettings::class.java), ActivityRequest.IRRELEVANT.value)
             else -> return super.onOptionsItemSelected(item)

@@ -11,10 +11,10 @@ fun Any?.discard() = Unit
 
 fun <K, V> Map<K, V>.getInverse(value: V) = entries.firstOrNull { it.value == value }?.key
 
-fun tryStartActivity(context: Context, uri: String) {
+fun Context.tryStartActivity(uri: String) {
     try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
+        this.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
     } catch (e: ActivityNotFoundException) {
-        Toast.makeText(context, R.string.errMsgOpenIntent, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, R.string.errMsgOpenIntent, Toast.LENGTH_SHORT).show()
     }
 }
