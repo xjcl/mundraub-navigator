@@ -40,19 +40,13 @@ import com.google.android.gms.maps.GoogleMap.*
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
-import com.squareup.picasso.Picasso
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import xjcl.mundraub.BuildConfig
 import xjcl.mundraub.R
 import xjcl.mundraub.data.*
 import xjcl.mundraub.layouts.createInfoWindowLayout
 import xjcl.mundraub.utils.*
-import java.net.URL
 import java.util.*
-import kotlin.concurrent.thread
 
 
 class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -72,135 +66,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
     }
 
-    // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
-    private fun addMarkerFromFeatures(features: List<Feature>) {
-        for (featureChunk in features.chunked(12)) {
-            val new_markers = mutableListOf<Triple<LatLng, Marker, MarkerData>>()
-            runOnUiThread {
-                for (feature in featureChunk) {
-                    val latlng = LatLng(feature.pos[0], feature.pos[1])
-                    if (markers.contains(latlng)) continue
-                    val md = featureToMarkerData(this, feature)
-                    val mo = MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F)
-                    val mark = mMap?.addMarker(mo)
-                    if (mark != null)
-                        new_markers.add(Triple(latlng, mark, md))
-                }
-
-                markerContext.execute {
-                    new_markers.forEach {
-                        val (latlng, mark, md) = it
-                        markers[latlng] = mark
-                        markersData[latlng] = md
-                    }
-                }
-            }
-        }
-    }
-
-    // --- Place a list of markers on the GoogleMap ("var markers"), using raw JSON String ---
-    // Note that the HashMap 'markers' is only modified in the markerContext to avoid concurrency issues
-    private fun addLocationMarkers(jsonStrPre: String) {
-        markerContext.execute {
-            Log.e("addLocationMarkers", "ENTER " + markers.size.toString() + " " + jsonStrPre)
-            val jsonStr = if (jsonStrPre == "null") "{\"features\":[]}" else jsonStrPre
-
-            // --- parse newly downloaded markers ---
-            // API inconsistently either returns String or double/int... -> strip away double quotes
-            val jsonStrClean = Regex(""""-?[0-9]+.?[0-9]+"""").replace(jsonStr) { it.value.substring(1, it.value.length - 1) }
-            val root = Json.decodeFromString<Root>(jsonStrClean)
-
-            // --- remove old markers not in newly downloaded set (also removes OOB markers) ---
-            val featuresSet = root.features.map { LatLng(it.pos[0], it.pos[1]) }.toSet()
-            for (markChunk in markers.toMap().entries.chunked(12)) {  // copy constructor
-                for (mark in markChunk) {
-                    if (featuresSet.contains(mark.key)) continue
-                    markers.remove(mark.key)
-                    markersData.remove(mark.key)
-                    if (mark.key == polylinesLatLng)
-                        removePolylines()
-                }
-
-                runOnUiThread {
-                    for (mark in markChunk) {
-                        if (featuresSet.contains(mark.key)) continue
-                        mark.value.remove()
-                    }
-                }
-            }
-
-            // --- add newly downloaded markers not already in old set ---
-            addMarkerFromFeatures(root.features)
-            Log.e("addLocationMarkers", "EXIT " + markers.size.toString())
-        }
-    }
-
-    // --- Update markers when user finished moving the map ---
-    private fun updateMarkers(callback : () -> Unit = {}) {
-        val mmMap = mMap ?: return
-        val zoom = mmMap.cameraPosition.zoom
-        Log.e("updateMarkers", "zoom $zoom")
-        if (zoom == 2F || zoom == 3F) return  // Bugfix, do not remove, see commit message
-        val bboxLo = mmMap.projection.visibleRegion.latLngBounds.southwest
-        val bboxHi = mmMap.projection.visibleRegion.latLngBounds.northeast
-
-        // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
-        val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-                "&zoom=${(zoom + .25F).toInt()}&cat=$selectedSpeciesStr"
-
-        Log.e("updateMarkers", "GET $url")
-
-        thread {
-            val jsonStr = try { URL(url).readText() } catch (ex: Exception) {
-                runOnUiThread { Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
-                return@thread
-            }
-            addLocationMarkers(jsonStr)
-            callback()
-        }
-    }
-
     override fun onCameraIdle() {
-        if (onCameraIdleEnabled) updateMarkers()
-    }
-
-    // --- Download detailed node description and stick it into marker info window ---
-    fun downloadMarkerData(marker : Marker) {
-        val md = markersData[marker.position] ?: return
-        if (md.description != null || md.nid == null) return
-
-        thread {
-            // --- Download number of finds and description ---
-            val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) {
-                runOnUiThread { Toast.makeText(this,  getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
-                return@thread
-            }
-
-            fun extractUnescaped(htmlStr : String, after : String, before : String) : String {
-                val extractEscaped = htmlStr.substringAfter(after).substringBefore(before, "(no data)")
-                return unescapeHtml(extractEscaped)
-            }
-
-            val number = extractUnescaped(htmlStr, "Anzahl: <span class=\"tag\">", "</span>")
-            val description = extractUnescaped(htmlStr, "<p>", "</p>")
-            md.uploader = extractUnescaped(htmlStr.substringAfter("typeof=\"schema:Person\""), ">", "</span>")
-            md.uploadDate = extractUnescaped(htmlStr.substringAfter("am <span>"), ", ", " - ")
-            md.description = "[$number] $description"
-
-            // --- Download image in lowest quality ---
-            val imageURL = htmlStr.substringAfter("srcset=\"", "").substringBefore(" ")
-            if (imageURL.isBlank() || md.image != null)
-                return@thread runOnUiThread { marker.showInfoWindow() }
-
-            runOnUiThread {
-                Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
-                picassoBitmapTarget.md = md
-                picassoBitmapTarget.marker = marker
-                Picasso.with(this@Main).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(
-                    picassoBitmapTarget
-                )
-            }
-        }
+        if (onCameraIdleEnabled) markerDataManager.updateMarkers(this)
     }
 
     fun markerOnClickListener(marker : Marker): Boolean {
@@ -218,7 +85,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
         fab.animate().x(fabAnimationFromTo.second)
 
-        // TODO remove polyline if marker gets deleted
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return@addOnSuccessListener
             if (location == null) return@addOnSuccessListener
@@ -265,7 +131,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         val targetPosition = vecAdd(marker.position, vecMul(.25, vecSub(mmMap.projection.visibleRegion.farLeft, mmMap.projection.visibleRegion.nearLeft)))
         mmMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null)
 
-        downloadMarkerData(marker)
+        markerDataManager.downloadMarkerData(this, marker)
         return true
     }
 
@@ -301,6 +167,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         // --- Disappear the navigation button once window closes ---
         mmMap.setOnInfoWindowCloseListener {
             fab.animate().x(fabAnimationFromTo.first)
+            removePolylines()
         }
 
         mmMap.setOnInfoWindowClickListener {
@@ -364,7 +231,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         onCameraIdleEnabled = false
         mapFragment.handleFilterClick(null, 99) {true}
         mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), 18F), 1, object : CancelableCallback {
-            override fun onFinish() = updateMarkers {
+            override fun onFinish() = markerDataManager.updateMarkers(this@Main) {
                 // The problem here is that addMarkerFromFeature does not wait for the UI thread to finish (and I found no good way
                 //  to do this) so instead we dirtily just *sleep* here
                 Thread.sleep(250)

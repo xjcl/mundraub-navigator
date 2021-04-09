@@ -62,5 +62,5 @@ fun createMonthsBarLayout(context: Context, md : MarkerData, withLetters : Boole
 fun createMonthsBarLayout(context: Context, tid : Int): LinearLayout {
     if (!treeIdToSeason.contains(tid)) return LinearLayout(context)
     val fakeFeature = Feature(listOf(), Properties(0, tid), null)
-    return createMonthsBarLayout(context, featureToMarkerData(context, fakeFeature), false)
+    return createMonthsBarLayout(context, markerDataManager.featureToMarkerData(context, fakeFeature), false)
 }

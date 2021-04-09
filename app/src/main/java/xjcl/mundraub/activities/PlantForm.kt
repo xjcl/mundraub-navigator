@@ -28,9 +28,9 @@ import kotlinx.android.synthetic.main.chip_group_number.*
 import xjcl.mundraub.R
 import xjcl.mundraub.data.ActivityRequest
 import xjcl.mundraub.data.fusedLocationClient
+import xjcl.mundraub.data.markerDataManager
 import xjcl.mundraub.data.treeIdToMarkerIcon
 import xjcl.mundraub.utils.getInverse
-import xjcl.mundraub.utils.invalidateMarker
 import xjcl.mundraub.utils.scrapeFormToken
 import java.io.IOException
 import java.util.*
@@ -141,7 +141,7 @@ class PlantForm : AppCompatActivity() {
                     else -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }
                 }
 
-                invalidateMarker(this, intentNid.toString())
+                markerDataManager.invalidateMarker(this, intentNid.toString())
                 runOnUiThread {
                     Toast.makeText(this@PlantForm, getString(R.string.errMsgDeleteSuccess), Toast.LENGTH_SHORT).show()
                     finishSuccess()
@@ -235,7 +235,7 @@ class PlantForm : AppCompatActivity() {
                         else -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgOpFail), Toast.LENGTH_SHORT).show() }
                     }
 
-                    if (intentNid > -1) invalidateMarker(this, intentNid.toString())
+                    if (intentNid > -1) markerDataManager.invalidateMarker(this, intentNid.toString())
 
                     val nid_ = result.get().substringAfter("?nid=", "").substringBefore("\"")
                     val nid = if (nid_.isNotEmpty()) nid_ else result.get().substringAfter("node/").substringBefore("\"")
