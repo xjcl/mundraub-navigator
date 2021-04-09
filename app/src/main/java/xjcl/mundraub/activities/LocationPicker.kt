@@ -17,8 +17,9 @@ import xjcl.mundraub.R
 import xjcl.mundraub.data.treeIdToMarkerIcon
 
 
-lateinit var nMap: GoogleMap
-var tid = 12
+// unable to pass intent from activity to SupportMapFragment
+private var tid = 12
+
 
 // same strategy as in the main maps activity -- have to intercept the SupportMapFragment to draw a UI
 class MapFragmentPicker : SupportMapFragment() {
@@ -47,6 +48,8 @@ class MapFragmentPicker : SupportMapFragment() {
 }
 
 class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
+
+    lateinit var nMap: GoogleMap
 
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

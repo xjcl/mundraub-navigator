@@ -52,7 +52,7 @@ fun processHTMLToCardInfos(html: String, activity: Activity) : List<CardInfo> {
 
 class CardInfo(val nid: Int, val tid: Int, val addr: String, val type: String)
 
-class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
+private class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
     class ViewHolder (val v: View) : RecyclerView.ViewHolder(v)
 
     // card created

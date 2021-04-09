@@ -21,11 +21,12 @@ import xjcl.mundraub.R
 import xjcl.mundraub.data.ActivityRequest
 import xjcl.mundraub.data.treeIdToFrequency
 import xjcl.mundraub.data.treeIdToMarkerIcon
+import xjcl.mundraub.data.treeIdToProfileUrl
 
 
-class CPCardInfo(val tid: Int, var submitted: Boolean)
+private class CPCardInfo(val tid: Int, var submitted: Boolean)
 
-class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapter<CPRVAdapter.ViewHolder>() {
+private class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapter<CPRVAdapter.ViewHolder>() {
     class ViewHolder (val v: View) : RecyclerView.ViewHolder(v)
 
     // card created

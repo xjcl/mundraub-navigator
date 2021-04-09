@@ -45,6 +45,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
 import com.squareup.picasso.Picasso
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -59,8 +60,11 @@ import kotlin.concurrent.thread
 
 class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
-    lateinit var mapFragment : FruitBarMapFragment
-    var onCameraIdleEnabled : Boolean = true
+    private lateinit var mapFragment : FruitBarMapFragment
+    private var onCameraIdleEnabled : Boolean = true
+
+    private val polylinesOnScreen = mutableListOf<Polyline>()
+    private var polylinesLatLng : LatLng? = null
 
     enum class ItemMenu(val value: Int) {
         PLANT_LIST(1),

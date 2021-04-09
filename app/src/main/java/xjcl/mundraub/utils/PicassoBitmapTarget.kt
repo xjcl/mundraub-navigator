@@ -7,8 +7,6 @@ import com.google.android.gms.maps.model.Marker
 import com.squareup.picasso.Picasso
 import xjcl.mundraub.data.MarkerData
 
-// This stupidly needs to be stored with a strong reference because it otherwise gets garbage-collected
-// https://stackoverflow.com/a/24602348/2111778
 class PicassoBitmapTarget : com.squareup.picasso.Target {
     var marker: Marker? = null
     var md: MarkerData? = null

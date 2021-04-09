@@ -313,7 +313,7 @@ class PlantForm : AppCompatActivity() {
  *  -> edit if it is my own marker
  *  -> report if it is someone else's marker (= no edit rights)
  */
-fun editOrReportLauncherLoggedIn(activity : Activity, intentNid : Int) {
+private fun editOrReportLauncherLoggedIn(activity : Activity, intentNid : Int) {
     val submitUrl = "https://mundraub.org/node/${intentNid}/edit"
 
     val sharedPref = activity.getSharedPreferences("global", Context.MODE_PRIVATE)

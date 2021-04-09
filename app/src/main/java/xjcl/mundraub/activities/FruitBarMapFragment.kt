@@ -27,9 +27,12 @@ class FruitBarMapFragment : SupportMapFragment() {
     private val ivs = mutableMapOf<Int, ImageView>()
     private var density : Float = 0f
     private var scrHeight : Int = 0
+    private val origY = mutableMapOf<View, Float>()
+
     private lateinit var bmpSample : Bitmap
     private lateinit var infoBar : LinearLayout
     private lateinit var species : TextView
+    private lateinit var relView : RelativeLayout
 
     // sadly .yBy() is not enough for this as the EndAction can get interrupted
     private fun animateJump(iv : View) {
