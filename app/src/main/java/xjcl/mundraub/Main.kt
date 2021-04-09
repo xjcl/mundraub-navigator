@@ -321,9 +321,13 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 info.addView(title)
 
                 val photo = ImageView(this@Main)
-                photo.setImageBitmap(scaleToWidth(if (md.image != null) md.image else
-                    BitmapFactory.decodeResource(resources, treeIdToMarkerFrame[md.tid] ?: R.drawable.frame_otherfruit)
-                    , masterWidth))
+                photo.setImageBitmap(scaleToHeight(
+                    if (md.image != null)
+                        md.image
+                    else
+                        BitmapFactory.decodeResource(resources, treeIdToMarkerFrame[md.tid] ?: R.drawable.frame_otherfruit)
+                    , (9 * masterWidth) / 16
+                ))
                 info.addView(photo)
 
                 val description = TextView(this@Main)

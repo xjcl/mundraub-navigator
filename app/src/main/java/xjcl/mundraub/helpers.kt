@@ -44,9 +44,9 @@ fun bitmapWithText(resource: Int, context: Context, text: String, textSize_: Flo
     return bitmap
 }
 
-fun scaleToWidth(bitmapMaybeNull : Bitmap?, width : Int) : Bitmap {
+fun scaleToHeight(bitmapMaybeNull : Bitmap?, height : Int) : Bitmap {
     val bitmap = bitmapMaybeNull ?: Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8)
-    return Bitmap.createScaledBitmap(bitmap, width, (width.toDouble() / bitmap.width * bitmap.height).toInt(), true)
+    return Bitmap.createScaledBitmap(bitmap, (height.toDouble() / bitmap.height * bitmap.width).toInt(), height, true)
 }
 
 fun materialDesignBg(padX: Int, padY: Int, c: Float): Drawable {
