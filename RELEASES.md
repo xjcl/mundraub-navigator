@@ -1,3 +1,8 @@
+v27
+- New marker info window design
+- Report plant: email generation
+- Minor UI and bug fixes
+
 v26
 - Window UI: "ripe" icon and larger text
 - Plant atlas with plant profiles
