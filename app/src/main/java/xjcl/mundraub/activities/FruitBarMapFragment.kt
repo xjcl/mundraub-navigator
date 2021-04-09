@@ -23,6 +23,18 @@ import xjcl.mundraub.layouts.createMonthsBarLayout
 import xjcl.mundraub.utils.*
 import kotlin.math.max
 
+/**
+ * Draw the map and the UI elements on it
+ * - "Fruit bar" at the left for filtering by fruit type
+ * - "Info bar" at the top for informing about the currently selected type
+ * - "FAB" at the bottom right for Google Maps navigation (when marker selected)
+ *
+ * Note this is by far the worst quality code in this app because
+ * - it's just not possible to do a layout this complex in XML
+ * - there is a forced separation of the MapsActivity and the SupportMapFragment
+ *      - meaning i can only draw UI elements on the SupportMapFragment, not the MapsActivity!
+ *          - but those UI elements manipulate the map, so global+member variables are used to communicate
+ */
 class FruitBarMapFragment : SupportMapFragment() {
 
     private val ivs = mutableMapOf<Int, ImageView>()
