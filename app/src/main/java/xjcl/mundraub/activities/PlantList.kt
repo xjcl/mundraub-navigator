@@ -1,7 +1,6 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -15,6 +14,11 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import kotlinx.android.synthetic.main.activity_plant_list.*
 import kotlinx.android.synthetic.main.activity_plant_list_item.view.*
+import xjcl.mundraub.R
+import xjcl.mundraub.data.ActivityRequest
+import xjcl.mundraub.data.germanStringsToTreeId
+import xjcl.mundraub.data.treeIdToMarkerIcon
+import xjcl.mundraub.utils.unescapeHtml
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -62,7 +66,7 @@ class RVAdapter(val cardInfos: List<CardInfo>) : RecyclerView.Adapter<RVAdapter.
         viewHolder.v.apply {
             card_title.text = cardInfos[i].type
             card_subtitle.text = cardInfos[i].addr
-            card_marker.setImageResource( treeIdToMarkerIcon[cardInfos[i].tid] ?: R.drawable.icon_otherfruit )
+            card_marker.setImageResource( treeIdToMarkerIcon[cardInfos[i].tid] ?: R.drawable.icon_otherfruit)
             setOnClickListener {
                 (context as Activity).startActivityForResult(Intent(context, PlantForm::class.java).putExtra("nid", cardInfos[i].nid), ActivityRequest.PlantForm.value)
             }

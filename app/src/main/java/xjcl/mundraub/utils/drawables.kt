@@ -1,27 +1,16 @@
-package xjcl.mundraub
+package xjcl.mundraub.utils
 
-import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
-import android.net.Uri
 import android.text.Spanned
-import android.widget.Toast
 import androidx.core.text.HtmlCompat
-import com.google.android.gms.maps.model.LatLng
+import xjcl.mundraub.R
+import xjcl.mundraub.data.treeIdToMarkerIcon
 
-fun tryStartActivity(context: Context, uri: String) {
-    try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
-    } catch (e: ActivityNotFoundException) {
-        Toast.makeText(context, R.string.errMsgOpenIntent, Toast.LENGTH_SHORT).show()
-    }
-}
 
 // Helper function as adding text to a bitmap needs more code than one might expect
 fun bitmapWithText(resource: Int, context: Context, text: String, textSize_: Float, outline: Boolean = true, xpos: Float = .5F, color_: Int = Color.WHITE) : Bitmap {
@@ -62,21 +51,3 @@ fun primaryColorTitle(text : String) : Spanned =
 fun getFruitColor(resources : Resources, tid: Int?) : Int =
     BitmapFactory.decodeResource(resources, treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
         .getPixel(resources.displayMetrics.density.toInt() * 3, resources.displayMetrics.density.toInt() * 10)
-
-fun invalidateMarker(activity: Activity, nid: String) {
-    markerContext.execute {
-        for (mark in markers.toMap()) {  // copy constructor
-            if (markersData[mark.key]?.nid.toString() == nid) {
-                activity.runOnUiThread { mark.value.remove() }
-                markers.remove(mark.key)
-                markersData.remove(mark.key)
-            }
-        }
-    }
-}
-
-fun vecMul(scalar : Double, vec : LatLng) : LatLng = LatLng(scalar * vec.latitude, scalar * vec.longitude)
-fun vecAdd(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude + vec2.latitude, vec1.longitude + vec2.longitude)
-fun vecSub(vec1 : LatLng, vec2 : LatLng) : LatLng = LatLng(vec1.latitude - vec2.latitude, vec1.longitude - vec2.longitude)
-
-fun <K, V> Map<K, V>.getInverse(value: V) = entries.firstOrNull { it.value == value }?.key

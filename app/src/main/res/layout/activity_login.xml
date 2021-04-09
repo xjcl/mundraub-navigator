@@ -11,7 +11,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".Login">
+    tools:context=".activities.Login">
 
     <TextView
         android:text="@string/login_info"

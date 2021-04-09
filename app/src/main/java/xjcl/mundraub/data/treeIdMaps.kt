@@ -1,4 +1,6 @@
-package xjcl.mundraub
+package xjcl.mundraub.data
+
+import xjcl.mundraub.R
 
 // Key: treeId (type of tree/fruit),  Value: Pair<Int, Int> with first and last month of season
 // *** The following code represents January-start as 1, mid-January as 1.5, February-start as 2, and so on

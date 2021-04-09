@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.Toast
 import com.github.kittinunf.fuel.Fuel
 import kotlinx.android.synthetic.main.activity_register.*
+import xjcl.mundraub.R
+import xjcl.mundraub.utils.scrapeErrorMessage
 
 class Register : AppCompatActivity() {
     val registerData = mutableMapOf(

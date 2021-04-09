@@ -14,25 +14,25 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PlantProfile" />
-        <activity android:name=".WebViewActivity" />
+        <activity android:name=".activities.PlantProfile" />
+        <activity android:name=".activities.WebViewActivity" />
         <activity
-            android:name=".PlantAtlas"
+            android:name=".activities.PlantAtlas"
             android:label="@string/plant_atlas" />
         <activity
-            android:name=".AppSettings"
+            android:name=".activities.AppSettings"
             android:label="@string/title_activity_app_settings" />
         <activity
-            android:name=".Register"
+            android:name=".activities.Register"
             android:label="@string/title_activity_register" />
         <activity
-            android:name=".ReportPlant"
+            android:name=".activities.ReportPlant"
             android:label="@string/title_activity_report_plant" />
         <activity
-            android:name=".PlantList"
+            android:name=".activities.PlantList"
             android:label="@string/title_activity_plant_list" />
         <activity
-            android:name=".Login"
+            android:name=".activities.Login"
             android:label="@string/title_activity_login" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -47,11 +47,11 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".LocationPicker"
+            android:name=".activities.LocationPicker"
             android:label="@string/title_activity_location_picker" />
-        <activity android:name=".PlantForm" />
+        <activity android:name=".activities.PlantForm" />
         <activity
-            android:name=".Main"
+            android:name=".activities.Main"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_maps"
             android:theme="@style/MainActivityTheme">

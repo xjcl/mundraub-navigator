@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -25,6 +25,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
 import kotlinx.android.synthetic.main.activity_plant_form.*
 import kotlinx.android.synthetic.main.chip_group_number.*
+import xjcl.mundraub.R
+import xjcl.mundraub.data.ActivityRequest
+import xjcl.mundraub.data.fusedLocationClient
+import xjcl.mundraub.data.treeIdToMarkerIcon
+import xjcl.mundraub.utils.getInverse
+import xjcl.mundraub.utils.invalidateMarker
+import xjcl.mundraub.utils.scrapeFormToken
 import java.io.IOException
 import java.util.*
 import kotlin.concurrent.thread
@@ -166,7 +173,7 @@ class PlantForm : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView( R.layout.activity_plant_form )
+        setContentView(R.layout.activity_plant_form)
 
         intentNid = intent.getIntExtra("nid", -1)
         supportActionBar?.title = if (intentNid > -1) getString(R.string.editNode) else getString(R.string.addNode)

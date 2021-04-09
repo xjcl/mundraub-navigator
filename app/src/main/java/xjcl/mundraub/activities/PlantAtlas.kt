@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.app.Activity
 import android.content.Context
@@ -17,6 +17,10 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import kotlinx.android.synthetic.main.activity_plant_atlas.*
 import kotlinx.android.synthetic.main.activity_plant_list_item.view.*
+import xjcl.mundraub.R
+import xjcl.mundraub.data.ActivityRequest
+import xjcl.mundraub.data.treeIdToFrequency
+import xjcl.mundraub.data.treeIdToMarkerIcon
 
 
 class CPCardInfo(val tid: Int, var submitted: Boolean)
@@ -40,7 +44,7 @@ class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapter<CPRVAd
             card_title.text = title
             card_subtitle.text = "${treeIdToFrequency[tid]} ${context.getString(R.string.markers)}"
             card_subtitle2.text = context.getString(if (submitted) R.string.submitted else R.string.not_submitted)
-            card_marker.setImageResource( treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit )
+            card_marker.setImageResource( treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
             cv.setCardBackgroundColor(if (submitted) resources.getColor(R.color.colorPrimary) else Color.WHITE)
             setOnClickListener {
                 if (treeIdToProfileUrl[tid] != null)  // "other" fruit/shrub/nut/herb

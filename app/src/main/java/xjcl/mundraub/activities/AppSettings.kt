@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import kotlinx.android.synthetic.main.activity_app_settings.*
+import xjcl.mundraub.BuildConfig
+import xjcl.mundraub.R
+import xjcl.mundraub.data.mapTypeChanged
 
 class AppSettings : AppCompatActivity() {
     val resToInt = mapOf(R.id.mapType_radio_1 to 1, R.id.mapType_radio_2 to 2, R.id.mapType_radio_3 to 3, R.id.mapType_radio_4 to 4)

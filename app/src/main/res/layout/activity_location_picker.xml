@@ -3,7 +3,7 @@
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/map"
-    android:name="xjcl.mundraub.MapFragmentPicker"
+    android:name="xjcl.mundraub.activities.MapFragmentPicker"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LocationPicker" />
+    tools:context=".activities.LocationPicker" />

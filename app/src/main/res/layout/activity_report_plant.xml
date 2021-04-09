@@ -11,7 +11,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".ReportPlant">
+    tools:context=".activities.ReportPlant">
 
     <TextView
         android:text="@string/report_info"
@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:context=".Login">
+        tools:context=".activities.Login">
 
         <RadioGroup
             android:id="@+id/report_radio_group"

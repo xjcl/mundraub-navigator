@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.data
 
 
 /**

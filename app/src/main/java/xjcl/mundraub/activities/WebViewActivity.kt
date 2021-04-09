@@ -1,8 +1,9 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_webview.*
+import xjcl.mundraub.R
 
 
 val treeIdToProfileUrl = hashMapOf(

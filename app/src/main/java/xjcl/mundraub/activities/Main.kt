@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.Manifest
 import android.app.Activity
@@ -48,6 +48,10 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.squareup.picasso.Picasso
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import xjcl.mundraub.BuildConfig
+import xjcl.mundraub.R
+import xjcl.mundraub.data.*
+import xjcl.mundraub.utils.*
 import java.net.URL
 import java.util.*
 import kotlin.concurrent.thread
@@ -153,7 +157,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         // API documented here: https://github.com/niccokunzmann/mundraub-android/blob/master/docs/api.md
         val url = "https://mundraub.org/cluster/plant?bbox=${bboxLo.longitude},${bboxLo.latitude},${bboxHi.longitude},${bboxHi.latitude}" +
-                "&zoom=${(zoom + .25F).toInt()}&cat=${selectedSpeciesStr}"
+                "&zoom=${(zoom + .25F).toInt()}&cat=$selectedSpeciesStr"
 
         Log.e("updateMarkers", "GET $url")
 
@@ -203,7 +207,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
                 picassoBitmapTarget.md = md
                 picassoBitmapTarget.marker = marker
-                Picasso.with(this@Main).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(picassoBitmapTarget)
+                Picasso.with(this@Main).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(
+                    picassoBitmapTarget
+                )
             }
         }
     }

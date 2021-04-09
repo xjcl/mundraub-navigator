@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.app.Activity
 import android.content.Context
@@ -13,6 +13,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import xjcl.mundraub.R
+import xjcl.mundraub.data.treeIdToMarkerIcon
 
 
 lateinit var nMap: GoogleMap

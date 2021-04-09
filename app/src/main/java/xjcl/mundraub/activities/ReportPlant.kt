@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.content.Context
 import android.content.Intent
@@ -10,6 +10,8 @@ import android.widget.Toast
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import kotlinx.android.synthetic.main.activity_report_plant.*
+import xjcl.mundraub.R
+import xjcl.mundraub.utils.scrapeFormToken
 
 class ReportPlant : AppCompatActivity() {
 

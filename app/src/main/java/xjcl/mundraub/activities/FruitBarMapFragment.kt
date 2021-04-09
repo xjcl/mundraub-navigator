@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.app.Activity
 import android.content.Intent
@@ -17,6 +17,9 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import xjcl.mundraub.R
+import xjcl.mundraub.data.*
+import xjcl.mundraub.utils.*
 import kotlin.math.max
 
 class FruitBarMapFragment : SupportMapFragment() {

@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.activities
 
 import android.app.Activity
 import android.content.Context
@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kittinunf.fuel.Fuel
 import kotlinx.android.synthetic.main.activity_login.*
+import xjcl.mundraub.R
+import xjcl.mundraub.data.ActivityRequest
 
 
 class Login : AppCompatActivity() {

@@ -1,4 +1,4 @@
-package xjcl.mundraub
+package xjcl.mundraub.utils
 
 import android.util.Log
 import androidx.core.text.HtmlCompat

@@ -12,7 +12,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".AppSettings">
+    tools:context=".activities.AppSettings">
 
     <TextView
         android:layout_width="wrap_content"
