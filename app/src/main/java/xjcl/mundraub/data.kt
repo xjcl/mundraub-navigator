@@ -24,7 +24,8 @@ data class Root(val features: List<Feature>)
 
 data class MarkerData(val tid : Int, val type : String, val title : String, val monthCodes : String, val curMonth : Double,
                       val isSeasonal : Boolean, val fruitColor : Int, val nid : Int?, var description : String?,
-                      var uploader : String?, var uploadDate : String?, var image : Bitmap?, val icon : BitmapDescriptor)
+                      var uploader : String?, var uploadDate : String?, var image : Bitmap?, val icon : BitmapDescriptor,
+                      var truncate : Boolean)
 
 fun getCurMonth(): Double = Calendar.getInstance().get(Calendar.MONTH) + 1 + Calendar.getInstance().get(
     Calendar.DAY_OF_MONTH).toDouble() / 32
@@ -94,5 +95,5 @@ fun featureToMarkerData(context : Context, feature : Feature) : MarkerData {
     }
 
     return MarkerData(tid, type, title, monthCodes, getCurMonth(), isSeasonal(tid, getCurMonth()), fruitColor,
-        feature.properties?.nid, null, null, null, null, icon)
+        feature.properties?.nid, null, null, null, null, icon, true)
 }

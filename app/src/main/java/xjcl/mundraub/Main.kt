@@ -19,6 +19,7 @@ import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
 import android.view.Menu
@@ -329,6 +330,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 description.width = masterWidth
                 description.textSize = 12F
                 description.minLines = 5
+                if (md.truncate) {
+                    description.maxLines = 5
+                    description.ellipsize = TextUtils.TruncateAt.END
+                }
                 if (md.type != "cluster") info.addView(description)
 
                 description.text = md.description ?: this@Main.getString(R.string.loading)
@@ -399,6 +404,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
 
         mmMap.setOnInfoWindowClickListener {
+            markersData[it.position]?.truncate = false
+            runOnUiThread { it.showInfoWindow() }
+        }
+
+        mmMap.setOnInfoWindowLongClickListener {
             markersData[it.position]?.let { md ->
                 runOnUiThread { editOrReportLauncher(this, md.nid ?: -1) }
             }
