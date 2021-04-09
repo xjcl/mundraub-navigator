@@ -45,14 +45,14 @@ class FruitBarMapFragment : SupportMapFragment() {
         iv?.let { animateJump(it) }
         mMap?.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
         infoBar.removeViewAt(1) // removes monthsBar
-        infoBar.addView(createMonthsBar(key))
+        infoBar.addView(createMonthsBarLayout(key))
         infoBar.setOnClickListener {
             if (treeIdToProfileUrl[key] != null)
                 (context as Activity).startActivity(Intent(context, PlantProfile::class.java).putExtra("tid", key))
         }
     }
 
-    fun createMonthsBar(md : MarkerData, withLetters : Boolean = true): LinearLayout {
+    fun createMonthsBarLayout(md : MarkerData, withLetters : Boolean = true): LinearLayout {
         val months = LinearLayout(context)
         months.orientation = LinearLayout.HORIZONTAL
         months.gravity = Gravity.CENTER
@@ -93,13 +93,13 @@ class FruitBarMapFragment : SupportMapFragment() {
         return months
     }
 
-    private fun createMonthsBar(tid : Int): LinearLayout {
+    private fun createMonthsBarLayout(tid : Int): LinearLayout {
         if (!treeIdToSeason.contains(tid)) return LinearLayout(context)
         val fakeFeature = Feature(listOf(), Properties(0, tid), null)
-        return createMonthsBar(featureToMarkerData(context!!, fakeFeature), false)
+        return createMonthsBarLayout(featureToMarkerData(context!!, fakeFeature), false)
     }
 
-    private fun createFilterBar() : LinearLayout {
+    private fun createFilterBarLayout() : LinearLayout {
         // *** species filter bar (LinearLayout)
         // species <80 (4-12 14-17 18-30 31-37)   groups 80-89  special 90-99
 
@@ -216,7 +216,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
     }
 
-    private fun createInfoBar(): LinearLayout {
+    private fun createInfoBarLayout(): LinearLayout {
         // *** central info bar at the top, showing the currently active filter ***
         infoBar = LinearLayout(context)
         infoBar.orientation = LinearLayout.VERTICAL
@@ -243,7 +243,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
         infoBar.addView(infoSpecies)
 
-        val months = createMonthsBar(99)
+        val months = createMonthsBarLayout(99)
         infoBar.addView(months)
 
         infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
@@ -254,7 +254,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         return infoBar
     }
 
-    private fun createFAB(): LinearLayout {
+    private fun createFABLayout(): LinearLayout {
         // *** FAB for Maps navigation ***
         fab = FloatingActionButton(context!!)
         fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
@@ -289,9 +289,9 @@ class FruitBarMapFragment : SupportMapFragment() {
         Log.e("scrHeight", scrHeight.toString())
         Log.e("bmp wxh", " " + bmpSample.width + " " + bmpSample.height)
 
-        relView.addView(createInfoBar())
-        relView.addView(createFilterBar())
-        relView.addView(createFAB())
+        relView.addView(createInfoBarLayout())
+        relView.addView(createFilterBarLayout())
+        relView.addView(createFABLayout())
     }
 
     fun mapViewPost() {

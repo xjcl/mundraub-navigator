@@ -16,7 +16,6 @@ import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
@@ -305,7 +304,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             override fun getInfoContents(marker: Marker): View {
                 val md = markersData[marker.position] ?: return TextView(this@Main)
 
-                val months = mapFragment.createMonthsBar(md)
+                val months = mapFragment.createMonthsBarLayout(md)
                 months.measure(0, 0)
                 val masterWidth = months.measuredWidth
 
