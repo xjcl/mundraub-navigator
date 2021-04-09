@@ -48,7 +48,7 @@ import kotlinx.serialization.json.Json
 import xjcl.mundraub.BuildConfig
 import xjcl.mundraub.R
 import xjcl.mundraub.data.*
-import xjcl.mundraub.layouts.makeInfoWindowLayout
+import xjcl.mundraub.layouts.createInfoWindowLayout
 import xjcl.mundraub.utils.*
 import java.net.URL
 import java.util.*
@@ -294,7 +294,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mmMap.setInfoWindowAdapter(object : InfoWindowAdapter {
             override fun getInfoWindow(arg0: Marker): View? = null
             override fun getInfoContents(marker: Marker): View {
-                return makeInfoWindowLayout(this@Main, mapFragment, marker)
+                return createInfoWindowLayout(this@Main, marker)
             }
         })
 

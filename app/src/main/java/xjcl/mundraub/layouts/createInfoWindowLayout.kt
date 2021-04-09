@@ -13,7 +13,6 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import com.google.android.gms.maps.model.Marker
 import xjcl.mundraub.R
-import xjcl.mundraub.activities.FruitBarMapFragment
 import xjcl.mundraub.data.markersData
 import xjcl.mundraub.data.treeIdToMarkerFrame
 import xjcl.mundraub.utils.getCurMonth
@@ -21,10 +20,10 @@ import xjcl.mundraub.utils.scaleToHeight
 import java.util.Calendar
 
 
-fun makeInfoWindowLayout(context: Context, mapFragment: FruitBarMapFragment, marker: Marker): View {
+fun createInfoWindowLayout(context: Context, marker: Marker): View {
     val md = markersData[marker.position] ?: return TextView(context)
 
-    val months = mapFragment.createMonthsBarLayout(md)
+    val months = createMonthsBarLayout(context, md)
     months.measure(0, 0)
     val masterWidth = months.measuredWidth
 

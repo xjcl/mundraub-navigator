@@ -19,6 +19,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import xjcl.mundraub.R
 import xjcl.mundraub.data.*
+import xjcl.mundraub.layouts.createMonthsBarLayout
 import xjcl.mundraub.utils.*
 import kotlin.math.max
 
@@ -51,58 +52,11 @@ class FruitBarMapFragment : SupportMapFragment() {
         iv?.let { animateJump(it) }
         mMap?.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
         infoBar.removeViewAt(1) // removes monthsBar
-        infoBar.addView(createMonthsBarLayout(key))
+        infoBar.addView(createMonthsBarLayout(context!!, key))
         infoBar.setOnClickListener {
             if (treeIdToProfileUrl[key] != null)
                 (context as Activity).startActivity(Intent(context, PlantProfile::class.java).putExtra("tid", key))
         }
-    }
-
-    fun createMonthsBarLayout(md : MarkerData, withLetters : Boolean = true): LinearLayout {
-        val months = LinearLayout(context)
-        months.orientation = LinearLayout.HORIZONTAL
-        months.gravity = Gravity.CENTER
-        for (i in 1..12) {
-            val circle = LinearLayout(context)
-            circle.orientation = LinearLayout.HORIZONTAL
-
-            val circleLeft = ImageView(context)
-            val circleRight = ImageView(context)
-
-            val resLeft = if ("xl".contains(md.monthCodes[i - 1])) R.drawable._dot_l1 else R.drawable._dot_l0
-            val resRight = if ("xr".contains(md.monthCodes[i - 1])) R.drawable._dot_r1 else R.drawable._dot_r0
-            circleLeft.setImageResource(resLeft)
-            circleRight.setImageResource(resRight)
-            if ("xl".contains(md.monthCodes[i - 1])) circleLeft.setColorFilter(md.fruitColor)
-            if ("xr".contains(md.monthCodes[i - 1])) circleRight.setColorFilter(md.fruitColor)
-            // add vertical line for current time in year
-            if (md.curMonth.toInt() == i)
-                (if (md.curMonth % 1 < .5) circleLeft else circleRight).setImageBitmap(
-                    bitmapWithText((if (md.curMonth % 1 < .5) resLeft else resRight), context!!, "|", 50F, false,
-                        2 * (md.curMonth % .5).toFloat(), if (md.isSeasonal) md.fruitColor else Color.GRAY))
-
-            circle.addView(circleLeft)
-            circle.addView(circleRight)
-
-            val letter = TextView(context)
-            letter.setTextColor(if (md.monthCodes[i - 1] != '_') md.fruitColor else Color.GRAY)
-            letter.gravity = Gravity.CENTER
-            if (md.monthCodes[i - 1] != '_') letter.setTypeface(null, Typeface.BOLD)
-            letter.text = "JFMAMJJASOND"[i - 1].toString()
-
-            val month = LinearLayout(context)
-            month.orientation = LinearLayout.VERTICAL
-            month.addView(circle)
-            if (withLetters) month.addView(letter)
-            months.addView(month)
-        }
-        return months
-    }
-
-    private fun createMonthsBarLayout(tid : Int): LinearLayout {
-        if (!treeIdToSeason.contains(tid)) return LinearLayout(context)
-        val fakeFeature = Feature(listOf(), Properties(0, tid), null)
-        return createMonthsBarLayout(featureToMarkerData(context!!, fakeFeature), false)
     }
 
     private fun createFilterBarLayout() : LinearLayout {
@@ -249,7 +203,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
         infoBar.addView(infoSpecies)
 
-        val months = createMonthsBarLayout(99)
+        val months = createMonthsBarLayout(context!!, 99)
         infoBar.addView(months)
 
         infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
