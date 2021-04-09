@@ -8,19 +8,15 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.graphics.Typeface
 import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
-import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -52,6 +48,7 @@ import kotlinx.serialization.json.Json
 import xjcl.mundraub.BuildConfig
 import xjcl.mundraub.R
 import xjcl.mundraub.data.*
+import xjcl.mundraub.layouts.makeInfoWindowLayout
 import xjcl.mundraub.utils.*
 import java.net.URL
 import java.util.*
@@ -296,104 +293,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         // https://stackoverflow.com/a/31629308/2111778
         mmMap.setInfoWindowAdapter(object : InfoWindowAdapter {
             override fun getInfoWindow(arg0: Marker): View? = null
-
             override fun getInfoContents(marker: Marker): View {
-                val md = markersData[marker.position] ?: return TextView(this@Main)
-
-                val months = mapFragment.createMonthsBarLayout(md)
-                months.measure(0, 0)
-                val masterWidth = months.measuredWidth
-
-                val info = LinearLayout(this@Main)
-                info.orientation = LinearLayout.VERTICAL
-
-                val title = TextView(this@Main)
-                title.setTextColor(md.fruitColor)
-                title.gravity = Gravity.CENTER
-                title.setTypeface(null, Typeface.BOLD)
-                title.text = marker.title
-                title.textSize = 18F
-                info.addView(title)
-
-                val photo = ImageView(this@Main)
-                photo.setImageBitmap(scaleToHeight(
-                    if (md.image != null)
-                        md.image
-                    else
-                        BitmapFactory.decodeResource(resources, treeIdToMarkerFrame[md.tid] ?: R.drawable.frame_otherfruit)
-                    , (9 * masterWidth) / 16
-                ))
-                info.addView(photo)
-
-                val description = TextView(this@Main)
-                description.width = masterWidth
-                description.textSize = 12F
-                description.minLines = 5
-                if (md.truncate) {
-                    description.maxLines = 5
-                    description.ellipsize = TextUtils.TruncateAt.END
-                }
-                if (md.type != "cluster") info.addView(description)
-
-                description.text = md.description ?: this@Main.getString(R.string.loading)
-                val byLine = LinearLayout(this@Main)
-
-                val uploader = TextView(this@Main)
-                uploader.textSize = 10.5F
-                uploader.text = md.uploader ?: this@Main.getString(R.string.loading)
-                uploader.gravity = Gravity.LEFT
-                uploader.maxWidth = masterWidth
-                uploader.measure(0, 0)
-
-                val uploadDate = TextView(this@Main)
-                uploadDate.textSize = 10.5F
-                uploadDate.text = md.uploadDate ?: this@Main.getString(R.string.loading)
-                uploadDate.gravity = Gravity.RIGHT
-                uploadDate.maxWidth = masterWidth
-                uploadDate.measure(0, 0)
-
-                val whitespace = TextView(this@Main)
-                whitespace.width = masterWidth - uploader.measuredWidth - uploadDate.measuredWidth
-
-                byLine.addView(uploader)
-                byLine.addView(whitespace)
-                byLine.addView(uploadDate)
-
-                info.addView(byLine)
-
-                // no month/season information in this case so return early
-                if (md.monthCodes.all { it == '_' })
-                    return info
-
-                val day = RelativeLayout(this@Main)
-                val tv = TextView(this@Main)
-                tv.text = Calendar.getInstance().get(Calendar.DAY_OF_MONTH).toString()
-                tv.setTextColor(if (md.isSeasonal) md.fruitColor else Color.GRAY)
-                tv.setTypeface(null, Typeface.BOLD)
-                tv.measure(0, 0)
-                tv.layoutParams = RelativeLayout.LayoutParams(tv.measuredWidth, tv.measuredHeight).apply {
-                    leftMargin = ( masterWidth / 12F * (md.curMonth - 1) - tv.measuredWidth / 2F ).toInt().coerceIn(0, masterWidth - tv.measuredWidth)
-                }
-                day.addView(tv)
-
-                if (md.isSeasonal) {
-                    // using RelativeLayout.ALIGN_PARENT_RIGHT just causes a funk, so ugly workaround here
-                    val ripe2 = ImageView(this@Main)
-                    ripe2.setImageResource(R.drawable._ripe)
-                    ripe2.measure(0, 0)
-                    ripe2.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
-                        if (getCurMonth() < 8.5)
-                            leftMargin = masterWidth - ripe2.measuredWidth
-                        addRule(RelativeLayout.CENTER_VERTICAL)
-                        RelativeLayout.ALIGN_PARENT_RIGHT
-                    }
-                    if (md.isSeasonal) ripe2.setColorFilter(md.fruitColor)
-                    day.addView(ripe2)
-                }
-
-                info.addView(day)
-                info.addView(months)
-                return info
+                return makeInfoWindowLayout(this@Main, mapFragment, marker)
             }
         })
 
