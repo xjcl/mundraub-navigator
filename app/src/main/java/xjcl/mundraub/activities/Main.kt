@@ -221,9 +221,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
         fab.animate().x(fabAnimationFromTo.second)
 
-        // TODO only show if near the user
-        // TODO delete all previous routes
-        // TODO remove polyline if marker gets removed
+        // TODO remove polyline if marker gets deleted
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return@addOnSuccessListener
             if (location == null) return@addOnSuccessListener
@@ -594,7 +592,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 }
 
 // TODO assets
-//    - use svg instead of xhdpi markers
+//    - use svg instead of xxxhdpi markers
 
 // TODO testing
 //    - Firebase Labs Robo Script
@@ -624,7 +622,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 // TODO clusters
 //    - use Material design cluster icon with shadow
 //        - should fix font centering issue too
-//    - request max zoom level earlier (clusters are a useless anti-affordance)
 
 // TODO marker filter
 //    - apply greyed-out markers to map too
@@ -648,7 +645,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //    - detect when someone "visits" a marker
 //    - list of recently visited or starred markers
 //    - list of which marker types have ever been visited (including link to most recent one)
-//    - list of how common each marker type is
 
 // TODO UI
 //    - all markers jump when pressing filter?
@@ -669,35 +665,20 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 //    - rarely used marker types: groups, actions, cider, saplings
 //    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
 //    - bug: markers staying on (mostly eliminated)
+//    - reset password in-app
+//    - infobar -> use chipgroup
 
 
-// TODO immediate
-//    - admins unpublished
-//    - map marker icons
-
-// TODO reset password in-app
-
-
-// TODO IDEAS 2021-03-07 (inspiration from yelp app)
-// - git fix on website: anchor + jitter
-// - git zugriff und zoom bug auf der webseite?
-// - infobar -> use chips like yelp?
-// - allow image upload
-//      - also always preview image, even if just stock marker image
-// - refactor user handling code into class so uid, name, login/logout status can be gotten easily
-// - permanent link to discord?
-// - don't change messagebox size (marker placeholder for img)
-//     -> separate page with full description and editing options (+ gmaps + latlng + addr) (+ reverse map embed?)
-// - long-term: up- and downvotes tied to accounts
-
-// - download/fav markers for offline use -> map? only show the 1 selected?
+// TODO IDEAS 2021-03-07
+//    - git fix on website: anchor + jitter
+//    - git zugriff und zoom bug auf der webseite?
+//    - allow image upload
+//    - refactor user handling code into class so uid, name, login/logout status can be gotten easily
+//    - permanent link to discord?
+//    -> separate page with full description and editing options (+ gmaps + latlng + addr) (+ reverse map embed?)
+//    - long-term: up- and downvotes tied to accounts
+//    - download/fav markers for offline use -> map? only show the 1 selected?
+//    - new image screenshots using pixel 3a
 
 // for offline storage: maybe checkmark on detail page? and update with write to sharedpreferences every tap?
 // https://stackoverflow.com/questions/7145606/how-do-you-save-store-objects-in-sharedpreferences-on-android
-
-// new image screenshots using pixel 3a
-
-
-// TODO 2021-03-25
-// image everywhere
-// loading images
