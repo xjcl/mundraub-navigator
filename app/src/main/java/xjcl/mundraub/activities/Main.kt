@@ -352,6 +352,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         Log.e("force_portrait", resources.getBoolean(R.bool.force_portrait).toString())
 
         setGermanStringsToTreeId()
+        val c = assets.open("meal.jpg").readBytes().decodeToString()
     }
 
     override fun onBackPressed() {
