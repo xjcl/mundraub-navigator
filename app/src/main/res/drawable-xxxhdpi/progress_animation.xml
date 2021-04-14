@@ -3,7 +3,7 @@
 
     <item android:gravity="center">
         <animated-rotate xmlns:android="http://schemas.android.com/apk/res/android"
-            android:drawable="@drawable/progress_image_2"
+            android:drawable="@drawable/progress_image_3"
             android:pivotX="50%"
             android:pivotY="50%" />
     </item>
