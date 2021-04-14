@@ -1,3 +1,6 @@
+v28
+- Image upload
+
 v27
 - New marker info window design
 - Report plant: email generation
