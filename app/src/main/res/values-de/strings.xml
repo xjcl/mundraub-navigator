@@ -71,7 +71,7 @@
     <string name="amnt">Anzahl</string>
     <string name="img_optional">Bild (optional)</string>
     <string name="img_pick">Bild laden</string>
-    <string name="img_take">Foto aufnehmen</string>
+    <string name="img_capture">Foto aufnehmen</string>
     <string name="desc">Beschreibung</string>
     <string name="upld">Hochladen!</string>
     <string name="lgin">Login!</string>

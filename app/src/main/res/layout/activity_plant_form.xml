@@ -45,7 +45,7 @@
             android:layout_marginBottom="12dp">
 
             <Button
-                android:id="@+id/btn_img_upload"
+                android:id="@+id/btn_img_pick"
                 android:text="@string/img_pick"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,13 +53,13 @@
                 android:layout_toRightOf="@id/upld_image"/>
 
             <Button
-                android:id="@+id/btn_img_shoot"
-                android:text="@string/img_take"
+                android:id="@+id/btn_img_capture"
+                android:text="@string/img_capture"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_toRightOf="@id/upld_image"
-                android:layout_below="@+id/btn_img_upload"/>
+                android:layout_below="@+id/btn_img_pick"/>
 
             <ImageView
                 android:id="@+id/upld_image"
