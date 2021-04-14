@@ -4,10 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.PorterDuff
+import android.graphics.*
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
@@ -20,6 +17,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.exifinterface.media.ExifInterface
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.FuelError
@@ -110,14 +108,28 @@ class PlantForm : AppCompatActivity() {
             geocodeLocation(LatLng(lat, lng))
         }
 
-        if (requestCode == ActivityRequest.ImagePick.value) {
-            val uri = data?.data ?: return
-            val bytes = contentResolver.openInputStream(uri)?.readBytes() ?: return
-            upld_image.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.size))
-            File("$cacheDir/imgPicked").writeBytes(bytes)
-        }
-        if (requestCode == ActivityRequest.ImageCapture.value) {
-            val image = (data?.extras?.get("data") ?: return) as Bitmap
+        // Cache image for upload
+        if (requestCode == ActivityRequest.ImagePick.value || requestCode == ActivityRequest.ImageCapture.value) {
+            val image =
+                if (requestCode == ActivityRequest.ImagePick.value) {
+                    val uri = data?.data ?: return
+                    val bytes = contentResolver.openInputStream(uri)?.readBytes() ?: return
+
+                    // Fix orientation byte issues: https://stackoverflow.com/a/15341203/2111778
+                    val exif = ExifInterface(bytes.inputStream())
+                    val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
+                    val matrix = Matrix()
+                    when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                    }
+
+                    val tmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    Bitmap.createBitmap(tmp, 0, 0, tmp.width, tmp.height, matrix, true)
+                } else // TODO this is really low quality
+                    (data?.extras?.get("data") ?: return) as Bitmap
+
             upld_image.setImageBitmap(image)
             FileOutputStream("$cacheDir/imgPicked").use {
                     out -> image.compress(Bitmap.CompressFormat.JPEG, 100, out)
