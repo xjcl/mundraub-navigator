@@ -6,7 +6,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import xjcl.mundraub.utils.MarkerDataManager
-import xjcl.mundraub.utils.PicassoBitmapTarget
+import xjcl.mundraub.utils.PicassoMarkerDataTarget
 import java.util.concurrent.Executors
 
 
@@ -29,4 +29,4 @@ var totalLeftPadding = 0
 
 // This stupidly needs to be stored with a strong reference because it otherwise gets garbage-collected
 // https://stackoverflow.com/a/24602348/2111778
-val picassoBitmapTarget = PicassoBitmapTarget()
+val picassoMarkerDataTarget = PicassoMarkerDataTarget()

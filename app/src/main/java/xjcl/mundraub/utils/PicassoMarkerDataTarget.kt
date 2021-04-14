@@ -7,7 +7,7 @@ import com.google.android.gms.maps.model.Marker
 import com.squareup.picasso.Picasso
 import xjcl.mundraub.data.MarkerData
 
-class PicassoBitmapTarget : com.squareup.picasso.Target {
+class PicassoMarkerDataTarget : com.squareup.picasso.Target {
     var marker: Marker? = null
     var md: MarkerData? = null
     override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
