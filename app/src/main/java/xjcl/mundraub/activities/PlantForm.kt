@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
 import androidx.exifinterface.media.ExifInterface
 import com.github.kittinunf.fuel.Fuel
@@ -100,7 +101,7 @@ class PlantForm : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
+        Log.e("onActivityResult", "onActivityResult $requestCode $resultCode")
 
         if (requestCode == ActivityRequest.LocationPicker.value && resultCode == Activity.RESULT_OK && data != null) {
             val lat = data.getDoubleExtra("lat", 0.0)
@@ -109,7 +110,8 @@ class PlantForm : AppCompatActivity() {
         }
 
         // Cache image for upload
-        if (requestCode == ActivityRequest.ImagePick.value || requestCode == ActivityRequest.ImageCapture.value) {
+        if ((requestCode == ActivityRequest.ImagePick.value || requestCode == ActivityRequest.ImageCapture.value) &&
+                resultCode == Activity.RESULT_OK) {
             val image =
                 if (requestCode == ActivityRequest.ImagePick.value) {
                     val uri = data?.data ?: return
@@ -127,8 +129,8 @@ class PlantForm : AppCompatActivity() {
 
                     val tmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     Bitmap.createBitmap(tmp, 0, 0, tmp.width, tmp.height, matrix, true)
-                } else // TODO this is really low quality
-                    (data?.extras?.get("data") ?: return) as Bitmap
+                } else
+                    BitmapFactory.decodeFile(File("${getExternalFilesDir(null)}/imgShot").toString())
 
             upld_image.setImageBitmap(image)
             FileOutputStream("$cacheDir/imgPicked").use {
@@ -365,7 +367,9 @@ class PlantForm : AppCompatActivity() {
         }
 
         btn_img_capture.setOnClickListener {
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val f = File("${getExternalFilesDir(null)}/imgShot")
+            val photoURI = FileProvider.getUriForFile(this, "${packageName}.fileprovider", f)
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply { putExtra(MediaStore.EXTRA_OUTPUT, photoURI) }
             startActivityForResult(intent, ActivityRequest.ImageCapture.value)
         }
     }
