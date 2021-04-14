@@ -74,6 +74,9 @@
     <string name="pass">Password</string>
     <string name="type">Type of find</string>
     <string name="amnt">Amount</string>
+    <string name="img_optional">Image (optional)</string>
+    <string name="img_pick">Pick image</string>
+    <string name="img_take">Take photo</string>
     <string name="desc">Description (preferably in German)</string>
     <string name="upld">Upload!</string>
     <string name="lgin">Log in!</string>

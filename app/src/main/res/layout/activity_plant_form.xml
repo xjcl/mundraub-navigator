@@ -32,6 +32,45 @@
 
         <include layout="@layout/chip_group_number"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="6dp"
+            android:text="@string/img_optional"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/btn_img_upload"
+                android:text="@string/img_pick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_toRightOf="@id/upld_image"/>
+
+            <Button
+                android:id="@+id/btn_img_shoot"
+                android:text="@string/img_take"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_toRightOf="@id/upld_image"
+                android:layout_below="@+id/btn_img_upload"/>
+
+            <ImageView
+                android:id="@+id/upld_image"
+                android:layout_width="160dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="15dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/frame_otherfruit"/>
+
+        </RelativeLayout>
+
         <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/descriptionTIL"
             android:hint="@string/desc"
