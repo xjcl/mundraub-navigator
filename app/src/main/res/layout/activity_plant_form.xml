@@ -45,27 +45,29 @@
             android:layout_marginBottom="12dp">
 
             <Button
-                android:id="@+id/btn_upload"
-                android:text="Pick stored image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-            </Button>
-
-            <Button
-                android:text="Take an image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/btn_upload">
-            </Button>
-
-            <ImageView
-                android:layout_width="wrap_content"
+                android:id="@+id/btn_img_upload"
+                android:text="Pick image"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
-                android:layout_toRightOf="@id/btn_upload"
+                android:layout_toRightOf="@id/upld_image"/>
+
+            <Button
+                android:id="@+id/btn_img_shoot"
+                android:text="Take an image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_toRightOf="@id/upld_image"
+                android:layout_below="@+id/btn_img_upload"/>
+
+            <ImageView
+                android:id="@+id/upld_image"
+                android:layout_width="160dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="15dp"
                 android:adjustViewBounds="true"
-                android:src="@drawable/frame_apple">
-            </ImageView>
+                android:src="@drawable/frame_otherfruit"/>
 
         </RelativeLayout>
 
