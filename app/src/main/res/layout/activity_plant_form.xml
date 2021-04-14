@@ -32,6 +32,43 @@
 
         <include layout="@layout/chip_group_number"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="6dp"
+            android:text="Image (optional)"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/btn_upload"
+                android:text="Pick stored image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            </Button>
+
+            <Button
+                android:text="Take an image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_upload">
+            </Button>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_toRightOf="@id/btn_upload"
+                android:adjustViewBounds="true"
+                android:src="@drawable/frame_apple">
+            </ImageView>
+
+        </RelativeLayout>
+
         <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/descriptionTIL"
             android:hint="@string/desc"
