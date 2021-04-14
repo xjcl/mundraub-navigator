@@ -4,11 +4,14 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -18,20 +21,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FileDataPart
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.result.Result
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_plant_form.*
 import kotlinx.android.synthetic.main.chip_group_number.*
 import xjcl.mundraub.R
-import xjcl.mundraub.data.ActivityRequest
-import xjcl.mundraub.data.fusedLocationClient
-import xjcl.mundraub.data.markerDataManager
-import xjcl.mundraub.data.treeIdToMarkerIcon
+import xjcl.mundraub.data.*
 import xjcl.mundraub.utils.getInverse
 import xjcl.mundraub.utils.scrapeFormToken
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 import kotlin.concurrent.thread
@@ -99,11 +103,27 @@ class PlantForm : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
+
         if (requestCode == ActivityRequest.LocationPicker.value && resultCode == Activity.RESULT_OK && data != null) {
             val lat = data.getDoubleExtra("lat", 0.0)
             val lng = data.getDoubleExtra("lng", 0.0)
             geocodeLocation(LatLng(lat, lng))
         }
+
+        if (requestCode == ActivityRequest.ImagePick.value) {
+            val uri = data?.data ?: return
+            val bytes = contentResolver.openInputStream(uri)?.readBytes() ?: return
+            upld_image.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.size))
+            File("$cacheDir/imgPicked").writeBytes(bytes)
+        }
+        if (requestCode == ActivityRequest.ImageCapture.value) {
+            val image = (data?.extras?.get("data") ?: return) as Bitmap
+            upld_image.setImageBitmap(image)
+            FileOutputStream("$cacheDir/imgPicked").use {
+                    out -> image.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            }
+        }
+
         if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
         if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
     }
@@ -185,6 +205,9 @@ class PlantForm : AppCompatActivity() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         cookie = sharedPref.getString("cookie", null) ?: return finish()
 
+        if (File("$cacheDir/imgPicked").exists())
+            File("$cacheDir/imgPicked").delete()
+
         // TODO make this a proper map and call getInverse() on it
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
         val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", packageName)) }
@@ -224,10 +247,19 @@ class PlantForm : AppCompatActivity() {
 
             Log.e("plantData", plantData.toString())
 
-            Fuel.post(submitUrl, plantData.toList()).header(Headers.COOKIE to cookie)
-                .allowRedirects(false).responseString { request, response, result ->
+            var uploadRequest = Fuel.upload(submitUrl, parameters=plantData.toList())
 
-                    Log.e("nid", result.get())
+            if (File("$cacheDir/imgPicked").exists())
+                uploadRequest = uploadRequest.add(FileDataPart(
+                    File("$cacheDir/imgPicked"), name="files[field_plant_image_0][]", filename="meal.jpg")
+                )
+
+            uploadRequest
+                .header(Headers.COOKIE to cookie)
+                .allowRedirects(false)
+                .responseString { request, response, result ->
+
+                    Log.e("plantSubmit result", result.get())
 
                     when (response.statusCode) {
                         -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
@@ -269,7 +301,16 @@ class PlantForm : AppCompatActivity() {
                 val count = result.get().substringAfter("field_plant_count_trees").substringBefore("\"  selected=\"selected\"").takeLast(1)
                 val locationList = result.get().substringAfter("POINT (").substringBefore(")").split(' ')
                 plantData["form_id"] = "node_plant_edit_form"
-                plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"").substringBefore("\"")
+                //plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"").substringBefore("\"")
+
+                val imageURL = result.get().substringAfter("\"edit-field-plant-image-0-preview\" src=\"", "").substringBefore("\"")
+                Log.e("imageURL", "($imageURL)")
+                if (imageURL.isNotBlank()) {
+                    runOnUiThread {
+                        Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
+                        Picasso.with(this).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(upld_image)
+                    }
+                }
 
                 typeTIL.postDelayed({
                     typeTIED.setText( values[keys.indexOf(type)] ); updateType()
@@ -304,6 +345,16 @@ class PlantForm : AppCompatActivity() {
 
                 plantSubmit(result)
             }
+        }
+
+        btn_img_pick.setOnClickListener {
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+            startActivityForResult(intent, ActivityRequest.ImagePick.value)
+        }
+
+        btn_img_capture.setOnClickListener {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(intent, ActivityRequest.ImageCapture.value)
         }
     }
 }

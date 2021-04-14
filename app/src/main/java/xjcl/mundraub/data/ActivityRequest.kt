@@ -31,4 +31,6 @@ enum class ActivityRequest(val value: Int) {
     Register(56),
     PlantList(60),
     IRRELEVANT(99),
+    ImagePick(501),
+    ImageCapture(502),
 }
