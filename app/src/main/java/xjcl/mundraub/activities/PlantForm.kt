@@ -65,6 +65,7 @@ class PlantForm : AppCompatActivity() {
 
     var submitUrl = "https://mundraub.org/node/add/plant"
     var intentNid = -1
+    var hasImageURL = false
     lateinit var cookie : String
 
     fun LatLng(location : Location): LatLng = LatLng(location.latitude, location.longitude)
@@ -231,6 +232,10 @@ class PlantForm : AppCompatActivity() {
             if (typeIndex == -1) return
             val left = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.icon_otherfruit)
             locationPicker.setCompoundDrawablesWithIntrinsicBounds(left, null, null, null)
+            if (!hasImageURL && !File("$cacheDir/imgPicked").exists())
+                upld_image.setImageDrawable(
+                    ContextCompat.getDrawable(this, treeIdToMarkerFrame[keys[typeIndex].toInt()] ?: R.drawable.frame_otherfruit)
+                )
         }
         typeTIED.setOnFocusChangeListener { _, _ -> updateType() }
         typeTIED.setOnItemClickListener { _, _, _, _ -> updateType() }
@@ -315,11 +320,12 @@ class PlantForm : AppCompatActivity() {
                 val count = result.get().substringAfter("field_plant_count_trees").substringBefore("\"  selected=\"selected\"").takeLast(1)
                 val locationList = result.get().substringAfter("POINT (").substringBefore(")").split(' ')
                 plantData["form_id"] = "node_plant_edit_form"
-                //plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"").substringBefore("\"")
+                plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"", "").substringBefore("\"")
 
                 val imageURL = result.get().substringAfter("\"edit-field-plant-image-0-preview\" src=\"", "").substringBefore("\"")
                 Log.e("imageURL", "($imageURL)")
                 if (imageURL.isNotBlank()) {
+                    hasImageURL = true
                     runOnUiThread {
                         Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
                         Picasso.with(this).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(upld_image)
@@ -404,7 +410,4 @@ fun editOrReportLauncher(activity : Activity, intentNid : Int) {
 //      this will let users know not to write too much text
 //      MF should NOT respond to touches
 // TODO: use filter bar for species selection?
-// TODO: what if someone puts an emoji into Fruchtfund (Gboard keeps suggesting them)
-
 // TODO: add icons to fruitTIL
-// TODO: image upload
