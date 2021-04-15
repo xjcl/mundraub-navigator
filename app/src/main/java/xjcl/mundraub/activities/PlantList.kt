@@ -88,9 +88,12 @@ class PlantList : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
         // TODO change just one item, do not recreate whole activity
-        if (requestCode == ActivityRequest.PlantForm.value && resultCode == Activity.RESULT_OK) recreate()
         if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
         if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
+        if (requestCode == ActivityRequest.PlantForm.value && resultCode == Activity.RESULT_OK) {
+            setResult(Activity.RESULT_OK, data)
+            finish()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

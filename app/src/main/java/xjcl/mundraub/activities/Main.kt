@@ -219,14 +219,13 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             mapTypeChanged = false
             mMap?.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
         }
-        if (requestCode == ActivityRequest.PlantList.value)
-            return mMap?.animateCamera( CameraUpdateFactory.zoomBy(0F) ).discard()  // might have modifed markers
-        if (!(requestCode == ActivityRequest.PlantForm.value && resultCode == Activity.RESULT_OK && data != null)) return
+        if (resultCode != Activity.RESULT_OK || data == null) return
+        if (requestCode != ActivityRequest.PlantForm.value && requestCode != ActivityRequest.PlantList.value) return
 
-        // if we add or edit a marker, resume at its location with open info window (= simulate click)
+        // if we add or edit a marker (from PlantForm or PlantList), resume at its location with open info window (= simulate click)
         val lat = data.getDoubleExtra("lat", 0.0)
         val lng = data.getDoubleExtra("lng", 0.0)
-        val nid = data.getStringExtra("nid") ?: ""
+        val nid = data.getStringExtra("nid") ?: return
 
         onCameraIdleEnabled = false
         mapFragment.handleFilterClick(null, 99) {true}
