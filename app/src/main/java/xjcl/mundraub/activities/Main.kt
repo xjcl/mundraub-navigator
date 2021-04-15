@@ -76,7 +76,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
         // --- Click on FAB will give directions to Marker in Google Maps app ---
         fab.setOnClickListener {
-            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            fusedLocationClient?.lastLocation?.addOnSuccessListener(this) { location ->
                 if (location == null) return@addOnSuccessListener
                 tryStartActivity(
                     "http://maps.google.com/maps?saddr=${location.latitude}, ${location.longitude}&daddr=${marker.position.latitude}, ${marker.position.longitude}"
@@ -85,7 +85,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         }
         fab.animate().x(fabAnimationFromTo.second)
 
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+        fusedLocationClient?.lastLocation?.addOnSuccessListener(this) { location ->
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return@addOnSuccessListener
             if (location == null) return@addOnSuccessListener
             val distance = floatArrayOf(0F)
@@ -198,10 +198,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // --- On startup: If GPS enabled, then zoom into user, else zoom into Germany ---
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
-        fusedLocationClient.lastLocation.addOnFailureListener(this) {
+        fusedLocationClient?.lastLocation?.addOnFailureListener(this) {
             mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
         }
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+        fusedLocationClient?.lastLocation?.addOnSuccessListener(this) { location ->
             if (location == null)
                 mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
             else

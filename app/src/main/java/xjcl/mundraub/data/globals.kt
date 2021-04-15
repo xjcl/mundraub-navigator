@@ -12,7 +12,7 @@ import java.util.concurrent.Executors
 
 // ugly, but these NEED to be shared across (mainly) Main.kt and FruitBarMapFragment.kt
 var mMap: GoogleMap? = null
-lateinit var fusedLocationClient: FusedLocationProviderClient
+var fusedLocationClient: FusedLocationProviderClient? = null
 var mapTypeChanged = false
 
 lateinit var mapView : View

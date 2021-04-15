@@ -249,7 +249,7 @@ class PlantForm : AppCompatActivity() {
             }
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { it?.let { location ->
+        fusedLocationClient?.lastLocation?.addOnSuccessListener(this) { it?.let { location ->
             geocodeLocation(LatLng(location))
         }}
 
