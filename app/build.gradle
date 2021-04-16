@@ -10,8 +10,8 @@ android {
         applicationId "xjcl.mundraub"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 28
-        versionName "28"
+        versionCode 29
+        versionName "29"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true  // ??

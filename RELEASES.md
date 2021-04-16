@@ -1,3 +1,7 @@
+v29
+- Improve image upload
+- UI and bug fixes
+
 v28
 - Image upload
 
