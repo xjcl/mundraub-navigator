@@ -328,7 +328,7 @@ class PlantForm : AppCompatActivity() {
                     hasImageURL = true
                     runOnUiThread {
                         Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
-                        Picasso.with(this).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(upld_image)
+                        Picasso.get().load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(upld_image)
                     }
                 }
 

@@ -14,7 +14,7 @@ class PicassoMarkerDataTarget : com.squareup.picasso.Target {
         md?.image = placeHolderDrawable?.toBitmap()
         marker?.showInfoWindow()
     }
-    override fun onBitmapFailed(errorDrawable: Drawable?) { }
+    override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) { }
     override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
         md?.image = bitmap
         marker?.showInfoWindow()

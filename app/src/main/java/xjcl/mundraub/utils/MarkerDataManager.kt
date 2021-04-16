@@ -164,7 +164,7 @@ class MarkerDataManager {
                 Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
                 picassoMarkerDataTarget.md = md
                 picassoMarkerDataTarget.marker = marker
-                Picasso.with(activity).load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(
+                Picasso.get().load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(
                     picassoMarkerDataTarget
                 )
             }
