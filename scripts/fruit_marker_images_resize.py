@@ -37,12 +37,15 @@ for fn in glob.glob(src_dir + '/*.png'):
 
     print(col)
 
-    border = PIL.Image.open(fn).convert('RGBA')
-    border = border.resize((int(image.width * 1.2), int(image.height * 1.2)))  # not good
+    # border = PIL.Image.open(fn).convert('RGBA')
+    # border = border.resize((int(image.width * 1.2), int(image.height * 1.2)))  # not good
 
-    out = PIL.Image.new("RGBA", (2500, 1400), (col[0], col[1], col[2], 100))
+    out = PIL.Image.new("RGBA", (2240, 1400), (col[0], col[1], col[2], 100))  # AR: 1.6 8:5
     # out.paste(border, box=(1250 - border.width//2, 700 - border.height//2), mask=border)
-    out.paste(image, box=(1250 - image.width//2, 700 - image.height//2), mask=image)
+    out.paste(image, box=(out.width//2 - image.width//2, out.height//2 - image.height//2), mask=image)
+
+    # reduce size from 2.4 MB to 0.67 MB (part of app download)
+    out = out.resize((640, 400))
 
     fn_new = fn.replace('2021/', '2021_framed/frame_')
     print(fn, '->', fn_new)

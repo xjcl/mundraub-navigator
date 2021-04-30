@@ -44,7 +44,8 @@ fun createInfoWindowLayout(context: Context, marker: Marker): View {
             md.image
         else
             BitmapFactory.decodeResource(context.resources, treeIdToMarkerFrame[md.tid] ?: R.drawable.frame_otherfruit)
-        , (9 * masterWidth) / 16
+        // weirdly, there is a graphical glitch if i use the exact width/height here
+        , (5 * masterWidth) / 8 - 2 * context.resources.displayMetrics.density.toInt()
     ))
     info.addView(photo)
 
