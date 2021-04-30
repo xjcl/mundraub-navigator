@@ -1,3 +1,7 @@
+v30
+- Fix image picking issues
+- Change marker image aspect ratio
+
 v29
 - Improve image upload
 - UI and bug fixes
