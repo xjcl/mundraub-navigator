@@ -60,7 +60,8 @@
         <activity
             android:name=".activities.LocationPicker"
             android:label="@string/title_activity_location_picker" />
-        <activity android:name=".activities.PlantForm" />
+        <activity android:name=".activities.PlantForm"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".activities.Main"
             android:configChanges="keyboardHidden|orientation|screenSize"
