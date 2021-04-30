@@ -113,29 +113,30 @@ class PlantForm : AppCompatActivity() {
         // Cache image for upload
         if ((requestCode == ActivityRequest.ImagePick.value || requestCode == ActivityRequest.ImageCapture.value) &&
                 resultCode == Activity.RESULT_OK) {
-            val image =
+
+            val bytes =
                 if (requestCode == ActivityRequest.ImagePick.value) {
                     val uri = data?.data ?: return
-                    val bytes = contentResolver.openInputStream(uri)?.readBytes() ?: return
-
-                    // Fix orientation byte issues: https://stackoverflow.com/a/15341203/2111778
-                    val exif = ExifInterface(bytes.inputStream())
-                    val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
-                    val matrix = Matrix()
-                    when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-                        ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-                        ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-                    }
-
-                    val tmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    Bitmap.createBitmap(tmp, 0, 0, tmp.width, tmp.height, matrix, true)
+                    contentResolver.openInputStream(uri)?.readBytes() ?: return
                 } else
-                    BitmapFactory.decodeFile(File("${getExternalFilesDir(null)}/imgShot").toString())
+                    File("${getExternalFilesDir(null)}/imgShot").readBytes()
 
-            upld_image.setImageBitmap(image)
+            // Fix orientation byte issues: https://stackoverflow.com/a/15341203/2111778
+            val exif = ExifInterface(bytes.inputStream())
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
+            val matrix = Matrix()
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            }
+
+            val tmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            val bitmap = Bitmap.createBitmap(tmp, 0, 0, tmp.width, tmp.height, matrix, true)
+
+            upld_image.setImageBitmap(bitmap)
             FileOutputStream("$cacheDir/imgPicked").use {
-                    out -> image.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                    out -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }
         }
 
