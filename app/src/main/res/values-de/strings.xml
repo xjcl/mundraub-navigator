@@ -74,6 +74,7 @@
     <string name="img_capture">Foto aufnehmen</string>
     <string name="desc">Beschreibung</string>
     <string name="upld">Hochladen!</string>
+    <string name="uplding">Lädt hoch…</string>
     <string name="lgin">Login!</string>
     <string name="save">Speichern</string>
     <string name="reg">Registrieren</string>

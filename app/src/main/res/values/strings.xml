@@ -79,6 +79,7 @@
     <string name="img_capture">Take photo</string>
     <string name="desc">Description (preferably in German)</string>
     <string name="upld">Upload!</string>
+    <string name="uplding">Uploading…</string>
     <string name="lgin">Log in!</string>
     <string name="save">Save</string>
     <string name="reg">Register</string>

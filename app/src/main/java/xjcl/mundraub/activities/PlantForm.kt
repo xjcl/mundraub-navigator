@@ -274,12 +274,15 @@ class PlantForm : AppCompatActivity() {
                     File("$cacheDir/imgPicked"), name="files[field_plant_image_0][]", filename="meal.jpg")
                 )
 
+            upld_button.text = getString(R.string.uplding)
+
             uploadRequest
                 .header(Headers.COOKIE to cookie)
                 .allowRedirects(false)
                 .responseString { request, response, result ->
 
                     Log.e("plantSubmit result", result.get())
+                    upld_button.text = getString(R.string.upld)
 
                     when (response.statusCode) {
                         -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
@@ -343,7 +346,6 @@ class PlantForm : AppCompatActivity() {
         }
 
         upld_button.setOnClickListener {
-
             val typeIndex = values.indexOf( typeTIED.text.toString() )
 
             val errors = listOf(
