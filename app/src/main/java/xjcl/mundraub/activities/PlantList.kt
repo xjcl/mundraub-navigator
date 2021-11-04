@@ -156,7 +156,7 @@ class PlantList : AppCompatActivity() {
             }
 
             Log.e("doCreate", response.statusCode.toString())
-            uid = result.get().substringAfter("/user/").substringBefore("\"")
+            uid = result.get().substringAfter("/user/").substringBefore("\"").substringBefore("\'")
             loadNextPage()
         }
     }

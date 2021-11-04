@@ -93,7 +93,7 @@ class PlantAtlas : AppCompatActivity() {
             }
 
             Log.e("GET user to obtain uid", response.statusCode.toString())
-            val uid = result.get().substringAfter("/user/").substringBefore("\"")
+            val uid = result.get().substringAfter("/user/").substringBefore("\"").substringBefore("\'")
             val tidPresentMap = mutableSetOf<Int>()
 
             fun nextPage(i: Int = 0) {
