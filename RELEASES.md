@@ -1,3 +1,7 @@
+v31
+- "Uploading..." indicator for uploads
+- Adjust HTML scraping
+
 v30
 - Fix image picking issues
 - Change marker image aspect ratio
