@@ -52,6 +52,7 @@ class PlantForm : AppCompatActivity() {
         "address-search" to "",
         "accept_rules" to "1",  // (USER)
         "advanced__active_tab" to "",
+        "status[value]" to "1",
         "op" to "Speichern"
     )
 
