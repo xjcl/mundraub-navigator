@@ -24,8 +24,8 @@ private var tid = 12
 // same strategy as in the main maps activity -- have to intercept the SupportMapFragment to draw a UI
 class MapFragmentPicker : SupportMapFragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val mapView = super.onCreateView(inflater, container, savedInstanceState)!!
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val mapView = super.onCreateView(inflater, container, savedInstanceState)
 
         val root = RelativeLayout(context).apply {
             layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)

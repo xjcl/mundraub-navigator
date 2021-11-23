@@ -15,6 +15,8 @@ import android.widget.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import xjcl.mundraub.R
@@ -35,7 +37,7 @@ import kotlin.math.max
  *      - meaning i can only draw UI elements on the SupportMapFragment, not the MapsActivity!
  *          - but those UI elements manipulate the map, so global+member variables are used to communicate
  */
-class FruitBarMapFragment : SupportMapFragment() {
+class FruitBarMapFragment : SupportMapFragment(), OnMapsSdkInitializedCallback {
 
     private val ivs = mutableMapOf<Int, ImageView>()
     private var density : Float = 0f
@@ -273,11 +275,23 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        MapsInitializer.initialize(context!!, MapsInitializer.Renderer.LATEST, this)
+    }
+
+    override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
+        when (renderer) {
+            MapsInitializer.Renderer.LATEST -> Log.d("MapsDemo", "The latest version of the renderer is used.")
+            MapsInitializer.Renderer.LEGACY -> Log.d("MapsDemo", "The legacy version of the renderer is used.")
+        }
+    }
+
     // --- Create drawer and info bar for species filtering ---
     // -> This moves Google controls over using screen and marker dimensions
     // -> 2% top-margin 1% top-padding 1% bottom-padding 2% bottom-margin => 94% height
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mapView = super.onCreateView(inflater, container, savedInstanceState) ?: return null
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        mapView = super.onCreateView(inflater, container, savedInstanceState)
 
         relView = RelativeLayout(context)
         relView.addView(mapView)

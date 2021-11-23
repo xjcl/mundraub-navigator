@@ -34,10 +34,8 @@ import com.akexorcist.googledirection.model.Direction
 import com.akexorcist.googledirection.model.Step
 import com.akexorcist.googledirection.util.DirectionConverter
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.GoogleMap.*
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.Polyline
@@ -49,7 +47,8 @@ import xjcl.mundraub.utils.*
 import java.util.*
 
 
-class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
+class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback,
+    OnMapsSdkInitializedCallback {
 
     private lateinit var mapFragment : FruitBarMapFragment
     private var onCameraIdleEnabled : Boolean = true
@@ -327,6 +326,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MapsInitializer.initialize(getApplicationContext(), MapsInitializer.Renderer.LATEST, this)
 
         setContentView(R.layout.activity_main)
         Log.e("UA", System.getProperty("http.agent")?:"")
@@ -351,6 +351,13 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         Log.e("force_portrait", resources.getBoolean(R.bool.force_portrait).toString())
 
         setGermanStringsToTreeId()
+    }
+
+    override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
+        when (renderer) {
+            MapsInitializer.Renderer.LATEST -> Log.d("MapsDemo", "The latest version of the renderer is used.")
+            MapsInitializer.Renderer.LEGACY -> Log.d("MapsDemo", "The legacy version of the renderer is used.")
+        }
     }
 
     override fun onBackPressed() {
