@@ -47,8 +47,7 @@ import xjcl.mundraub.utils.*
 import java.util.*
 
 
-class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback,
-    OnMapsSdkInitializedCallback {
+class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private lateinit var mapFragment : FruitBarMapFragment
     private var onCameraIdleEnabled : Boolean = true
@@ -326,7 +325,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MapsInitializer.initialize(getApplicationContext(), MapsInitializer.Renderer.LATEST, this)
+        MapsInitializer.initialize(getApplicationContext(), MapsInitializer.Renderer.LATEST, null)
 
         setContentView(R.layout.activity_main)
         Log.e("UA", System.getProperty("http.agent")?:"")
@@ -351,13 +350,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         Log.e("force_portrait", resources.getBoolean(R.bool.force_portrait).toString())
 
         setGermanStringsToTreeId()
-    }
-
-    override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
-        when (renderer) {
-            MapsInitializer.Renderer.LATEST -> Log.d("MapsDemo", "The latest version of the renderer is used.")
-            MapsInitializer.Renderer.LEGACY -> Log.d("MapsDemo", "The legacy version of the renderer is used.")
-        }
     }
 
     override fun onBackPressed() {
