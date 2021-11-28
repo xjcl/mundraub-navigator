@@ -60,9 +60,8 @@ class ReportPlant : AppCompatActivity() {
             Log.e("reportPlant", intentNid.toString())
             Log.e("reportPlant", result.get())
             Log.e("reportPlant", reportData.toString())
-            Fuel.post(url, reportData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result2 ->
+            Fuel.post(url, reportData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
 
-                Log.e("reportPlant", result.get())
                 when (response.statusCode) {
                     -1 -> return@responseString runOnUiThread { Toast.makeText(this@ReportPlant, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                     303 -> {}
