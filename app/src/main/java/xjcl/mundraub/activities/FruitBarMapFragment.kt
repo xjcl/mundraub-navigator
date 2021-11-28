@@ -15,8 +15,6 @@ import android.widget.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.MapsInitializer
-import com.google.android.gms.maps.OnMapsSdkInitializedCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import xjcl.mundraub.R
@@ -37,7 +35,7 @@ import kotlin.math.max
  *      - meaning i can only draw UI elements on the SupportMapFragment, not the MapsActivity!
  *          - but those UI elements manipulate the map, so global+member variables are used to communicate
  */
-class FruitBarMapFragment : SupportMapFragment(), OnMapsSdkInitializedCallback {
+class FruitBarMapFragment : SupportMapFragment() {
 
     private val ivs = mutableMapOf<Int, ImageView>()
     private var density : Float = 0f
@@ -277,14 +275,6 @@ class FruitBarMapFragment : SupportMapFragment(), OnMapsSdkInitializedCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MapsInitializer.initialize(context!!, MapsInitializer.Renderer.LATEST, this)
-    }
-
-    override fun onMapsSdkInitialized(renderer: MapsInitializer.Renderer) {
-        when (renderer) {
-            MapsInitializer.Renderer.LATEST -> Log.d("MapsDemo", "The latest version of the renderer is used.")
-            MapsInitializer.Renderer.LEGACY -> Log.d("MapsDemo", "The legacy version of the renderer is used.")
-        }
     }
 
     // --- Create drawer and info bar for species filtering ---
