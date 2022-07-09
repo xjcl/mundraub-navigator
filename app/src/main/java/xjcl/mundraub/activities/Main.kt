@@ -325,7 +325,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MapsInitializer.initialize(getApplicationContext(), MapsInitializer.Renderer.LATEST, null)
+        MapsInitializer.initialize(getApplicationContext(), MapsInitializer.Renderer.LEGACY, null)
 
         setContentView(R.layout.activity_main)
         Log.e("UA", System.getProperty("http.agent")?:"")
