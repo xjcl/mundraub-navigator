@@ -1,3 +1,8 @@
+v32
+- Fix ramson profile URL
+- Fix wrong marker color on some devices
+- Fix unpublished markers for admin accounts
+
 v31
 - "Uploading..." indicator for uploads
 - Adjust HTML scraping
