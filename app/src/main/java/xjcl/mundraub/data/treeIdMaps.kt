@@ -116,7 +116,7 @@ val treeIdToProfileUrl = hashMapOf(
     29 to "https://mundraub.org/weißdorn-steckbrief",
     30 to null,
 
-    31 to "https://mundraub.org/bärlauch-wunderlauch-steckbrief",
+    31 to "https://mundraub.org/baerlauch-wunderlauch-steckbrief",
     32 to "https://mundraub.org/wacholder-steckbrief",
     33 to "https://mundraub.org/minze-steckbrief",
     34 to "https://mundraub.org/rosmarin-steckbrief",
