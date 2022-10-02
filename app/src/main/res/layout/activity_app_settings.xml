@@ -48,7 +48,38 @@
             android:text="@string/mapType4"/>
     </RadioGroup>
 
+    <TextView
+        android:layout_marginTop="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="6dp"
+        android:text="@string/dirType"/>
+
+    <RadioGroup
+        android:id="@+id/dirType_radio_group"
+        android:checkedButton="@+id/set_radio_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/dirType_radio_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/dirType1"/>
+        <RadioButton
+            android:id="@+id/dirType_radio_2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/dirType2"/>
+        <RadioButton
+            android:id="@+id/dirType_radio_3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/dirType3"/>
+    </RadioGroup>
+
     <Button
+        android:layout_marginTop="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onSaveClick"
@@ -58,7 +89,8 @@
         android:id="@+id/version_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:text="Mundraub Navigator" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>

@@ -107,11 +107,16 @@
     <string name="report3">Location does not exist (anymore)</string>
     <string name="report4">Other reason</string>
 
-    <string name="mapType">Map Type</string>
+    <string name="mapType">Map</string>
     <string name="mapType1">Roadmap</string>
     <string name="mapType2">Satellite</string>
     <string name="mapType3">Terrain</string>
     <string name="mapType4">Hybrid (Roadmap/Satellite)</string>
+
+    <string name="dirType">Directions</string>
+    <string name="dirType1">Biking</string>
+    <string name="dirType2">Walking</string>
+    <string name="dirType3">Driving</string>
 
     <string name="markers">markers</string>
     <string name="plant_atlas">Plant atlas</string>

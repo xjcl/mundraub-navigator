@@ -102,11 +102,16 @@
     <string name="report3">Fundort existiert nicht mehr</string>
     <string name="report4">Andere Gründe</string>
 
-    <string name="mapType">Kartentyp</string>
+    <string name="mapType">Karte</string>
     <string name="mapType1">Straßenkarte</string>
     <string name="mapType2">Satellit</string>
     <string name="mapType3">Topografisch</string>
     <string name="mapType4">Hybrid (Straßenkarte/Satellit)</string>
+
+    <string name="dirType">Wegbeschreibung</string>
+    <string name="dirType1">Mit dem Fahrrad</string>
+    <string name="dirType2">Zu Fuß</string>
+    <string name="dirType3">Mit dem Auto</string>
 
     <string name="markers">Marker</string>
     <string name="plant_atlas">Pflanzen-Atlas</string>

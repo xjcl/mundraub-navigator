@@ -93,15 +93,26 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
                 return@addOnSuccessListener removePolylines()
             }
 
+            /**
+             * Google Maps SDK offers $200 in free credits each month
+             *      https://mapsplatform.google.com/pricing/
+             * We set a daily quota of 1,200 which Google overshoots by up to 7%
+             *      https://developers.google.com/maps/documentation/directions/usage-and-billing
+             *      1200 * 0.005 * 1.07 * 31  =  199.02 <= 200
+             * Set quotas here:
+             *      https://console.cloud.google.com/google/maps-apis/quotas
+             * Might also want to set requests per user to minute to something low
+             */
+            val dirType = getSharedPreferences("global", Context.MODE_PRIVATE).getString("dirType", TransportMode.BICYCLING)
             GoogleDirection.withServerKey(getString(R.string.google_maps_key))
                 .from(LatLng(location.latitude, location.longitude))
                 .to(marker.position)
-                .transportMode(TransportMode.DRIVING)
+                .transportMode(dirType)
                 .avoid(AvoidType.TOLLS)
                 .avoid(AvoidType.FERRIES)
                 .execute(object : DirectionCallback {
                     override fun onDirectionSuccess(direction: Direction?) {
-                        Log.e("onDirectionSuccess", direction.toString())
+                        Log.e("onDirectionSuccess", "$direction ${direction?.isOK} ${direction?.errorMessage}")
                         if (direction == null || !direction.isOK)
                             return
 
