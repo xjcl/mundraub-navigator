@@ -327,7 +327,7 @@ class PlantForm : AppCompatActivity() {
                 plantData["form_id"] = "node_plant_edit_form"
                 plantData["field_plant_image[0][fids]"] = result.get().substringAfter("field_plant_image[0][fids]\" value=\"", "").substringBefore("\"")
 
-                val imageURL = result.get().substringAfter("\"edit-field-plant-image-0-preview\" src=\"", "").substringBefore("\"")
+                val imageURL = result.get().substringAfter("class=\"file file--mime-image-jpeg file--image\"> <a href=\"", "").substringBefore("\"")
                 Log.e("imageURL", "($imageURL)")
                 if (imageURL.isNotBlank()) {
                     hasImageURL = true

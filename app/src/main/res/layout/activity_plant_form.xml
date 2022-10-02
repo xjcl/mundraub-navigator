@@ -68,7 +68,7 @@
                 android:layout_marginLeft="15dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/frame_otherfruit"/>
+                android:src="@drawable/frame_otherfruit" />
 
         </RelativeLayout>
 
