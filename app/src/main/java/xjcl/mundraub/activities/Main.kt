@@ -102,7 +102,13 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
              * Set quotas here:
              *      https://console.cloud.google.com/google/maps-apis/quotas
              * Might also want to set requests per user to minute to something low
+             *
+             * We also only provide preview directions for logged-in users
              */
+            val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+            if (!sharedPref.contains("cookie"))
+                return@addOnSuccessListener
+
             val dirType = getSharedPreferences("global", Context.MODE_PRIVATE).getString("dirType", TransportMode.BICYCLING)
             GoogleDirection.withServerKey(getString(R.string.google_maps_key))
                 .from(LatLng(location.latitude, location.longitude))
