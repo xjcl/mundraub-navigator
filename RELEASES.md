@@ -1,3 +1,9 @@
+v33
+- Allow cycling, driving or walking directions
+- Restrict directions to logged-in users
+- Add plant calendar
+- Fix bad image cropping
+
 v32
 - Fix ramson profile URL
 - Fix wrong marker color on some devices
