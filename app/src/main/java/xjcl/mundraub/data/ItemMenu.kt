@@ -4,6 +4,7 @@ enum class ItemMenu(val value: Int) {
     PLANT_LIST(1),
     PLANT_FORM(2),
     PLANT_ATLAS(10),
+    PLANT_CALENDAR(20),
     LOGOUT(68),
     SETTINGS(69),
     MUNDRAUB_RULES(82),

@@ -23,7 +23,7 @@ import java.util.Calendar
 fun createInfoWindowLayout(context: Context, marker: Marker): View {
     val md = markersData[marker.position] ?: return TextView(context)
 
-    val months = createMonthsBarLayout(context, md)
+    val months = createMonthsBarLayout(context, md, withLetters = true)
     months.measure(0, 0)
     val masterWidth = months.measuredWidth
 

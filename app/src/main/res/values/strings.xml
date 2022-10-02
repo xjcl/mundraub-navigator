@@ -46,7 +46,7 @@
     <string name="tid29">Hawthorn</string>
     <string name="tid30">Other fruit shrub</string>
 
-    <string name="tid31">(!) Ramson</string>
+    <string name="tid31">Ramson</string>
     <string name="tid32">Juniper</string>
     <string name="tid33">Mint</string>
     <string name="tid34">Rosemary</string>
@@ -121,6 +121,7 @@
     <string name="markers">markers</string>
     <string name="plant_atlas">Plant atlas</string>
     <string name="plant_atlas_about">Here you can see statistics and profiles for our plant types.\n\nYou can also see which types you\'ve contributed to mundraub.org (in green).</string>
+    <string name="plant_calendar">Plant calendar</string>
     <string name="submitted">Thank you!</string>
     <string name="not_submitted">none are from you</string>
 

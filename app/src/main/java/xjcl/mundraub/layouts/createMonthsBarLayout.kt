@@ -17,7 +17,7 @@ import xjcl.mundraub.utils.bitmapWithText
  *      - - - o o o - - -|- - -
  *      J F M A M J J A S O N D  <--- only if withLetters is true
  */
-fun createMonthsBarLayout(context: Context, md : MarkerData, withLetters : Boolean = true): LinearLayout {
+fun createMonthsBarLayout(context: Context, md : MarkerData, withLetters : Boolean): LinearLayout {
     val months = LinearLayout(context)
     months.orientation = LinearLayout.HORIZONTAL
     months.gravity = Gravity.CENTER
@@ -59,8 +59,8 @@ fun createMonthsBarLayout(context: Context, md : MarkerData, withLetters : Boole
     return months
 }
 
-fun createMonthsBarLayout(context: Context, tid : Int): LinearLayout {
+fun createMonthsBarLayout(context: Context, tid : Int, withLetters: Boolean): LinearLayout {
     if (!treeIdToSeason.contains(tid)) return LinearLayout(context)
     val fakeFeature = Feature(listOf(), Properties(0, tid), null)
-    return createMonthsBarLayout(context, markerDataManager.featureToMarkerData(context, fakeFeature), false)
+    return createMonthsBarLayout(context, markerDataManager.featureToMarkerData(context, fakeFeature), withLetters)
 }

@@ -31,6 +31,9 @@
             android:name=".activities.PlantAtlas"
             android:label="@string/plant_atlas" />
         <activity
+            android:name=".activities.PlantCalendar"
+            android:label="@string/plant_calendar" />
+        <activity
             android:name=".activities.AppSettings"
             android:label="@string/title_activity_app_settings" />
         <activity

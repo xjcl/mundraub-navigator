@@ -64,7 +64,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         iv?.let { animateJump(it) }
         mMap?.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
         infoBar.removeViewAt(1) // removes monthsBar
-        infoBar.addView(createMonthsBarLayout(context!!, key))
+        infoBar.addView(createMonthsBarLayout(context!!, key, withLetters = false))
         infoBar.setOnClickListener {
             if (treeIdToProfileUrl[key] != null)
                 (context as Activity).startActivity(Intent(context, PlantProfile::class.java).putExtra("tid", key))
@@ -215,7 +215,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
         infoBar.addView(infoSpecies)
 
-        val months = createMonthsBarLayout(context!!, 99)
+        val months = createMonthsBarLayout(context!!, 99, withLetters = false)
         infoBar.addView(months)
 
         infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)

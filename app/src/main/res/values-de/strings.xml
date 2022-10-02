@@ -41,7 +41,7 @@
     <string name="tid29">Weißdorn</string>
     <string name="tid30">Andere Sträucher</string>
 
-    <string name="tid31">(!) Bärlauch</string>
+    <string name="tid31">Bärlauch</string>
     <string name="tid32">Wacholder</string>
     <string name="tid33">Minze</string>
     <string name="tid34">Rosmarin</string>
@@ -116,6 +116,7 @@
     <string name="markers">Marker</string>
     <string name="plant_atlas">Pflanzen-Atlas</string>
     <string name="plant_atlas_about">Hier siehst du Statistiken und Steckbriefe über die einzelnen Pflanzenarten.\n\nAußerdem erkennst du welche Arten du schon zu mundraub.org beigetragen hast (in grün).</string>
+    <string name="plant_calendar">Pflanzen-Kalender</string>
     <string name="submitted">Danke!</string>
     <string name="not_submitted">noch keine von dir</string>
 
