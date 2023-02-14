@@ -84,7 +84,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         fab.animate().x(fabAnimationFromTo.second)
 
         fusedLocationClient?.lastLocation?.addOnSuccessListener(this) { location ->
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return@addOnSuccessListener
             if (location == null) return@addOnSuccessListener
             val distance = floatArrayOf(0F)
             Location.distanceBetween(marker.position.latitude, marker.position.longitude, location.latitude, location.longitude, distance)
@@ -151,7 +150,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     }
 
     // --- OnInternetConnected: Automatically update (download) markers ---
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun setUpNetworking() {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), object : ConnectivityManager.NetworkCallback() {
@@ -165,7 +163,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         mmMap.setOnCameraIdleListener(this)
         mmMap.setPadding(totalLeftPadding, 0, 0, 0)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) setUpNetworking()
+        setUpNetworking()
 
         val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
         ActivityCompat.requestPermissions(this, permissions, 0)

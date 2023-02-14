@@ -179,7 +179,7 @@ class FruitBarMapFragment : SupportMapFragment() {
             val pad = (.01 * scrHeight).toInt()
             background = materialDesignBg(pad, pad, bmpSample.width / 2F + pad)
             // https://developer.android.com/training/material/shadows-clipping
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) elevation = 6F  // Default elevation of a FAB is 6
+            elevation = 6F  // Default elevation of a FAB is 6
 
             // setMargins((.02 * scrHeight).toInt(), (.02 * scrHeight).toInt(), 0, 0)
             // ^ setMargins doesn't work on older Androids... I'm going to murder someone at Google over this
@@ -221,7 +221,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
 
         // https://developer.android.com/training/material/shadows-clipping
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) infoBar.elevation = 6F  // Default elevation of a FAB is 6
+        infoBar.elevation = 6F  // Default elevation of a FAB is 6
 
         return infoBar
     }
@@ -230,8 +230,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         // *** FAB for Maps navigation ***
         fab = FloatingActionButton(context!!)
         fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
+        fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
         fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
         //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
         //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))

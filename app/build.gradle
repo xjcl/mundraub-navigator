@@ -3,13 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "32-rc1"
+    compileSdkVersion 33
+    buildToolsVersion "33"
 
     defaultConfig {
         applicationId "xjcl.mundraub"
-        minSdkVersion 19
-        targetSdkVersion 31
+        minSdkVersion 21
+        targetSdkVersion 33
         versionCode 33
         versionName "33"
 
