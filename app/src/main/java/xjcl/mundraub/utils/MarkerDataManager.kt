@@ -151,7 +151,8 @@ class MarkerDataManager {
 
             val number = extractUnescaped(htmlStr, "Anzahl: <span class=\"tag\">", "</span>")
             val description = extractUnescaped(htmlStr, "<p>", "</p>")
-            md.uploader = extractUnescaped(htmlStr.substringAfter("typeof=\"schema:Person\""), ">", "</span>")
+            // need to test this with a normal entry and a "Gast (Nicht überprüft)" entry (e.g. /node/2009)
+            md.uploader = extractUnescaped(htmlStr.substringAfter("Eingetragen von <span>"), ">", "</span>")
             md.uploadDate = extractUnescaped(htmlStr.substringAfter("am <span>"), ", ", " - ")
             md.description = "[$number] $description"
 

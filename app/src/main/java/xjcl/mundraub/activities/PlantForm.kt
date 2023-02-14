@@ -87,7 +87,7 @@ class PlantForm : AppCompatActivity() {
             repeat(10) {
                 val gcd = Geocoder(this@PlantForm, Locale.getDefault())
                 Log.e("geocodeLocation", "geolocating...")
-                val address = try { gcd.getFromLocation(location.latitude, location.longitude, 1).firstOrNull() }
+                val address = try { gcd.getFromLocation(location.latitude, location.longitude, 1)?.firstOrNull() }
                     catch (ex : IOException) { null }
                 address?.let {
                     val addressStr = (0..address.maxAddressLineIndex).map { address.getAddressLine(it) }.joinToString("\n")
