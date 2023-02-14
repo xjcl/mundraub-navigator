@@ -1,3 +1,6 @@
+v34
+- Fix HTML scraping
+
 v33
 - Allow cycling, driving or walking directions
 - Restrict directions to logged-in users
