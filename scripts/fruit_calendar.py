@@ -2,7 +2,7 @@
 season = dict()
 fruitname = dict()
 
-for line in open('../app/src/main/java/xjcl/mundraub/const.kt'):
+for line in open('../app/src/main/java/xjcl/mundraub/data/treeIdMaps.kt'):
     line = line.strip()
     if 'to (' in line and '//' not in line:
         key = line[:line.index(' ')]
