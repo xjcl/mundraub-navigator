@@ -1,3 +1,6 @@
+v36
+- "Fix" layout
+
 v35
 - Fix crashes
 - Fix registration form
