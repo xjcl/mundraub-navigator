@@ -9,11 +9,12 @@ import android.view.View
 import android.widget.Toast
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
-import kotlinx.android.synthetic.main.activity_report_plant.*
 import xjcl.mundraub.R
+import xjcl.mundraub.databinding.ActivityReportPlantBinding
 import xjcl.mundraub.utils.scrapeFormToken
 
 class ReportPlant : AppCompatActivity() {
+    private lateinit var binding: ActivityReportPlantBinding
 
     private var intentNid : Int = -1
     private lateinit var cookie : String
@@ -28,7 +29,8 @@ class ReportPlant : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_report_plant)
+        binding = ActivityReportPlantBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         intentNid = intent.getIntExtra("nid", -1)
 
@@ -42,7 +44,7 @@ class ReportPlant : AppCompatActivity() {
     }
 
     fun reportPlantActual(view : View) {
-        if (this.report_text_inner.text.toString().isBlank()) return
+        if (binding.reportTextInner.text.toString().isBlank()) return
 
         val url = "https://mundraub.org/node/$intentNid?destination=/map?nid=$intentNid"
         Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
@@ -54,8 +56,8 @@ class ReportPlant : AppCompatActivity() {
             }
 
             reportData["form_token"] = scrapeFormToken(result.get().substringAfter("edit-report-node-form-form-token"))
-            reportData["report_type"] = radioMap[this.report_radio_group.checkedRadioButtonId] ?: "4"
-            reportData["description"] = this.report_text_inner.text.toString()
+            reportData["report_type"] = radioMap[binding.reportRadioGroup.checkedRadioButtonId] ?: "4"
+            reportData["description"] = binding.reportTextInner.text.toString()
 
             Log.e("reportPlant", intentNid.toString())
             Log.e("reportPlant", result.get())
@@ -78,7 +80,7 @@ class ReportPlant : AppCompatActivity() {
 
     fun reportPlant(view: View) {
         val url = "https://mundraub.org/node/$intentNid"
-        val reason = getString(resources.getIdentifier("report${radioMap[this.report_radio_group.checkedRadioButtonId] ?: "4"}", "string", packageName))
+        val reason = getString(resources.getIdentifier("report${radioMap[binding.reportRadioGroup.checkedRadioButtonId] ?: "4"}", "string", packageName))
 
         val emailIntent = Intent(Intent.ACTION_SEND)
         emailIntent.type = "message/rfc822"
@@ -90,7 +92,7 @@ class ReportPlant : AppCompatActivity() {
             ich würde gerne den folgenden Marker melden:
             - URL: $url
             - Grund: $reason
-            - Freitext: ${report_text_inner.text}
+            - Freitext: ${binding.reportTextInner.text}
             
             Fruchtige Grüße,
             Nutzer $username

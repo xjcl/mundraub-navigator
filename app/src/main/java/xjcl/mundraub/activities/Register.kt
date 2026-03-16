@@ -7,11 +7,13 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.github.kittinunf.fuel.Fuel
-import kotlinx.android.synthetic.main.activity_register.*
 import xjcl.mundraub.R
+import xjcl.mundraub.databinding.ActivityRegisterBinding
 import xjcl.mundraub.utils.scrapeErrorMessage
 
 class Register : AppCompatActivity() {
+    private lateinit var binding: ActivityRegisterBinding
+
     val registerData = mutableMapOf(
         "form_id" to "user_register_form",
         "accept_rules" to "1",
@@ -21,7 +23,8 @@ class Register : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         Fuel.get("https://mundraub.org/user/register").allowRedirects(false).responseString { request, response, result ->
 
@@ -36,9 +39,9 @@ class Register : AppCompatActivity() {
     }
 
     fun onRegisterClick(view : View) {
-        registerData["mail"] = this.reg_email_inner.text.toString()
-        registerData["name"] = this.reg_user_inner.text.toString()
-        registerData["pass[pass1]"] = this.reg_pass_inner.text.toString()
+        registerData["mail"] = binding.regEmailInner.text.toString()
+        registerData["name"] = binding.regUserInner.text.toString()
+        registerData["pass[pass1]"] = binding.regPassInner.text.toString()
         registerData["pass[pass2]"] = registerData["pass[pass1]"] ?: ""
         if (registerData["mail"].isNullOrBlank() || registerData["name"].isNullOrBlank() || registerData["pass[pass1]"].isNullOrBlank())
             return runOnUiThread { Toast.makeText(this, getString(R.string.errMsgRegisterInfo), Toast.LENGTH_SHORT).show() }
@@ -52,7 +55,7 @@ class Register : AppCompatActivity() {
                 else -> {
                     val errorMsg = scrapeErrorMessage(result.get())
                     runOnUiThread {
-                        top_info_register.text = errorMsg
+                        binding.topInfoRegister.text = errorMsg
                         Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
                     }
                     return@responseString

@@ -27,10 +27,9 @@ import com.github.kittinunf.result.Result
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.button.MaterialButton
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_plant_form.*
-import kotlinx.android.synthetic.main.chip_group_number.*
 import xjcl.mundraub.R
 import xjcl.mundraub.data.*
+import xjcl.mundraub.databinding.ActivityPlantFormBinding
 import xjcl.mundraub.utils.getInverse
 import xjcl.mundraub.utils.scrapeFormToken
 import java.io.File
@@ -41,6 +40,7 @@ import kotlin.concurrent.thread
 
 
 class PlantForm : AppCompatActivity() {
+    private lateinit var binding: ActivityPlantFormBinding
 
     val plantData = mutableMapOf(
         "form_id" to "node_plant_form",
@@ -135,7 +135,7 @@ class PlantForm : AppCompatActivity() {
             val tmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
             val bitmap = Bitmap.createBitmap(tmp, 0, 0, tmp.width, tmp.height, matrix, true)
 
-            upld_image.setImageBitmap(bitmap)
+            binding.upldImage.setImageBitmap(bitmap)
             FileOutputStream("$cacheDir/imgPicked").use {
                     out -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }
@@ -210,7 +210,8 @@ class PlantForm : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_plant_form)
+        binding = ActivityPlantFormBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         intentNid = intent.getIntExtra("nid", -1)
         supportActionBar?.title = if (intentNid > -1) getString(R.string.editNode) else getString(R.string.addNode)
@@ -228,23 +229,23 @@ class PlantForm : AppCompatActivity() {
         // TODO make this a proper map and call getInverse() on it
         val keys = treeIdToMarkerIcon.keys.map { it.toString() }
         val values = keys.map { key -> getString(resources.getIdentifier("tid${key}", "string", packageName)) }
-        typeTIED.setAdapter( ArrayAdapter(this, R.layout.activity_plant_form_item, values) )
+        binding.typeTIED.setAdapter( ArrayAdapter(this, R.layout.activity_plant_form_item, values) )
         fun updateType() {
-            val typeIndex = values.indexOf( typeTIED.text.toString() )
+            val typeIndex = values.indexOf( binding.typeTIED.text.toString() )
             if (typeIndex == -1) return
             val left = ContextCompat.getDrawable(this, treeIdToMarkerIcon[keys[typeIndex].toInt()] ?: R.drawable.icon_otherfruit)
             locationPicker.setCompoundDrawablesWithIntrinsicBounds(left, null, null, null)
             if (!hasImageURL && !File("$cacheDir/imgPicked").exists())
-                upld_image.setImageDrawable(
+                binding.upldImage.setImageDrawable(
                     ContextCompat.getDrawable(this, treeIdToMarkerFrame[keys[typeIndex].toInt()] ?: R.drawable.frame_otherfruit)
                 )
         }
-        typeTIED.setOnFocusChangeListener { _, _ -> updateType() }
-        typeTIED.setOnItemClickListener { _, _, _, _ -> updateType() }
+        binding.typeTIED.setOnFocusChangeListener { _, _ -> updateType() }
+        binding.typeTIED.setOnItemClickListener { _, _, _, _ -> updateType() }
 
-        locationPicker = button_loc.apply {
+        locationPicker = binding.buttonLoc.apply {
             setOnClickListener {
-                val typeIndex = values.indexOf(typeTIED.text.toString())
+                val typeIndex = values.indexOf(binding.typeTIED.text.toString())
                 val intent = Intent(context, LocationPicker::class.java).putExtra("tid", if (typeIndex == -1) 12 else keys[typeIndex].toInt())
                     .putExtra("lat", location.latitude).putExtra("lng", location.longitude)
                 startActivityForResult(intent, ActivityRequest.LocationPicker.value)
@@ -260,9 +261,9 @@ class PlantForm : AppCompatActivity() {
         fun plantSubmit(result : Result<String, FuelError>) {
             plantData["changed"] = result.get().substringAfter("name=\"changed\" value=\"").substringBefore("\"")
             plantData["form_token"] = scrapeFormToken(result.get())
-            plantData["body[0][value]"] = descriptionTIED.text.toString()
-            plantData["field_plant_category"] = keys[values.indexOf( typeTIED.text.toString() )]
-            plantData["field_plant_count_trees"] = chipMap[chipGroup.checkedChipId] ?: "0"
+            plantData["body[0][value]"] = binding.descriptionTIED.text.toString()
+            plantData["field_plant_category"] = keys[values.indexOf( binding.typeTIED.text.toString() )]
+            plantData["field_plant_count_trees"] = chipMap[binding.chipLayout.chipGroup.checkedChipId] ?: "0"
             plantData["field_position[0][value]"] = "POINT(${location.longitude} ${location.latitude})"
             plantData["field_plant_address[0][value]"] = locationPicker.text.toString()
 
@@ -275,7 +276,7 @@ class PlantForm : AppCompatActivity() {
                     File("$cacheDir/imgPicked"), name="files[field_plant_image_0][]", filename="meal.jpg")
                 )
 
-            upld_button.text = getString(R.string.uplding)
+            binding.upldButton.text = getString(R.string.uplding)
 
             uploadRequest
                 .header(Headers.COOKIE to cookie)
@@ -283,7 +284,7 @@ class PlantForm : AppCompatActivity() {
                 .responseString { request, response, result ->
 
                     Log.e("plantSubmit result", result.get())
-                    upld_button.text = getString(R.string.upld)
+                    binding.upldButton.text = getString(R.string.upld)
 
                     when (response.statusCode) {
                         -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
@@ -333,24 +334,24 @@ class PlantForm : AppCompatActivity() {
                     hasImageURL = true
                     runOnUiThread {
                         Log.e("onMarkerClickListener", "Started Picasso on UI thread now ($imageURL)")
-                        Picasso.get().load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(upld_image)
+                        Picasso.get().load("https://mundraub.org/$imageURL").placeholder(R.drawable.progress_animation).into(binding.upldImage)
                     }
                 }
 
-                typeTIL.postDelayed({
-                    typeTIED.setText( values[keys.indexOf(type)] ); updateType()
-                    descriptionTIED.setText(description)
-                    chipGroup.check(chipMap.getInverse(count) ?: R.id.chip_0)
+                binding.typeTIL.postDelayed({
+                    binding.typeTIED.setText( values[keys.indexOf(type)] ); updateType()
+                    binding.descriptionTIED.setText(description)
+                    binding.chipLayout.chipGroup.check(chipMap.getInverse(count) ?: R.id.chip_0)
                     geocodeLocation( LatLng(locationList[1].toDouble(), locationList[0].toDouble()) )
                 }, 30)
             }
         }
 
-        upld_button.setOnClickListener {
-            val typeIndex = values.indexOf( typeTIED.text.toString() )
+        binding.upldButton.setOnClickListener {
+            val typeIndex = values.indexOf( binding.typeTIED.text.toString() )
 
             val errors = listOf(
-                getString(R.string.errMsgDesc) to descriptionTIED.text.toString().isBlank(),
+                getString(R.string.errMsgDesc) to binding.descriptionTIED.text.toString().isBlank(),
                 getString(R.string.errMsgType) to (typeIndex == -1),
                 getString(R.string.errMsgLoc) to ((location.latitude == 0.0 && location.longitude == 0.0) ||
                         locationPicker.text.toString() == getString(R.string.geocoding) ||
@@ -371,12 +372,12 @@ class PlantForm : AppCompatActivity() {
             }
         }
 
-        btn_img_pick.setOnClickListener {
+        binding.btnImgPick.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
             startActivityForResult(intent, ActivityRequest.ImagePick.value)
         }
 
-        btn_img_capture.setOnClickListener {
+        binding.btnImgCapture.setOnClickListener {
             val f = File("${getExternalFilesDir(null)}/imgShot")
             val photoURI = FileProvider.getUriForFile(this, "${packageName}.fileprovider", f)
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply { putExtra(MediaStore.EXTRA_OUTPUT, photoURI) }

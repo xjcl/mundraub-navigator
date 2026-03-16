@@ -15,24 +15,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
-import kotlinx.android.synthetic.main.activity_plant_atlas.*
-import kotlinx.android.synthetic.main.activity_plant_list_item.view.*
 import xjcl.mundraub.R
 import xjcl.mundraub.data.ActivityRequest
 import xjcl.mundraub.data.treeIdToFrequency
 import xjcl.mundraub.data.treeIdToMarkerIcon
 import xjcl.mundraub.data.treeIdToProfileUrl
+import xjcl.mundraub.databinding.ActivityPlantAtlasBinding
+import xjcl.mundraub.databinding.ActivityPlantListItemBinding
 
 
 private class CPCardInfo(val tid: Int, var submitted: Boolean)
 
 private class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapter<CPRVAdapter.ViewHolder>() {
-    class ViewHolder (val v: View) : RecyclerView.ViewHolder(v)
+    class ViewHolder (val binding: ActivityPlantListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     // card created
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
-        val v = LayoutInflater.from(viewGroup.context).inflate(R.layout.activity_plant_list_item, viewGroup, false)
-        return ViewHolder(v)
+        val binding = ActivityPlantListItemBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
+        return ViewHolder(binding)
     }
 
     // card scrolls into view or data changed
@@ -40,16 +40,16 @@ private class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapte
         val tid = cardInfos[i].tid
         val submitted = cardInfos[i].submitted
         Log.e("submitted", " i=$i: tid=$tid submitted=$submitted")
-        viewHolder.v.apply {
-            val title = context.getString(context.resources.getIdentifier("tid$tid", "string", context.packageName))
-            card_title.text = title
-            card_subtitle.text = "${treeIdToFrequency[tid]} ${context.getString(R.string.markers)}"
-            card_subtitle2.text = context.getString(if (submitted) R.string.submitted else R.string.not_submitted)
-            card_marker.setImageResource( treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
-            cv.setCardBackgroundColor(if (submitted) resources.getColor(R.color.colorPrimary) else Color.WHITE)
-            setOnClickListener {
+        viewHolder.binding.apply {
+            val title = root.context.getString(root.context.resources.getIdentifier("tid$tid", "string", root.context.packageName))
+            cardTitle.text = title
+            cardSubtitle.text = "${treeIdToFrequency[tid]} ${root.context.getString(R.string.markers)}"
+            cardSubtitle2.text = root.context.getString(if (submitted) R.string.submitted else R.string.not_submitted)
+            cardMarker.setImageResource( treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
+            cv.setCardBackgroundColor(if (submitted) root.resources.getColor(R.color.colorPrimary) else Color.WHITE)
+            root.setOnClickListener {
                 if (treeIdToProfileUrl[tid] != null)  // "other" fruit/shrub/nut/herb
-                    (context as Activity).startActivity(Intent(context, PlantProfile::class.java).putExtra("tid", tid))
+                    (root.context as Activity).startActivity(Intent(root.context, PlantProfile::class.java).putExtra("tid", tid))
             }
         }
     }
@@ -59,6 +59,7 @@ private class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapte
 
 
 class PlantAtlas : AppCompatActivity() {
+    private lateinit var binding: ActivityPlantAtlasBinding
     private val cardInfos = ArrayList<CPCardInfo>()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -69,7 +70,8 @@ class PlantAtlas : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_plant_atlas)
+        binding = ActivityPlantAtlasBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
     }
@@ -78,8 +80,8 @@ class PlantAtlas : AppCompatActivity() {
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
         val cookie = sharedPref.getString("cookie", null) ?: return finish()
 
-        recycler_view.layoutManager = LinearLayoutManager(this)
-        recycler_view.adapter = CPRVAdapter(cardInfos)
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = CPRVAdapter(cardInfos)
 
         for (el in treeIdToFrequency.toList().sortedBy { -it.second })  // Pair<tid, frequency>
             cardInfos.add(CPCardInfo(el.first, false))
@@ -109,7 +111,7 @@ class PlantAtlas : AppCompatActivity() {
                     newCardInfos.forEach { tidPresentMap.add(it.tid) }
 
                     cardInfos.filter { tidPresentMap.contains(it.tid) }.forEach { it.submitted = true }
-                    runOnUiThread { recycler_view.adapter?.notifyDataSetChanged() }
+                    runOnUiThread { binding.recyclerView.adapter?.notifyDataSetChanged() }
 
                     if (newCardInfos.isNotEmpty()) nextPage(i + 1)
                 }

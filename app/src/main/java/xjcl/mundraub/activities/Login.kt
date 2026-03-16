@@ -9,12 +9,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kittinunf.fuel.Fuel
-import kotlinx.android.synthetic.main.activity_login.*
 import xjcl.mundraub.R
 import xjcl.mundraub.data.ActivityRequest
+import xjcl.mundraub.databinding.ActivityLoginBinding
 
 
 class Login : AppCompatActivity() {
+    private lateinit var binding: ActivityLoginBinding
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -46,21 +47,22 @@ class Login : AppCompatActivity() {
         migrateSettings()
 
         val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        this.name_inner.setText( sharedPref.getString("name", "") ?: "" )
-        this.pass_inner.setText( sharedPref.getString("pass", "") ?: "" )
+        binding.nameInner.setText( sharedPref.getString("name", "") ?: "" )
+        binding.passInner.setText( sharedPref.getString("pass", "") ?: "" )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         loadCredsIntoFields()
     }
 
     fun onLoginClick(view : View) {
-        if (this.name_inner.text.toString().isBlank() || this.pass_inner.text.toString().isBlank())
+        if (binding.nameInner.text.toString().isBlank() || binding.passInner.text.toString().isBlank())
             return Toast.makeText(this, this.getString(R.string.errMsgLoginInfo), Toast.LENGTH_SHORT).show()
 
-        doLogin(this, {}, this.name_inner.text.toString(), this.pass_inner.text.toString(), inLoginActivity = true)
+        doLogin(this, {}, binding.nameInner.text.toString(), binding.passInner.text.toString(), inLoginActivity = true)
     }
 
     fun onRegisterClick(view : View) {

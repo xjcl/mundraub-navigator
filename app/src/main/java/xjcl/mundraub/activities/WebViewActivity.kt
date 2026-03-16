@@ -2,28 +2,33 @@ package xjcl.mundraub.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_webview.*
-import xjcl.mundraub.R
 import xjcl.mundraub.data.treeIdToProfileUrl
+import xjcl.mundraub.databinding.ActivityWebviewBinding
 
 
 class PlantProfile : AppCompatActivity() {
+    private lateinit var binding: ActivityWebviewBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_webview)
+        binding = ActivityWebviewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val url = treeIdToProfileUrl[intent.extras?.getInt("tid")] ?: "https://mundraub.org/404"
-        webView.loadUrl(url)
+        binding.webView.loadUrl(url)
     }
 }
 
 
 class WebViewActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityWebviewBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_webview)
+        binding = ActivityWebviewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val url = intent.extras?.getString("url") ?: "https://mundraub.org/404"
-        webView.loadUrl(url)
+        binding.webView.loadUrl(url)
     }
 }
