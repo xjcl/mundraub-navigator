@@ -1,3 +1,8 @@
+v35
+- Fix crashes
+- Fix registration form
+- Upgrade SDK version
+
 v34
 - Fix HTML scraping
 
