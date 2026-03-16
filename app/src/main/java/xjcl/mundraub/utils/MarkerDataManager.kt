@@ -75,7 +75,7 @@ class MarkerDataManager {
     private fun addLocationMarkers(activity: Activity, jsonStrPre: String) {
         markerContext.execute {
             Log.e("addLocationMarkers", "ENTER " + markers.size.toString() + " " + jsonStrPre)
-            val jsonStr = if (jsonStrPre == "null") "{\"features\":[]}" else jsonStrPre
+            val jsonStr = if (jsonStrPre == "null" || jsonStrPre == "[]") "{\"features\":[]}" else jsonStrPre
 
             // --- parse newly downloaded markers ---
             // API inconsistently either returns String or double/int... -> strip away double quotes
