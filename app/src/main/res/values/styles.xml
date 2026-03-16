@@ -1,19 +1,17 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Base application theme. -->
+    <!-- Base application theme used by all activities except Main -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-    </style>
 
-    <style name="MainActivityTheme" parent="AppTheme">
-        <item name="actionBarTheme">@style/MainActionBar</item>
-    </style>
-    <style name="MainActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="colorPrimary">@android:color/white</item>
-        <item name="android:textColorPrimary">@color/colorPrimary</item>
-        <item name="android:textColorSecondary">@color/colorPrimary</item>
+        <!-- TODO sadly this fucks up the colors because Android programming was personally invented by Satan -->
+        <!-- Android 15 Edge-to-Edge: statusBarColor is ignored, so we provide
+             the background via windowBackground -->
+        <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
 </resources>

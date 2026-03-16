@@ -1,14 +1,14 @@
 [versions]
 agp = "9.1.0"
 kotlin = "2.3.10"
-coreKtx = "1.12.0"
-junit = "4.13.2"
+coreKtx = "1.7.0"
+junit = "4.12"
 junitVersion = "1.1.5"
-espressoCore = "3.5.1"
-appcompat = "1.6.1"
-material = "1.11.0"
-constraintlayout = "2.1.4"
-kotlinxSerializationJson = "1.6.2"
+espressoCore = "3.4.0"
+appcompat = "1.4.0"
+material = "1.13.0"
+constraintlayout = "2.1.2"
+kotlinxSerializationJson = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -23,3 +23,4 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

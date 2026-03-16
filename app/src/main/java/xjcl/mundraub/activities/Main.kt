@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
@@ -17,15 +18,14 @@ import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import com.akexorcist.googledirection.DirectionCallback
 import com.akexorcist.googledirection.GoogleDirection
 import com.akexorcist.googledirection.constant.AvoidType
@@ -353,6 +353,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             title = primaryColorTitle("$navStr v${BuildConfig.VERSION_NAME}")
             setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
             displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
+            // TODO For some reason there is just absolutely no way ever to set the "more options" kebab menu as primary color, so apply gray here so it can be seen at all
+            setBackgroundDrawable(Color.parseColor("#cccccc").toDrawable())
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -373,95 +375,3 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         moveTaskToBack(true)  // do not call onCreate after user accidentally hits Back (useful offline)
     }
 }
-
-// TODO assets
-//    - use svg instead of xxxhdpi markers
-
-// TODO testing
-//    - Firebase Labs Robo Script
-//    - Firebase Labs credentials on site
-
-// TODO branding
-//    - 'About app' and 'Rate this app' options
-//    - explain Mundraub, mission, rules, ...
-//    - change app icon to Manni Mundraub (?)
-
-// TODO publishing
-//    - write blog post about it
-//    - publish to reddit about it
-//    - official email newsletter
-
-// TODO QA
-//    - Full automated UI scripts using Espresso
-//    - Node test with image: https://mundraub.org/node/75327
-//    - Ensure correct season information
-//    - Test different pixel densities by setting screen rezo on my phone
-//    - Test both supported languages (EN/DE)
-//    - Test rotation
-//    - Test offline use
-//    - Test with special characters: HTML-escaped (<>&) and German (ae, oe, ue)
-
-
-// TODO clusters
-//    - use Material design cluster icon with shadow
-//        - should fix font centering issue too
-
-// TODO marker filter
-//    - apply greyed-out markers to map too
-//    - animation / FloatingActionButton (slides out when tapped, also can be used to reset filtering)
-//    - fix phone rotation  -> put 'val linear' into own singleton class that has an updateHeight function
-//         -> either remove drawer, shrink it (???) or put it on the x axis (bottom) (?)
-//         -> minor priority as the app is not really usable in landscape mode
-
-// TODO latlng boundaries
-//    - extend boundaries to go slightly offscreen so less re-loading needed?
-
-// TODO bugs
-//    - when tapping a marker, markers reload, so it sometimes deletes the marker in focus
-//    - better workaround for initial Maps download issue
-
-// * TODO pokemon
-//    * favorite markers
-//        * in a cardview list  -> wait no on the main map!!
-//            * um we need a cardview of added markers first
-//        * store offline
-//    - detect when someone "visits" a marker
-//    - list of recently visited or starred markers
-//    - list of which marker types have ever been visited (including link to most recent one)
-
-// TODO UI
-//    - all markers jump when pressing filter?
-//    - "force reload" button
-//    - from PlantList: land user on marker view rather than edit view
-//    - show marker icons in AutocompleteTextView
-
-// TODO marker persistence
-//    - startup: load markers from last time
-//    - keep markers near user location always
-//    - favorite markers that get permanently stored
-
-// TODO meta
-//    - make docs/ dir
-
-
-// TODO wontfix
-//    - rarely used marker types: groups, actions, cider, saplings
-//    - draw in sorted order and/or with z-score so front markers are in front -> rarely needed
-//    - bug: markers staying on (mostly eliminated)
-//    - reset password in-app
-//    - infobar -> use chipgroup
-
-
-// TODO IDEAS 2021-03-07
-//    - git fix on website: anchor + jitter
-//    - git zugriff und zoom bug auf der webseite?
-//    - allow image upload
-//    - refactor user handling code into class so uid, name, login/logout status can be gotten easily
-//    - permanent link to discord?
-//    -> separate page with full description and editing options (+ gmaps + latlng + addr) (+ reverse map embed?)
-//    - long-term: up- and downvotes tied to accounts
-//    - download/fav markers for offline use -> map? only show the 1 selected?
-//    - new image screenshots using pixel 3a
-
-// for offline storage: maybe checkmark on detail page? and update with write to sharedpreferences every tap?
-// https://stackoverflow.com/questions/7145606/how-do-you-save-store-objects-in-sharedpreferences-on-android
