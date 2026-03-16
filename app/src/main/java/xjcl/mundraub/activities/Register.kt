@@ -16,9 +16,10 @@ class Register : AppCompatActivity() {
 
     val registerData = mutableMapOf(
         "form_id" to "user_register_form",
-        "accept_rules" to "1",
         "op" to "Neues Benutzerkonto erstellen",
-        "country" to ""
+        // agree to terms and conditions
+        "accept_rules" to "1",
+        "captcha_response" to "nein",
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +44,7 @@ class Register : AppCompatActivity() {
         registerData["name"] = binding.regUserInner.text.toString()
         registerData["pass[pass1]"] = binding.regPassInner.text.toString()
         registerData["pass[pass2]"] = registerData["pass[pass1]"] ?: ""
+        registerData["country"] = ""
         if (registerData["mail"].isNullOrBlank() || registerData["name"].isNullOrBlank() || registerData["pass[pass1]"].isNullOrBlank())
             return runOnUiThread { Toast.makeText(this, getString(R.string.errMsgRegisterInfo), Toast.LENGTH_SHORT).show() }
 
