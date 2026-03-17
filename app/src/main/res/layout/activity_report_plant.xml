@@ -28,13 +28,13 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
-            android:id="@+id/top_info_report"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/dividerHorizontal"
-            android:padding="12dp"
-            android:text="@string/report_info" />
+<!--        <TextView-->
+<!--            android:id="@+id/top_info_report"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="?android:attr/dividerHorizontal"-->
+<!--            android:padding="12dp"-->
+<!--            android:text="@string/report_info" />-->
 
         <View
             android:id="@+id/top_info_divider"

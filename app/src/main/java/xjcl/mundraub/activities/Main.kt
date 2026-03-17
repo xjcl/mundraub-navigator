@@ -307,8 +307,8 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // Create the ActionBar options menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        addMenuItem(menu, ItemMenu.PLANT_LIST.value, R.string.title_activity_plant_list, R.drawable.material_list)
         addMenuItem(menu, ItemMenu.PLANT_FORM.value, R.string.addNode, R.drawable.material_add_location)
+        addMenuItem(menu, ItemMenu.PLANT_LIST.value, R.string.title_activity_plant_list, null)
         addMenuItem(menu, ItemMenu.PLANT_ATLAS.value, R.string.plant_atlas, null)
         addMenuItem(menu, ItemMenu.PLANT_CALENDAR.value, R.string.plant_calendar, null)
         addMenuItem(menu, ItemMenu.IMPRINT.value, R.string.imprint, null)
