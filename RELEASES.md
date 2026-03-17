@@ -1,3 +1,6 @@
+v37
+- Fix layouts for real (Android 15)
+
 v36
 - "Fix" layout
 

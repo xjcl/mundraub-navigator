@@ -11,9 +11,8 @@ android {
         applicationId = "xjcl.mundraub"
         minSdk = 23
         targetSdk = 35
-        // app version is also 35, matching SDK version -- this is just a coincidence
-        versionCode = 36
-        versionName = "36"
+        versionCode = 37
+        versionName = "37"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
