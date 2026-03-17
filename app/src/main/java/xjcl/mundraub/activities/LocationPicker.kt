@@ -53,8 +53,9 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
 
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.title) {
-            "OK" -> { returnLocation(); true }
+        return when (item.itemId) {
+            android.R.id.home -> { finish(); true }
+            0 -> { returnLocation(); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -68,6 +69,12 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location_picker)
+
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.title_activity_location_picker)
+
         tid = this.intent.getIntExtra("tid", 12)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as MapFragmentPicker
