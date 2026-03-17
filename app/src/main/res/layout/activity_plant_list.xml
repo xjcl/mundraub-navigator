@@ -1,39 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="?android:attr/dividerHorizontal"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:fitsSystemWindows="true"
+    android:background="@color/colorPrimaryDark">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:fitsSystemWindows="false"
+        android:background="@color/colorPrimary">
 
-    <TextView
-        android:text="@string/loading"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:theme="@style/ToolbarTheme" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/recycler_info"
-        android:padding="12dp"
-        android:background="?android:attr/dividerHorizontal"/>
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <View
-        android:layout_height="1dp"
-        android:layout_width="match_parent"
-        android:id="@+id/recycler_info_divider"
-        android:background="#707070"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:paddingTop="12dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:clipToPadding="false"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+            <TextView
+                android:id="@+id/recycler_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/dividerHorizontal"
+                android:padding="12dp"
+                android:text="@string/loading" />
 
-    </androidx.recyclerview.widget.RecyclerView>
-    </LinearLayout>
+            <View
+                android:id="@+id/recycler_info_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#707070" />
 
-</ScrollView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingLeft="12dp"
+                android:paddingTop="12dp"
+                android:paddingRight="12dp" />
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

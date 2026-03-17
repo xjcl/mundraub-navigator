@@ -1,15 +1,33 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Base application theme used by all activities except Main -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <!-- Base application theme: Modern NoActionBar approach -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <!-- TODO sadly this fucks up the colors because Android programming was personally invented by Satan -->
-        <!-- Android 15 Edge-to-Edge: statusBarColor is ignored, so we provide
-             the background via windowBackground -->
-        <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <!-- Use status bar color in styles for API 21-34 -->
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        
+        <!-- Reverted to white to avoid making all activities green -->
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+
+    <!-- Theme for Toolbar: Dark Green background with White text/icons -->
+    <style name="ToolbarTheme" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+    </style>
+
+    <!-- Theme for Toolbar: White background with Green text/icons (for Main) -->
+    <style name="ToolbarThemeLight" parent="ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="android:textColorPrimary">@color/colorPrimary</item>
+        <item name="android:textColorSecondary">@color/colorPrimary</item>
+        <item name="actionMenuTextColor">@color/colorPrimary</item>
+    </style>
+
+    <!-- Theme specifically for the Main Activity -->
+    <style name="MainActivityTheme" parent="AppTheme">
         <item name="android:statusBarColor">@color/colorPrimaryDark</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>

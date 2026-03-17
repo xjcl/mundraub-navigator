@@ -102,7 +102,19 @@ class PlantList : AppCompatActivity() {
         binding = ActivityPlantListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.title_activity_plant_list)
+
         doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun loadNextPage() {

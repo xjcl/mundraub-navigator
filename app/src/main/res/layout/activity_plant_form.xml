@@ -1,111 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:fitsSystemWindows="true"
+    android:background="@color/colorPrimaryDark">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:padding="12dp"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        tools:context=".activities.PlantForm">
+        android:fitsSystemWindows="false"
+        android:background="@color/colorPrimary">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/typeTIL"
-            android:hint="@string/type"
-            android:layout_marginBottom="12dp"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:theme="@style/ToolbarTheme" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu" >
+            android:padding="12dp"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            tools:context=".activities.PlantForm">
 
-            <AutoCompleteTextView
-                android:id="@+id/typeTIED"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="text" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <include
-            android:id="@+id/chip_layout"
-            layout="@layout/chip_group_number"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="6dp"
-            android:text="@string/img_optional"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp">
-
-            <Button
-                android:id="@+id/btn_img_pick"
-                android:text="@string/img_pick"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/typeTIL"
+                android:hint="@string/type"
+                android:layout_marginBottom="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_toRightOf="@id/upld_image"/>
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu" >
 
-            <Button
-                android:id="@+id/btn_img_capture"
-                android:text="@string/img_capture"
+                <AutoCompleteTextView
+                    android:id="@+id/typeTIED"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <include
+                android:id="@+id/chip_layout"
+                layout="@layout/chip_group_number"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="6dp"
+                android:text="@string/img_optional"/>
+
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_toRightOf="@id/upld_image"
-                android:layout_below="@+id/btn_img_pick"/>
+                android:layout_marginBottom="12dp">
 
-            <ImageView
-                android:id="@+id/upld_image"
-                android:layout_width="160dp"
-                android:layout_height="100dp"
-                android:layout_marginLeft="15dp"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/frame_otherfruit" />
+                <Button
+                    android:id="@+id/btn_img_pick"
+                    android:text="@string/img_pick"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_toRightOf="@id/upld_image"/>
 
-        </RelativeLayout>
+                <Button
+                    android:id="@+id/btn_img_capture"
+                    android:text="@string/img_capture"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_toRightOf="@id/upld_image"
+                    android:layout_below="@+id/btn_img_pick"/>
 
-        <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/descriptionTIL"
-            android:hint="@string/desc"
-            android:layout_marginBottom="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+                <ImageView
+                    android:id="@+id/upld_image"
+                    android:layout_width="160dp"
+                    android:layout_height="100dp"
+                    android:layout_marginLeft="15dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/frame_otherfruit" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/descriptionTIED"
-                android:minLines="3"
-                android:maxLines="3"
-                android:gravity="top"
-                android:inputType="textMultiLine"
+            </RelativeLayout>
+
+            <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/descriptionTIL"
+                android:hint="@string/desc"
+                android:layout_marginBottom="12dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content" >
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/descriptionTIED"
+                    android:minLines="3"
+                    android:maxLines="3"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-        <com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:id="@+id/button_loc"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="80dp"
-            android:layout_marginBottom="12dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/upld_button"
-            android:text="@string/upld" />
+            <com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:id="@+id/button_loc"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="80dp"
+                android:layout_marginBottom="12dp"/>
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</ScrollView>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/upld_button"
+                android:text="@string/upld" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

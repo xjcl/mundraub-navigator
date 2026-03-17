@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
@@ -18,14 +17,15 @@ import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toDrawable
 import com.akexorcist.googledirection.DirectionCallback
 import com.akexorcist.googledirection.GoogleDirection
 import com.akexorcist.googledirection.constant.AvoidType
@@ -345,6 +345,10 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         MapsInitializer.initialize(getApplicationContext(), MapsInitializer.Renderer.LEGACY, null)
 
         setContentView(R.layout.activity_main)
+        
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        
         Log.e("UA", System.getProperty("http.agent")?:"")
         supportActionBar?.apply {
             val trueWidth = resources.displayMetrics.widthPixels / resources.displayMetrics.density
@@ -353,8 +357,6 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
             title = primaryColorTitle("$navStr v${BuildConfig.VERSION_NAME}")
             setHomeAsUpIndicator(R.drawable.mundraub_logo_bar_48dp)  // export with 15px border
             displayOptions = ActionBar.DISPLAY_SHOW_HOME or ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_HOME_AS_UP or ActionBar.DISPLAY_USE_LOGO
-            // TODO For some reason there is just absolutely no way ever to set the "more options" kebab menu as primary color, so apply gray here so it can be seen at all
-            setBackgroundDrawable(Color.parseColor("#cccccc").toDrawable())
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)

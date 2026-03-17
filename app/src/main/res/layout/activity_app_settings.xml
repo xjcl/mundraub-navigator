@@ -1,97 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
-
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="12dp"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:orientation="vertical"
-    tools:context=".activities.AppSettings">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorPrimaryDark">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="6dp"
-        android:text="@string/mapType"/>
-
-    <RadioGroup
-        android:id="@+id/mapType_radio_group"
-        android:checkedButton="@+id/set_radio_1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <RadioButton
-            android:id="@+id/mapType_radio_1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/mapType1"/>
-        <RadioButton
-            android:id="@+id/mapType_radio_2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/mapType2"/>
-        <RadioButton
-            android:id="@+id/mapType_radio_3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/mapType3"/>
-        <RadioButton
-            android:id="@+id/mapType_radio_4"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/mapType4"/>
-    </RadioGroup>
-
-    <TextView
-        android:layout_marginTop="24dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="6dp"
-        android:text="@string/dirType"/>
-
-    <RadioGroup
-        android:id="@+id/dirType_radio_group"
-        android:checkedButton="@+id/set_radio_1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <RadioButton
-            android:id="@+id/dirType_radio_1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/dirType1"/>
-        <RadioButton
-            android:id="@+id/dirType_radio_2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/dirType2"/>
-        <RadioButton
-            android:id="@+id/dirType_radio_3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/dirType3"/>
-    </RadioGroup>
-
-    <Button
-        android:layout_marginTop="24dp"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onSaveClick"
-        android:text="@string/save" />
+        android:fitsSystemWindows="false"
+        android:background="@color/colorPrimary">
 
-    <TextView
-        android:id="@+id/version_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Mundraub Navigator" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:theme="@style/ToolbarTheme" />
 
-</androidx.appcompat.widget.LinearLayoutCompat>
-</ScrollView>
+    </com.google.android.material.appbar.AppBarLayout>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical"
+            tools:context=".activities.AppSettings">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="6dp"
+                android:text="@string/mapType"/>
+
+            <RadioGroup
+                android:id="@+id/mapType_radio_group"
+                android:checkedButton="@+id/set_radio_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:id="@+id/mapType_radio_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/mapType1"/>
+                <RadioButton
+                    android:id="@+id/mapType_radio_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/mapType2"/>
+                <RadioButton
+                    android:id="@+id/mapType_radio_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/mapType3"/>
+                <RadioButton
+                    android:id="@+id/mapType_radio_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/mapType4"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_marginTop="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="6dp"
+                android:text="@string/dirType"/>
+
+            <RadioGroup
+                android:id="@+id/dirType_radio_group"
+                android:checkedButton="@+id/set_radio_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:id="@+id/dirType_radio_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/dirType1"/>
+                <RadioButton
+                    android:id="@+id/dirType_radio_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/dirType2"/>
+                <RadioButton
+                    android:id="@+id/dirType_radio_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/dirType3"/>
+            </RadioGroup>
+
+            <Button
+                android:layout_marginTop="24dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onSaveClick"
+                android:text="@string/save" />
+
+            <TextView
+                android:id="@+id/version_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Mundraub Navigator" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

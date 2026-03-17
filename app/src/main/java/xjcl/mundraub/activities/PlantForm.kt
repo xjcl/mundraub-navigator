@@ -190,6 +190,7 @@ class PlantForm : AppCompatActivity() {
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            android.R.id.home -> { finish(); true }
             9 -> { plantDeleteDialog(); true }
             else -> super.onOptionsItemSelected(item)
         }
@@ -212,6 +213,9 @@ class PlantForm : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPlantFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         intentNid = intent.getIntExtra("nid", -1)
         supportActionBar?.title = if (intentNid > -1) getString(R.string.editNode) else getString(R.string.addNode)

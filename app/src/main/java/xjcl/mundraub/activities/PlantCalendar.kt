@@ -5,48 +5,60 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Gravity
+import android.view.MenuItem
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
+import xjcl.mundraub.R
 import xjcl.mundraub.data.treeIdToSeason
-
+import xjcl.mundraub.databinding.ActivityPlantCalendarBinding
 import xjcl.mundraub.layouts.createMonthsBarLayout
 import xjcl.mundraub.utils.getFruitColor
 
 class PlantCalendar : AppCompatActivity() {
+    private lateinit var binding: ActivityPlantCalendarBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityPlantCalendarBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.plant_calendar)
 
         val density = resources.displayMetrics.density
 
-        val scrollpage = ScrollView(this)
-        val page = LinearLayout(this)
-        page.orientation = LinearLayout.VERTICAL
-        page.setPadding(0, (20 * density).toInt(), 0, (20 * density).toInt())
+        // Sort by season and populate the container
+        treeIdToSeason.keys.sortedBy { treeIdToSeason[it]!!.first * 20 + treeIdToSeason[it]!!.second }
+            .forEachIndexed { i, tid ->
+                val tv = TextView(this).apply {
+                    text = getString(resources.getIdentifier("tid$tid", "string", packageName))
+                    setTextColor(getFruitColor(resources, tid))
+                    setTypeface(null, Typeface.BOLD)
+                    ellipsize = TextUtils.TruncateAt.END
+                    isSingleLine = true
+                    minWidth = (110 * density).toInt()
+                    maxWidth = (110 * density).toInt()
+                }
 
-        //for ((i, tid) in treeIdToSeason.keys.withIndex())
-        for ((i, tid) in treeIdToSeason.keys.sortedBy { treeIdToSeason[it]!!.first * 20 + treeIdToSeason[it]!!.second }.withIndex())
-        {
-            val tv = TextView(this)
-            tv.text = getString(resources.getIdentifier("tid$tid", "string", packageName))
-            tv.setTextColor(getFruitColor(resources, tid))
-            tv.setTypeface(null, Typeface.BOLD)
-            tv.ellipsize = TextUtils.TruncateAt.END
-            tv.setSingleLine()
-            tv.minWidth = (110 * density).toInt()
-            tv.maxWidth = (110 * density).toInt()
+                val mb = createMonthsBarLayout(this, tid, withLetters = i % 5 == 4)
 
-            val mb = createMonthsBarLayout(this, tid, withLetters = i % 5 == 4)
+                val line = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    addView(tv)
+                    addView(mb)
+                }
+                
+                binding.calendarContainer.addView(line)
+            }
+    }
 
-            val line = LinearLayout(this)
-            line.addView(tv)
-            line.addView(mb)
-            line.gravity = Gravity.CENTER_HORIZONTAL
-            page.addView(line)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
         }
-
-        scrollpage.addView(page)
-        setContentView(scrollpage)
+        return super.onOptionsItemSelected(item)
     }
 }

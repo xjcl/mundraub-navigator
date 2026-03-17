@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.github.kittinunf.fuel.Fuel
@@ -32,9 +33,21 @@ class ReportPlant : AppCompatActivity() {
         binding = ActivityReportPlantBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = getString(R.string.title_activity_report_plant)
+
         intentNid = intent.getIntExtra("nid", -1)
 
         doWithLoginCookie(this, loginIfMissing = true, callback = { doCreate() })
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun doCreate() {
