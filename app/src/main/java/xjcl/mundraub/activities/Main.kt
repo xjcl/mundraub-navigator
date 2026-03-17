@@ -1,9 +1,7 @@
 package xjcl.mundraub.activities
 
 import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -14,14 +12,12 @@ import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkRequest
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -45,6 +41,7 @@ import xjcl.mundraub.data.*
 import xjcl.mundraub.layouts.createInfoWindowLayout
 import xjcl.mundraub.utils.*
 import java.util.*
+import androidx.core.content.edit
 
 
 class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -69,7 +66,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     }
 
     fun markerOnClickListener(marker : Marker): Boolean {
-        if (markersData[marker.position]?.type ?: "" == "cluster") return true
+        if ((markersData[marker.position]?.type ?: "") == "cluster") return true
         marker.showInfoWindow()
 
         // --- Click on FAB will give directions to Marker in Google Maps app ---
@@ -104,11 +101,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
              *
              * We also only provide preview directions for logged-in users
              */
-            val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+            val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
             if (!sharedPref.contains("cookie"))
                 return@addOnSuccessListener
 
-            val dirType = getSharedPreferences("global", Context.MODE_PRIVATE).getString("dirType", TransportMode.BICYCLING)
+            val dirType = getSharedPreferences("global", MODE_PRIVATE).getString("dirType", TransportMode.BICYCLING)
             GoogleDirection.withServerKey(getString(R.string.google_maps_key))
                 .from(LatLng(location.latitude, location.longitude))
                 .to(marker.position)
@@ -151,7 +148,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // --- OnInternetConnected: Automatically update (download) markers ---
     private fun setUpNetworking() {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) = runOnUiThread { mMap?.animateCamera( CameraUpdateFactory.zoomBy(0F) ) }
         })
@@ -159,7 +156,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // --- On startup: Prepare map and cause onRequestPermissionsResult to be called ---
     override fun onMapReady(mmMap: GoogleMap) {
-        mmMap.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
+        mmMap.mapType = getSharedPreferences("global", MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
         mmMap.setOnCameraIdleListener(this)
         mmMap.setPadding(totalLeftPadding, 0, 0, 0)
 
@@ -211,6 +208,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
 
     // --- On startup: If GPS enabled, then zoom into user, else zoom into Germany ---
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         fusedLocationClient?.lastLocation?.addOnFailureListener(this) {
             mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(51.17, 10.45), 6F))  // Germany
         }
@@ -230,9 +228,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         super.onActivityResult(requestCode, resultCode, data)
         if (mapTypeChanged) {
             mapTypeChanged = false
-            mMap?.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
+            mMap?.mapType = getSharedPreferences("global", MODE_PRIVATE).getInt("mapType", MAP_TYPE_NORMAL)
         }
-        if (resultCode != Activity.RESULT_OK || data == null) return
+        if (resultCode != RESULT_OK || data == null) return
         if (requestCode != ActivityRequest.PlantForm.value && requestCode != ActivityRequest.PlantList.value) return
 
         // if we add or edit a marker (from PlantForm or PlantList), resume at its location with open info window (= simulate click)
@@ -259,12 +257,11 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     }
 
     private fun logout() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        with (sharedPref.edit()) {
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
+        sharedPref.edit {
             remove("cookie")
             remove("name")
             remove("pass")
-            apply()
         }
         Toast.makeText(this, R.string.errMsgLogoutSuccess, Toast.LENGTH_SHORT).show()
     }
@@ -342,7 +339,7 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
     // --- On startup: Prepare classes ---
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MapsInitializer.initialize(getApplicationContext(), MapsInitializer.Renderer.LEGACY, null)
+        MapsInitializer.initialize(applicationContext, MapsInitializer.Renderer.LEGACY, null)
 
         setContentView(R.layout.activity_main)
         
@@ -373,7 +370,9 @@ class Main : AppCompatActivity(), OnMapReadyCallback, OnCameraIdleListener, Acti
         setGermanStringsToTreeId()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        super.onBackPressed()
         moveTaskToBack(true)  // do not call onCreate after user accidentally hits Back (useful offline)
     }
 }

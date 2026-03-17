@@ -1,12 +1,7 @@
 package xjcl.mundraub.activities
 
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.view.Window
-import android.view.WindowInsets
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import xjcl.mundraub.R
 import xjcl.mundraub.data.treeIdToProfileUrl
 import xjcl.mundraub.databinding.ActivityWebviewBinding

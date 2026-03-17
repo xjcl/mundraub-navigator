@@ -54,7 +54,7 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
     // Handle ActionBar option selection
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.title) {
-            "OK" -> { returnLocation(); return true }
+            "OK" -> { returnLocation(); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -78,13 +78,13 @@ class LocationPicker : AppCompatActivity(), OnMapReadyCallback {
     private fun returnLocation() {
         val output = Intent().putExtra("lat", nMap.cameraPosition.target.latitude)
             .putExtra("lng", nMap.cameraPosition.target.longitude)
-        setResult(Activity.RESULT_OK, output)
+        setResult(RESULT_OK, output)
         finish()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         nMap = googleMap
-        nMap.mapType = getSharedPreferences("global", Context.MODE_PRIVATE).getInt("mapType", GoogleMap.MAP_TYPE_NORMAL)
+        nMap.mapType = getSharedPreferences("global", MODE_PRIVATE).getInt("mapType", GoogleMap.MAP_TYPE_NORMAL)
 
         val lat = this.intent.getDoubleExtra("lat", 0.0)
         val lng = this.intent.getDoubleExtra("lng", 0.0)

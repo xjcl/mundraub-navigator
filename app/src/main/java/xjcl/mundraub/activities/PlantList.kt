@@ -1,7 +1,6 @@
 package xjcl.mundraub.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -19,7 +18,6 @@ import xjcl.mundraub.data.treeIdToMarkerIcon
 import xjcl.mundraub.databinding.ActivityPlantListBinding
 import xjcl.mundraub.databinding.ActivityPlantListItemBinding
 import xjcl.mundraub.utils.unescapeHtml
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -37,7 +35,7 @@ fun processHTMLToCardInfos(html: String, activity: Activity) : List<CardInfo> {
         val addrRaw = unprocessed.substringAfter("</a>").substringBefore("</div></div>")
 
         val matches = ">.*?<".toRegex().findAll(addrRaw)
-        val addr = matches.map { it.value.substring(1, it.value.length - 1) }.joinToString(" ").let { unescapeHtml(it) }
+        val addr = matches.joinToString(" ") { it.value.substring(1, it.value.length - 1) }.let { unescapeHtml(it) }
         Log.e("loadNextPage", " $type **** $addr")
 
         val tid = germanStringsToTreeId[type] ?: 12
@@ -87,12 +85,12 @@ class PlantList : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.e("onActivityResult", "onActivityResult ${requestCode} ${resultCode}")
+        Log.e("onActivityResult", "onActivityResult $requestCode $resultCode")
         // TODO change just one item, do not recreate whole activity
-        if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
-        if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
-        if (requestCode == ActivityRequest.PlantForm.value && resultCode == Activity.RESULT_OK) {
-            setResult(Activity.RESULT_OK, data)
+        if (requestCode == ActivityRequest.Login.value && resultCode == RESULT_OK) recreate()
+        if (requestCode == ActivityRequest.Login.value && resultCode != RESULT_OK) finish()
+        if (requestCode == ActivityRequest.PlantForm.value && resultCode == RESULT_OK) {
+            setResult(RESULT_OK, data)
             finish()
         }
     }
@@ -121,7 +119,7 @@ class PlantList : AppCompatActivity() {
         if (allPagesLoaded || !::uid.isInitialized) return
         val url = "https://mundraub.org/user/$uid/plants?page=$pagesLoaded"
         Log.e("loadNextPage", url)
-        Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
+        Fuel.get(url).header(Headers.COOKIE to cookie).responseString { _, response, result ->
 
             when (response.statusCode) {
                 -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
@@ -146,7 +144,7 @@ class PlantList : AppCompatActivity() {
     }
 
     private fun doCreate() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
         cookie = sharedPref.getString("cookie", null) ?: return finish()
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -160,7 +158,7 @@ class PlantList : AppCompatActivity() {
         })
 
         Log.e("doCreate", "req")
-        Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+        Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { _, response, result ->
             // TODO store this in sharedPrefs object (after login, and here for compat reasons)
 
             when (response.statusCode) {

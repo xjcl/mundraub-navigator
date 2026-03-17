@@ -1,7 +1,6 @@
 package xjcl.mundraub.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
@@ -9,9 +8,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.kittinunf.fuel.Fuel
@@ -47,7 +46,7 @@ private class CPRVAdapter(val cardInfos: List<CPCardInfo>) : RecyclerView.Adapte
             cardSubtitle.text = "${treeIdToFrequency[tid]} ${root.context.getString(R.string.markers)}"
             cardSubtitle2.text = root.context.getString(if (submitted) R.string.submitted else R.string.not_submitted)
             cardMarker.setImageResource( treeIdToMarkerIcon[tid] ?: R.drawable.icon_otherfruit)
-            cv.setCardBackgroundColor(if (submitted) root.resources.getColor(R.color.colorPrimary) else Color.WHITE)
+            cv.setCardBackgroundColor(if (submitted) ContextCompat.getColor(root.context, R.color.colorPrimary) else Color.WHITE)
             root.setOnClickListener {
                 if (treeIdToProfileUrl[tid] != null)  // "other" fruit/shrub/nut/herb
                     (root.context as Activity).startActivity(Intent(root.context, PlantProfile::class.java).putExtra("tid", tid))
@@ -65,8 +64,8 @@ class PlantAtlas : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
-        if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
+        if (requestCode == ActivityRequest.Login.value && resultCode == RESULT_OK) recreate()
+        if (requestCode == ActivityRequest.Login.value && resultCode != RESULT_OK) finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,7 +89,7 @@ class PlantAtlas : AppCompatActivity() {
     }
 
     private fun doCreate() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
         val cookie = sharedPref.getString("cookie", null) ?: return finish()
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)

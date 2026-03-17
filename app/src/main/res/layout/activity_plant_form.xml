@@ -96,7 +96,7 @@
 
             </RelativeLayout>
 
-            <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/descriptionTIL"
                 android:hint="@string/desc"
                 android:layout_marginBottom="12dp"
@@ -114,8 +114,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
+            <com.google.android.material.button.MaterialButton
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:id="@+id/button_loc"
                 android:layout_width="fill_parent"

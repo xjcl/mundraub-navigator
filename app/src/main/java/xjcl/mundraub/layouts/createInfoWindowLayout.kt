@@ -111,7 +111,7 @@ fun createInfoWindowLayout(context: Context, marker: Marker): View {
             addRule(RelativeLayout.CENTER_VERTICAL)
             RelativeLayout.ALIGN_PARENT_RIGHT
         }
-        if (md.isSeasonal) ripe2.setColorFilter(md.fruitColor)
+        ripe2.setColorFilter(md.fruitColor)
         day.addView(ripe2)
     }
 

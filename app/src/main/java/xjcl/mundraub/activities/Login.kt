@@ -13,6 +13,7 @@ import com.github.kittinunf.fuel.Fuel
 import xjcl.mundraub.R
 import xjcl.mundraub.data.ActivityRequest
 import xjcl.mundraub.databinding.ActivityLoginBinding
+import androidx.core.content.edit
 
 
 class Login : AppCompatActivity() {
@@ -26,28 +27,26 @@ class Login : AppCompatActivity() {
 
     // migrate the user's old settings, new in v13 (Aug 2020) -- can delete this in December 2021
     private fun migrateSettings() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
-        val sharedPrefOld = this.getSharedPreferences("AddPlantActivity", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
+        val sharedPrefOld = this.getSharedPreferences("AddPlantActivity", MODE_PRIVATE)
         val newName = sharedPref.getString("name", "") ?: ""
         val newPass = sharedPref.getString("pass", "") ?: ""
         val oldName = sharedPrefOld.getString("name", newName) ?: newName
         val oldPass = sharedPrefOld.getString("pass", newPass) ?: newPass
-        with (sharedPref.edit()) {
+        sharedPref.edit {
             putString("name", oldName)
             putString("pass", oldPass)
-            apply()
         }
-        with (sharedPrefOld.edit()) {
+        sharedPrefOld.edit {
             remove("name")
             remove("pass")
-            apply()
         }
     }
 
     private fun loadCredsIntoFields() {
         migrateSettings()
 
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
         binding.nameInner.setText( sharedPref.getString("name", "") ?: "" )
         binding.passInner.setText( sharedPref.getString("pass", "") ?: "" )
     }
@@ -107,7 +106,7 @@ fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pa
     if (loginData["name"]!!.isBlank() || loginData["pass"]!!.isBlank())
         return activity.startActivityForResult(Intent(activity, Login::class.java), ActivityRequest.Login.value)
 
-    Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { request, response, result ->
+    Fuel.post("https://mundraub.org/user/login", loginData.toList()).allowRedirects(false).responseString { _, response, _ ->
 
         when (response.statusCode) {
             -1 -> return@responseString activity.runOnUiThread {
@@ -124,12 +123,11 @@ fun doLogin(activity: Activity, callback : () -> Unit, name : String? = null, pa
         val cook = response.headers["Set-Cookie"].first()
         Log.e("cook", "new cook $cook")
 
-        with (sharedPref.edit()) {
+        sharedPref.edit {
             putString("name", loginData["name"])
             putString("pass", loginData["pass"])
             putString("cookie", cook)
             putLong("cookieTime", System.currentTimeMillis() / 1000L)
-            apply()
         }
 
         Log.e("cook", "success with cookie $cook")

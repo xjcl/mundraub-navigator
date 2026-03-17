@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.*
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -55,8 +54,8 @@ class FruitBarMapFragment : SupportMapFragment() {
 
     fun handleFilterClick(iv : View?, key : Int, cond : (Int) -> Boolean) {
         Log.e("onClick", key.toString())
-        species.text = context!!.getString(context!!.resources.getIdentifier("tid${key}", "string", context!!.packageName))
-        species.setTextColor(getFruitColor(context!!.resources, key))
+        species.text = requireContext().getString(requireContext().resources.getIdentifier("tid${key}", "string", requireContext().packageName))
+        species.setTextColor(getFruitColor(requireContext().resources, key))
         for (other in ivs)
             other.value.setColorFilter(Color.parseColor(if (cond(other.key) || other.key >= 90) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
         // dummy category "1" added to handle two issues that occur when passing an empty filter string (no filtering done, no tid returned(!))
@@ -64,7 +63,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         iv?.let { animateJump(it) }
         mMap?.animateCamera(CameraUpdateFactory.zoomBy(0F))  // trigger updateMarkers()
         infoBar.removeViewAt(1) // removes monthsBar
-        infoBar.addView(createMonthsBarLayout(context!!, key, withLetters = false))
+        infoBar.addView(createMonthsBarLayout(requireContext(), key, withLetters = false))
         infoBar.setOnClickListener {
             if (treeIdToProfileUrl[key] != null)
                 (context as Activity).startActivity(Intent(context, PlantProfile::class.java).putExtra("tid", key))
@@ -96,7 +95,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         fun markerHeight(lo : Int, hi : Int) : Int = (hi * exactHeight).toInt() - (lo * exactHeight).toInt()
 
         fun fillImageView(iv : ImageView, res: Int, i : Int) {
-            val bmp = BitmapFactory.decodeResource(context!!.resources, res)
+            val bmp = BitmapFactory.decodeResource(requireContext().resources, res)
             iv.setImageBitmap(bmp)
             Log.e("bmpH", bmp.height.toString())
 
@@ -112,7 +111,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         var cum = 0
         for (group in groups) {
             val tv = TextView(context)
-            tv.text = context!!.getString(context!!.resources.getIdentifier("tid${group.key}", "string", context!!.packageName))
+            tv.text = requireContext().getString(requireContext().resources.getIdentifier("tid${group.key}", "string", requireContext().packageName))
 
             tv.gravity = Gravity.CENTER
             tv.rotation = 90F
@@ -215,7 +214,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         }
         infoBar.addView(infoSpecies)
 
-        val months = createMonthsBarLayout(context!!, 99, withLetters = false)
+        val months = createMonthsBarLayout(requireContext(), 99, withLetters = false)
         infoBar.addView(months)
 
         infoBar.background = materialDesignBg((7.5 * density).toInt(), (2.5 * density).toInt(), 999F)
@@ -228,9 +227,9 @@ class FruitBarMapFragment : SupportMapFragment() {
 
     private fun createFABLayout(): LinearLayout {
         // *** FAB for Maps navigation ***
-        fab = FloatingActionButton(context!!)
+        fab = FloatingActionButton(requireContext())
         fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
-        fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.colorPrimary))
+        fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
         fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
         //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
         //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))

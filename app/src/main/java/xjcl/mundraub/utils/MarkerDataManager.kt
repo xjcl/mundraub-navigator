@@ -47,7 +47,7 @@ class MarkerDataManager {
     // --- Place a single marker on the GoogleMap, and prepare its info window, using parsed JSON class ---
     private fun addMarkerFromFeatures(activity: Activity, features: List<Feature>) {
         for (featureChunk in features.chunked(12)) {
-            val new_markers = mutableListOf<Triple<LatLng, Marker, MarkerData>>()
+            val newMarkers = mutableListOf<Triple<LatLng, Marker, MarkerData>>()
             activity.runOnUiThread {
                 for (feature in featureChunk) {
                     val latlng = LatLng(feature.pos[0], feature.pos[1])
@@ -56,11 +56,11 @@ class MarkerDataManager {
                     val mo = MarkerOptions().position(latlng).title(md.title).icon(md.icon).anchor(.5F, if (md.type == "cluster") .5F else 1F)
                     val mark = mMap?.addMarker(mo)
                     if (mark != null)
-                        new_markers.add(Triple(latlng, mark, md))
+                        newMarkers.add(Triple(latlng, mark, md))
                 }
 
                 markerContext.execute {
-                    new_markers.forEach {
+                    newMarkers.forEach {
                         val (latlng, mark, md) = it
                         markers[latlng] = mark
                         markersData[latlng] = md

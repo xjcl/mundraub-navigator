@@ -88,9 +88,9 @@ class PlantForm : AppCompatActivity() {
                 val gcd = Geocoder(this@PlantForm, Locale.getDefault())
                 Log.e("geocodeLocation", "geolocating...")
                 val address = try { gcd.getFromLocation(location.latitude, location.longitude, 1)?.firstOrNull() }
-                    catch (ex : IOException) { null }
+                    catch (_ : IOException) { null }
                 address?.let {
-                    val addressStr = (0..address.maxAddressLineIndex).map { address.getAddressLine(it) }.joinToString("\n")
+                    val addressStr = (0..address.maxAddressLineIndex).joinToString("\n") { address.getAddressLine(it) }
                     Log.e("geocodeLocation", addressStr)
                     runOnUiThread { locationPicker.text = addressStr }
                     return@thread
@@ -105,15 +105,14 @@ class PlantForm : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         Log.e("onActivityResult", "onActivityResult $requestCode $resultCode")
 
-        if (requestCode == ActivityRequest.LocationPicker.value && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == ActivityRequest.LocationPicker.value && resultCode == RESULT_OK && data != null) {
             val lat = data.getDoubleExtra("lat", 0.0)
             val lng = data.getDoubleExtra("lng", 0.0)
             geocodeLocation(LatLng(lat, lng))
         }
 
         // Cache image for upload
-        if ((requestCode == ActivityRequest.ImagePick.value || requestCode == ActivityRequest.ImageCapture.value) &&
-                resultCode == Activity.RESULT_OK) {
+        if ((requestCode == ActivityRequest.ImagePick.value || requestCode == ActivityRequest.ImageCapture.value) && resultCode == RESULT_OK) {
 
             val bytes =
                 if (requestCode == ActivityRequest.ImagePick.value) {
@@ -141,14 +140,14 @@ class PlantForm : AppCompatActivity() {
             }
         }
 
-        if (requestCode == ActivityRequest.Login.value && resultCode == Activity.RESULT_OK) recreate()
-        if (requestCode == ActivityRequest.Login.value && resultCode != Activity.RESULT_OK) finish()
+        if (requestCode == ActivityRequest.Login.value && resultCode == RESULT_OK) recreate()
+        if (requestCode == ActivityRequest.Login.value && resultCode != RESULT_OK) finish()
     }
 
     private fun finishSuccess(nid : String = "") {
         Log.e("exitToMain", "exit to main at $location with $nid")
         val output = Intent().putExtra("lat", location.latitude).putExtra("lng", location.longitude).putExtra("nid", nid)
-        setResult(Activity.RESULT_OK, output)
+        setResult(RESULT_OK, output)
         finish()
     }
 
@@ -162,14 +161,14 @@ class PlantForm : AppCompatActivity() {
     private fun plantDelete() {
         val deleteUrl = "https://mundraub.org/node/$intentNid/delete"
         Log.e("plantDelete", deleteUrl)
-        Fuel.get(deleteUrl).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+        Fuel.get(deleteUrl).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { _, _, result ->
 
             deleteData["form_token"] = scrapeFormToken(result.get())
 
             Log.e("plantDelete", " ${result.get()}")
             Log.e("plantDelete", " $deleteData")
 
-            Fuel.post(deleteUrl, deleteData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+            Fuel.post(deleteUrl, deleteData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { _, response, result ->
 
                 Log.e("plantDelete", result.get())
                 when (response.statusCode) {
@@ -224,7 +223,7 @@ class PlantForm : AppCompatActivity() {
     }
 
     private fun doCreate() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
         cookie = sharedPref.getString("cookie", null) ?: return finish()
 
         if (File("$cacheDir/imgPicked").exists())
@@ -285,7 +284,7 @@ class PlantForm : AppCompatActivity() {
             uploadRequest
                 .header(Headers.COOKIE to cookie)
                 .allowRedirects(false)
-                .responseString { request, response, result ->
+                .responseString { _, response, result ->
 
                     Log.e("plantSubmit result", result.get())
                     binding.upldButton.text = getString(R.string.upld)
@@ -299,7 +298,7 @@ class PlantForm : AppCompatActivity() {
                     if (intentNid > -1) markerDataManager.invalidateMarker(this, intentNid.toString())
 
                     val nid_ = result.get().substringAfter("?nid=", "").substringBefore("\"")
-                    val nid = if (nid_.isNotEmpty()) nid_ else result.get().substringAfter("node/").substringBefore("\"")
+                    val nid = nid_.ifEmpty { result.get().substringAfter("node/").substringBefore("\"") }
                     runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgSuccess), Toast.LENGTH_LONG).show() }
                     finishSuccess(nid)
                 }
@@ -308,7 +307,7 @@ class PlantForm : AppCompatActivity() {
         if (intentNid > -1) {
             submitUrl = "https://mundraub.org/node/${intentNid}/edit"
 
-            Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { request, response, result ->
+            Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { _, response, result ->
 
                 when (response.statusCode) {
                     -1 -> runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
@@ -365,7 +364,7 @@ class PlantForm : AppCompatActivity() {
                 return@setOnClickListener runOnUiThread { Toast.makeText(this@PlantForm, it.first, Toast.LENGTH_SHORT).show() }
             }
 
-            Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { request, response, result ->
+            Fuel.get(submitUrl).header(Headers.COOKIE to cookie).responseString { _, response, result ->
                 when (response.statusCode) {
                     -1 -> return@responseString runOnUiThread { Toast.makeText(this@PlantForm, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
                     200 -> {}
@@ -402,7 +401,7 @@ private fun editOrReportLauncherLoggedIn(activity : Activity, intentNid : Int) {
     val cook = sharedPref.getString("cookie", null) ?:
         return Toast.makeText(activity, activity.getString(R.string.errMsgAccess), Toast.LENGTH_SHORT).show()
 
-    Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { request, response, result ->
+    Fuel.get(submitUrl).header(Headers.COOKIE to cook).responseString { _, response, _ ->
         when (response.statusCode) {
             -1 -> Toast.makeText(activity, activity.getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show()
             200 -> activity.startActivityForResult(Intent(activity, PlantForm::class.java).putExtra("nid", intentNid), ActivityRequest.PlantForm.value)

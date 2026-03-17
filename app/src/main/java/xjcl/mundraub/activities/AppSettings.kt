@@ -1,6 +1,5 @@
 package xjcl.mundraub.activities
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -10,6 +9,7 @@ import xjcl.mundraub.BuildConfig
 import xjcl.mundraub.R
 import xjcl.mundraub.data.mapTypeChanged
 import xjcl.mundraub.databinding.ActivityAppSettingsBinding
+import androidx.core.content.edit
 
 class AppSettings : AppCompatActivity() {
     private lateinit var binding: ActivityAppSettingsBinding
@@ -31,7 +31,7 @@ class AppSettings : AppCompatActivity() {
 
         binding.versionTv.text = "Mundraub Navigator v${BuildConfig.VERSION_NAME}"
 
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
         binding.mapTypeRadioGroup.check(mapType_intToRes[sharedPref.getInt("mapType", 1)] ?: R.id.mapType_radio_1)
         binding.dirTypeRadioGroup.check(dirType_strToRes[sharedPref.getString("dirType", TransportMode.BICYCLING)] ?: R.id.dirType_radio_1)
     }
@@ -45,12 +45,14 @@ class AppSettings : AppCompatActivity() {
     }
 
     fun onSaveClick(view : View) {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
 
-        with (sharedPref.edit()) {
+        sharedPref.edit {
             putInt("mapType", mapType_resToInt[binding.mapTypeRadioGroup.checkedRadioButtonId] ?: 1)
-            putString("dirType", dirType_resToStr[binding.dirTypeRadioGroup.checkedRadioButtonId] ?: TransportMode.BICYCLING)
-            apply()
+            putString(
+                "dirType",
+                dirType_resToStr[binding.dirTypeRadioGroup.checkedRadioButtonId] ?: TransportMode.BICYCLING
+            )
         }
 
         mapTypeChanged = true

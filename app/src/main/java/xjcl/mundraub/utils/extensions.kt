@@ -7,8 +7,6 @@ import android.net.Uri
 import android.widget.Toast
 import xjcl.mundraub.R
 
-fun Any?.discard() = Unit
-
 fun <K, V> Map<K, V>.getInverse(value: V) = entries.firstOrNull { it.value == value }?.key
 
 fun Context.tryStartActivity(uri: String) {

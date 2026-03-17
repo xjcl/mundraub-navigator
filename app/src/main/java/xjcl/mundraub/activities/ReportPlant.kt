@@ -1,6 +1,5 @@
 package xjcl.mundraub.activities
 
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -51,16 +50,17 @@ class ReportPlant : AppCompatActivity() {
     }
 
     private fun doCreate() {
-        val sharedPref = this.getSharedPreferences("global", Context.MODE_PRIVATE)
+        val sharedPref = this.getSharedPreferences("global", MODE_PRIVATE)
         cookie = sharedPref.getString("cookie", null) ?: return finish()
         username = sharedPref.getString("name", null) ?: return finish()
     }
 
     fun reportPlantActual(view : View) {
+        // Report plant by submitting a form
         if (binding.reportTextInner.text.toString().isBlank()) return
 
         val url = "https://mundraub.org/node/$intentNid?destination=/map?nid=$intentNid"
-        Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
+        Fuel.get(url).header(Headers.COOKIE to cookie).responseString { _, response, result ->
 
             when (response.statusCode) {
                 -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
@@ -75,7 +75,7 @@ class ReportPlant : AppCompatActivity() {
             Log.e("reportPlant", intentNid.toString())
             Log.e("reportPlant", result.get())
             Log.e("reportPlant", reportData.toString())
-            Fuel.post(url, reportData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+            Fuel.post(url, reportData.toList()).header(Headers.COOKIE to cookie).allowRedirects(false).responseString { _, response, _ ->
 
                 when (response.statusCode) {
                     -1 -> return@responseString runOnUiThread { Toast.makeText(this@ReportPlant, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
@@ -92,6 +92,7 @@ class ReportPlant : AppCompatActivity() {
     }
 
     fun reportPlant(view: View) {
+        // Report plant by sending an email -> currently unused
         val url = "https://mundraub.org/node/$intentNid"
         val reason = getString(resources.getIdentifier("report${radioMap[binding.reportRadioGroup.checkedRadioButtonId] ?: "4"}", "string", packageName))
 
