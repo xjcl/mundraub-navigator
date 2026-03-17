@@ -21,6 +21,7 @@ import xjcl.mundraub.data.*
 import xjcl.mundraub.layouts.createMonthsBarLayout
 import xjcl.mundraub.utils.*
 import kotlin.math.max
+import androidx.core.graphics.toColorInt
 
 /**
  * Draw the map and the UI elements on it
@@ -57,7 +58,7 @@ class FruitBarMapFragment : SupportMapFragment() {
         species.text = requireContext().getString(requireContext().resources.getIdentifier("tid${key}", "string", requireContext().packageName))
         species.setTextColor(getFruitColor(requireContext().resources, key))
         for (other in ivs)
-            other.value.setColorFilter(Color.parseColor(if (cond(other.key) || other.key >= 90) "#FFFFFF" else "#555555"), PorterDuff.Mode.MULTIPLY)
+            other.value.setColorFilter((if (cond(other.key) || other.key >= 90) "#FFFFFF" else "#555555").toColorInt(), PorterDuff.Mode.MULTIPLY)
         // dummy category "1" added to handle two issues that occur when passing an empty filter string (no filtering done, no tid returned(!))
         selectedSpeciesStr = ivs.filter { cond(it.key) }.map { it.key.toString() }.let { listOf("1") + it }.joinToString(",")
         iv?.let { animateJump(it) }
@@ -230,8 +231,8 @@ class FruitBarMapFragment : SupportMapFragment() {
         fab = FloatingActionButton(requireContext())
         fab.setImageBitmap(BitmapFactory.decodeResource(resources, R.drawable.material_directions))
         fab.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
-        fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
-        //fab.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
+        fab.backgroundTintList = ColorStateList.valueOf("#FFFFFF".toColorInt())
+        //fab.imageTintList = ColorStateList.valueOf("#FFFFFF".toColorInt())
         //fab.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.colorAccent, null))
         fab.compatElevation = 6F
         fab.layoutParams = CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT).apply {

@@ -140,4 +140,5 @@
     <string name="reallyDelete">Really delete?</string>
     <string name="reallyLogout">Really logout?</string>
     <string name="logout">Logout</string>
+    <string name="report">Report</string>
 </resources>

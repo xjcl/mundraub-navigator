@@ -123,7 +123,7 @@ class MarkerDataManager {
         thread {
             val jsonStr = try {
                 URL(url).readText()
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 activity.runOnUiThread { Toast.makeText(activity, activity.getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                 return@thread
             }
@@ -139,7 +139,7 @@ class MarkerDataManager {
 
         thread {
             // --- Download number of finds and description ---
-            val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (ex : Exception) {
+            val htmlStr = try { URL("https://mundraub.org/node/${md.nid}").readText() } catch (_ : Exception) {
                 activity.runOnUiThread { Toast.makeText(activity, activity.getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show() }
                 return@thread
             }

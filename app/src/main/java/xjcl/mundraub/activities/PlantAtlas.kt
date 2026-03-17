@@ -98,7 +98,7 @@ class PlantAtlas : AppCompatActivity() {
         for (el in treeIdToFrequency.toList().sortedBy { -it.second })  // Pair<tid, frequency>
             cardInfos.add(CPCardInfo(el.first, false))
 
-        Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { request, response, result ->
+        Fuel.get("https://mundraub.org/user").header(Headers.COOKIE to cookie).allowRedirects(false).responseString { _, response, result ->
 
             when (response.statusCode) {
                 -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
@@ -112,7 +112,7 @@ class PlantAtlas : AppCompatActivity() {
 
             fun nextPage(i: Int = 0) {
                 val url = "https://mundraub.org/user/$uid/plants?page=$i"
-                Fuel.get(url).header(Headers.COOKIE to cookie).responseString { request, response, result ->
+                Fuel.get(url).header(Headers.COOKIE to cookie).responseString { _, response, result ->
                     when (response.statusCode) {
                         -1 -> return@responseString runOnUiThread { Toast.makeText(this, getString(R.string.errMsgNoInternet), Toast.LENGTH_SHORT).show(); finish() }
                         200 -> {}

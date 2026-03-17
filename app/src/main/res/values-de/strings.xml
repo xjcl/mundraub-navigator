@@ -135,4 +135,5 @@
     <string name="reallyDelete">Wirklich löschen?</string>
     <string name="reallyLogout">Wirklich abmelden?</string>
     <string name="logout">Logout</string>
+    <string name="report">Melden</string>
 </resources>
