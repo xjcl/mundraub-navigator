@@ -1,3 +1,6 @@
+v38
+- Upgrade build target to SDK 37
+
 v37
 - Fix layouts for real (Android 15)
 

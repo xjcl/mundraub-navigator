@@ -11,8 +11,8 @@ android {
         applicationId = "xjcl.mundraub"
         minSdk = 23
         targetSdk = 37
-        versionCode = 37
-        versionName = "37"
+        versionCode = 38
+        versionName = "38"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
