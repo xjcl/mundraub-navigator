@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = 'xjcl.mundraub'
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "xjcl.mundraub"
         minSdk = 23
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 37
         versionName = "37"
 
